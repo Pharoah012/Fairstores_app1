@@ -1,0 +1,142 @@
+{
+  "project_info": {
+    "project_number": "8007123972",
+    "project_id": "fairstores-292af",
+    "storage_bucket": "fairstores-292af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8007123972:android:f00d369ec44a096fc36151",
+        "android_client_info": {
+          "package_name": "com.app.fairstores"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8007123972-9sstm56if5pdsnuj3ov5eguth88l1r3u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.fairstores",
+            "certificate_hash": "3a46d0166df952d46b8ba40b4cb00b0942a443b5"
+          }
+        },
+        {
+          "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9QLtATQUNPPJqyOCY7NEyjcaLuf_Tx1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8007123972-eop2t8ec905609himmchii8oq6hldqf4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fairStores"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8007123972:android:87892485087be585c36151",
+        "android_client_info": {
+          "package_name": "com.example.fair_stores"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8007123972-8qkfrgpknoskp8ooiokgnq31nks8r43a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fair_stores",
+            "certificate_hash": "3a46d0166df952d46b8ba40b4cb00b0942a443b5"
+          }
+        },
+        {
+          "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9QLtATQUNPPJqyOCY7NEyjcaLuf_Tx1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8007123972-eop2t8ec905609himmchii8oq6hldqf4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fairStores"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:8007123972:android:e47a65e2a2b513d9c36151",
+        "android_client_info": {
+          "package_name": "com.fairstore.fairstore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "8007123972-q5rkcc79kbuu321o3to4c6gede2frcgj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fairstore.fairstore",
+            "certificate_hash": "3a46d0166df952d46b8ba40b4cb00b0942a443b5"
+          }
+        },
+        {
+          "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9QLtATQUNPPJqyOCY7NEyjcaLuf_Tx1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "8007123972-q4lp3g8pu5pe7tdfrqelblu5r4qrsc3o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "8007123972-eop2t8ec905609himmchii8oq6hldqf4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fairStores"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
