@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/admin/admin.dart';
-import 'package:fairstores/backend/model.dart';
-
-import 'package:fairstores/backend/sendnotification.dart';
+import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/delivery/deliveryonboarding.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
@@ -31,18 +30,18 @@ class _HomeState extends State<Home> {
 
   getmanager() async {
     DocumentSnapshot snapshot = await userref.doc(widget.user).get();
-    Model model = Model.fromDocument(snapshot);
+    UserModel model = UserModel.fromDocument(snapshot);
     setState(() {
       ismanager = model.ismanager;
     });
   }
 
   bool ismanager = false;
-  Model model = Model(ismanager: false);
+  UserModel model = UserModel(ismanager: false);
 
   getschool() async {
     DocumentSnapshot doc = await userref.doc(widget.user).get();
-    Model model = Model.fromDocument(doc);
+    UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
     });
@@ -72,9 +71,9 @@ class _HomeState extends State<Home> {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
                       borderSide: BorderSide(
-                        color: color,
+                        color: kPrimary,
                       )),
-                  focusColor: color,
+                  focusColor: kPrimary,
                   prefixIcon: const Icon(
                     Icons.search,
                     size: 14,
@@ -125,7 +124,7 @@ class _HomeState extends State<Home> {
             );
           }
 
-          Model userModel = Model.fromDocument(snapshot.data!);
+          UserModel userModel = UserModel.fromDocument(snapshot.data!);
           return Padding(
             padding: const EdgeInsets.only(top: 60.0, left: 20),
             child: Row(

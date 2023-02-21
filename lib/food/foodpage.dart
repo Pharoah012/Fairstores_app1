@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/ads/adsmodel.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/homescreen/schoolmodel.dart';
@@ -71,7 +72,7 @@ class _FoodPageState extends State<FoodPage> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Color(0xffEBEAEB)),
                         color: categorySelection == categoryTileModel.id
-                            ? color
+                            ? kPrimary
                             : Colors.white,
                         borderRadius: BorderRadius.circular(100),
                       ),
@@ -347,9 +348,9 @@ class _FoodPageState extends State<FoodPage> {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
                       borderSide: BorderSide(
-                        color: color,
+                        color: kPrimary,
                       )),
-                  focusColor: color,
+                  focusColor: kPrimary,
                   prefixIcon: const Icon(
                     Icons.search,
                     size: 14,
@@ -383,7 +384,7 @@ class _FoodPageState extends State<FoodPage> {
             children: [
               Container(
                   decoration: BoxDecoration(
-                    color: color,
+                    color: kPrimary,
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Center(
@@ -693,7 +694,7 @@ class _HomeTileState extends State<HomeTile> {
                         },
                         icon: Icon(
                           Icons.favorite_rounded,
-                          color: isliked == false ? Colors.white : color,
+                          color: isliked == false ? Colors.white : kPrimary,
                           size: 25,
                         ))
                   ],

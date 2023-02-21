@@ -1,9 +1,17 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
-import 'package:fairstores/backend/model.dart';
+import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/payment_api.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketsuccessful.dart';
 import 'package:fairstores/homescreen/schoolmodel.dart';
 import 'package:fairstores/main.dart';
@@ -54,7 +62,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
   int quantity = 1;
   int val = 0;
 
-  late Model userModel;
+  late UserModel userModel;
 
   String network = '';
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -75,7 +83,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
 
   getuserinfo() async {
     DocumentSnapshot doc = await userref.doc(widget.userid).get();
-    Model userModel = Model.fromDocument(doc);
+    UserModel userModel = UserModel.fromDocument(doc);
     setState(() {
       this.userModel = userModel;
     });
@@ -141,14 +149,14 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                       }),
                       controller: phonecontroller,
                       focusNode: myFocusNode,
-                      cursorColor: color,
+                      cursorColor: kPrimary,
                       decoration: InputDecoration(
                           hintText: '0202222224',
-                          focusColor: color,
+                          focusColor: kPrimary,
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: color,
+                                color: kPrimary,
                               )),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -161,7 +169,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   color: myFocusNode.hasFocus
-                                      ? color
+                                      ? kPrimary
                                       : const Color(0xff374151)))),
                     ),
                   ),
@@ -481,7 +489,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                                   fontWeight: FontWeight.w800,
                                   fontSize: 12,
                                   color: page == 'fairticket'
-                                      ? color
+                                      ? kPrimary
                                       : Colors.black),
                             ),
                             widget.eticketavailable == true
@@ -495,7 +503,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                                         fontWeight: FontWeight.w800,
                                         fontSize: 12,
                                         color: page == 'fairticket'
-                                            ? color
+                                            ? kPrimary
                                             : Colors.black),
                                   ),
                           ],
@@ -548,7 +556,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                                               fontWeight: FontWeight.w800,
                                               fontSize: 12,
                                               color: page == 'physicalticket'
-                                                  ? color
+                                                  ? kPrimary
                                                   : Colors.black),
                                         ),
                                         widget.physicalticketavailable == true
@@ -563,7 +571,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                                                     fontSize: 12,
                                                     color:
                                                         page == 'physicalticket'
-                                                            ? color
+                                                            ? kPrimary
                                                             : Colors.black),
                                               ),
                                       ],
@@ -606,7 +614,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                   child: Text(
                 'Cash Payment',
                 style: GoogleFonts.montserrat(
-                    color: color, fontWeight: FontWeight.bold),
+                    color: kPrimary, fontWeight: FontWeight.bold),
               )),
               children: [
                 SimpleDialogOption(
@@ -676,7 +684,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                   child: Center(
                       child: Text('Place Order',
                           style: GoogleFonts.manrope(
-                              color: color, fontWeight: FontWeight.w500))),
+                              color: kPrimary, fontWeight: FontWeight.w500))),
                 )
               ]);
         });
@@ -690,7 +698,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () {
               if (formKey.currentState!.validate()) {
@@ -753,7 +761,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () async {
               final con = confirmation();
@@ -917,7 +925,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Expanded(child: SizedBox()),
             CircularProgressIndicator(
-              color: color,
+              color: kPrimary,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 14.0),
@@ -932,12 +940,15 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                 payment(network);
               },
               child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Text('Try Again',
-                      style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: color))),
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Text('Try Again',
+                  style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: kPrimary
+                  )
+                )
+              ),
             ),
             Text(
               'Click the button below once Payment has been made',
@@ -952,7 +963,11 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                     Navigator.pop(context);
                   },
                   child: Text('Go back)',
-                      style: GoogleFonts.manrope(fontSize: 16, color: color))),
+                    style: GoogleFonts.manrope(
+                      fontSize: 16, color: kPrimary
+                    )
+                  )
+              ),
             )
           ]),
         ),

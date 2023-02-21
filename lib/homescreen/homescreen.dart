@@ -1,4 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/homescreen/history.dart';
 import 'package:fairstores/homescreen/home.dart';
 import 'package:fairstores/homescreen/profile.dart';
@@ -109,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
         enableDrag: false,
         isDismissible: false,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21)),
-        barrierColor: color,
+        barrierColor: kPrimary,
         context: context,
         builder: (context) => StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -158,9 +173,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
-                                      color: color,
+                                      color: kPrimary,
                                     )),
-                                focusColor: color,
+                                focusColor: kPrimary,
                                 labelText: 'Full name',
                                 labelStyle: GoogleFonts.manrope(
                                     fontWeight: FontWeight.w500,
@@ -194,9 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: BorderSide(
-                                        color: color,
+                                        color: kPrimary,
                                       )),
-                                  focusColor: color,
+                                  focusColor: kPrimary,
                                   labelText: 'Email',
                                   labelStyle: GoogleFonts.manrope(
                                       fontWeight: FontWeight.w500,
@@ -235,9 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                       borderSide: BorderSide(
-                                        color: color,
+                                        color: kPrimary,
                                       )),
-                                  focusColor: color,
+                                  focusColor: kPrimary,
                                   labelText: 'Phone number',
                                   labelStyle: GoogleFonts.manrope(
                                       fontWeight: FontWeight.w500,
@@ -272,9 +287,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide(
-                                          color: color,
+                                          color: kPrimary,
                                         )),
-                                    focusColor: color,
+                                    focusColor: kPrimary,
                                     labelStyle: GoogleFonts.manrope(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14,
@@ -337,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   elevation: 0,
                   height: 56,
                   minWidth: MediaQuery.of(context).size.width * 0.87,
-                  color: color,
+                  color: kPrimary,
                   child: Text('Continue',
                       style: GoogleFonts.manrope(
                           fontWeight: FontWeight.w600,
@@ -364,14 +379,14 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             type: BottomNavigationBarType.fixed,
             showUnselectedLabels: true,
-            selectedItemColor: color,
+            selectedItemColor: kPrimary,
             unselectedItemColor: const Color(0xff898989),
             unselectedLabelStyle: GoogleFonts.manrope(),
             items: [
               BottomNavigationBarItem(
                 activeIcon: Icon(
                   Icons.home_filled,
-                  color: color,
+                  color: kPrimary,
                 ),
                 icon: const Icon(
                   Icons.home_filled,
@@ -382,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 activeIcon: Icon(
                   Icons.search,
-                  color: color,
+                  color: kPrimary,
                 ),
                 icon: const Icon(
                   Icons.search,
@@ -393,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                   activeIcon: Icon(
                     Icons.bookmark,
-                    color: color,
+                    color: kPrimary,
                   ),
                   icon: const Icon(
                     Icons.bookmark,
@@ -403,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BottomNavigationBarItem(
                 activeIcon: Icon(
                   Icons.person,
-                  color: color,
+                  color: kPrimary,
                 ),
                 icon: const Icon(
                   Icons.person,

@@ -1,3 +1,4 @@
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,7 +37,7 @@ class _NotificationEditState extends State<NotificationEdit> {
       ),
       body: SwitchListTile(
         value: isSwitched,
-        activeColor: color,
+        activeColor: kPrimary,
         onChanged: (bool value) {
           setState(() => isSwitched = value);
         },

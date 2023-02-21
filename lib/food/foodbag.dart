@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
 import 'package:fairstores/food/foodtile.dart';
@@ -144,7 +145,7 @@ class _FoodBagState extends State<FoodBag> {
                                     fontWeight: FontWeight.w800,
                                     fontSize: 12,
                                     color: page == 'delivery'
-                                        ? color
+                                        ? kPrimary
                                         : Colors.black),
                               ),
                               deliveryavailable == true
@@ -158,7 +159,7 @@ class _FoodBagState extends State<FoodBag> {
                                           fontWeight: FontWeight.w800,
                                           fontSize: 12,
                                           color: page == 'pickup'
-                                              ? color
+                                              ? kPrimary
                                               : Colors.black),
                                     ),
                             ],
@@ -212,7 +213,7 @@ class _FoodBagState extends State<FoodBag> {
                                               fontWeight: FontWeight.w800,
                                               fontSize: 12,
                                               color: page == 'pickup'
-                                                  ? color
+                                                  ? kPrimary
                                                   : Colors.black),
                                         ),
                                         pickupavailable == true
@@ -224,7 +225,7 @@ class _FoodBagState extends State<FoodBag> {
                                                     fontWeight: FontWeight.w800,
                                                     fontSize: 12,
                                                     color: page == 'pickup'
-                                                        ? color
+                                                        ? kPrimary
                                                         : Colors.black),
                                               ),
                                       ],
@@ -335,7 +336,7 @@ class _FoodBagState extends State<FoodBag> {
                             ScrollController scrollController) =>
                         Container(
                           decoration: BoxDecoration(
-                              color: color,
+                              color: kPrimary,
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(21),
                                   topRight: Radius.circular(21))),

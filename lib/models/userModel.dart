@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class Model {
+class UserModel {
+  final userRef = FirebaseFirestore.instance.collection('Users');
+
   String? email;
   String? number;
   String? name;
@@ -10,19 +13,20 @@ class Model {
   bool ismanager;
   String? signinmethod;
 
-  Model(
-      {this.email,
-      this.number,
-      required this.ismanager,
-      this.name,
-      this.signinmethod,
-      this.school,
-      this.uid,
-      this.password});
+  UserModel({
+    this.email,
+    this.number,
+    required this.ismanager,
+    this.name,
+    this.signinmethod,
+    this.school,
+    this.uid,
+    this.password
+  });
 
   //recieves data from the server
-  factory Model.fromDocument(DocumentSnapshot doc) {
-    return Model(
+  factory UserModel.fromDocument(DocumentSnapshot doc) {
+    return UserModel(
         email: doc.get('email'),
         ismanager: doc.get('ismanager'),
         password: doc.get('password'),
@@ -45,5 +49,9 @@ class Model {
       'school': school,
       'uid': uid
     };
+  }
+
+  createUser(User user) async {
+    return userRef.doc(user.uid).set(toMap());
   }
 }

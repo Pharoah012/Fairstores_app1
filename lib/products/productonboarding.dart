@@ -1,3 +1,4 @@
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,7 +24,7 @@ class _ProductOnboardingScreenState extends State<ProductOnboardingScreen> {
         elevation: 0,
         height: 56,
         minWidth: MediaQuery.of(context).size.width * 0.87,
-        color: color,
+        color: kPrimary,
         child: Text('Shop now',
             style: GoogleFonts.manrope(
                 fontWeight: FontWeight.w600,
@@ -102,7 +103,7 @@ class _ProductOnboardingScreenState extends State<ProductOnboardingScreen> {
                 child: Text(
                   'Coming Soon',
                   style: GoogleFonts.manrope(
-                      fontSize: 14, fontWeight: FontWeight.w500, color: color),
+                      fontSize: 14, fontWeight: FontWeight.w500, color: kPrimary),
                 )),
             Expanded(
               child: SizedBox(),

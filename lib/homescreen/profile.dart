@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
-import 'package:fairstores/backend/model.dart';
+import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/constants.dart';
 
 import 'package:fairstores/homescreen/details.dart';
 import 'package:fairstores/homescreen/help.dart';
@@ -26,7 +27,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  Model model = Model(ismanager: false);
+  UserModel model = UserModel(ismanager: false);
   TextEditingController namecontroller = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -39,7 +40,7 @@ class _ProfileState extends State<Profile> {
   getuser() async {
     DocumentSnapshot doc = await userref.doc(widget.user).get();
     if (doc.exists) {
-      Model model = Model.fromDocument(doc);
+      UserModel model = UserModel.fromDocument(doc);
       setState(() {
         this.model = model;
         phoneController.text = model.number.toString();
@@ -72,7 +73,7 @@ class _ProfileState extends State<Profile> {
             GestureDetector(
               onTap: () {
                 showMaterialModalBottomSheet(
-                    barrierColor: color,
+                    barrierColor: kPrimary,
                     context: context,
                     builder: (context) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.92,
@@ -121,7 +122,7 @@ class _ProfileState extends State<Profile> {
                   },
                   leading: Icon(
                     Icons.notifications,
-                    color: color,
+                    color: kPrimary,
                   ),
                   title: Text('Notifications',
                       style: GoogleFonts.manrope(
@@ -143,7 +144,7 @@ class _ProfileState extends State<Profile> {
                   },
                   leading: Icon(
                     Icons.bookmark,
-                    color: color,
+                    color: kPrimary,
                   ),
                   title: Text('Saved Items',
                       style: GoogleFonts.manrope(
@@ -164,7 +165,7 @@ class _ProfileState extends State<Profile> {
                   }),
                   leading: Icon(
                     Icons.settings,
-                    color: color,
+                    color: kPrimary,
                   ),
                   title: Text('Help',
                       style: GoogleFonts.manrope(
@@ -186,7 +187,7 @@ class _ProfileState extends State<Profile> {
                   }),
                   leading: Icon(
                     Icons.info,
-                    color: color,
+                    color: kPrimary,
                   ),
                   title: Text('About Us',
                       style: GoogleFonts.manrope(
@@ -208,7 +209,7 @@ class _ProfileState extends State<Profile> {
                   },
                   leading: Icon(
                     Icons.logout,
-                    color: color,
+                    color: kPrimary,
                   ),
                   title: Text('Logout',
                       style: GoogleFonts.manrope(
@@ -251,7 +252,7 @@ class _ProfileState extends State<Profile> {
           if (!snapshot.hasData) {
             return const SizedBox();
           }
-          Model model = Model.fromDocument(snapshot.data!);
+          UserModel model = UserModel.fromDocument(snapshot.data!);
 
           return Column(
             children: [
@@ -277,7 +278,7 @@ class _ProfileState extends State<Profile> {
                       },
                       child: Text('Edit',
                           style: GoogleFonts.manrope(
-                              color: color,
+                              color: kPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 16)),
                     )

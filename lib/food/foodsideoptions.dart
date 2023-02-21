@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/main.dart';
@@ -341,12 +342,12 @@ class _FoodOptionsState extends State<FoodOptions> {
                   BoxDecoration(borderRadius: BorderRadius.circular(100)),
               child: TextField(
                 controller: instructioncontroller,
-                cursorColor: color,
+                cursorColor: kPrimary,
                 decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(100),
                         borderSide: BorderSide(
-                          color: color,
+                          color: kPrimary,
                         )),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
@@ -372,7 +373,7 @@ class _FoodOptionsState extends State<FoodOptions> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                    color: color, borderRadius: BorderRadius.circular(100)),
+                    color: kPrimary, borderRadius: BorderRadius.circular(100)),
                 height: 56,
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: MaterialButton(

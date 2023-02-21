@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,11 +23,11 @@ class _AdminState extends State<Admin> {
         builder: (context) {
           return SimpleDialog(
               title: Center(
-                  child: Text(
-                'General Notifications',
-                style: GoogleFonts.montserrat(
-                    color: color, fontWeight: FontWeight.bold),
-              )),
+                  child: CustomText(
+                    text: 'General Notifications',
+                    isBold: true
+                  )
+               ),
               children: [
                 const SimpleDialogOption(child: TextField()),
                 SimpleDialogOption(
@@ -42,7 +44,7 @@ class _AdminState extends State<Admin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: color,
+        backgroundColor: kPrimary,
         centerTitle: false,
         title: const Text('Fairstores Admin DashBoard'),
       ),
@@ -71,7 +73,7 @@ class _AdminState extends State<Admin> {
                   onTap: () {},
                   title: Text(
                     'Fair Restuarants',
-                    style: TextStyle(color: color),
+                    style: TextStyle(color: kPrimary),
                   ),
                 );
               }),

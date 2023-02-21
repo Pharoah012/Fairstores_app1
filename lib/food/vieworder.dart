@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/homescreen/historyfooddetails.dart';
 import 'package:fairstores/main.dart';
@@ -287,7 +288,7 @@ class _ViewOrderState extends State<ViewOrder> {
                   'You will recieve a call once your order has been delivered',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.manrope(
-                      fontSize: 16, fontWeight: FontWeight.w500, color: color)),
+                      fontSize: 16, fontWeight: FontWeight.w500, color: kPrimary)),
             ),
             receipt()
           ]),

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/notificationsedit.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +58,7 @@ class _NotificationsState extends State<Notifications> {
         elevation: 0,
         height: 56,
         minWidth: 335,
-        color: color,
+        color: kPrimary,
         child: Text('Clear All',
             style: GoogleFonts.manrope(
                 fontWeight: FontWeight.w600,
@@ -138,7 +140,7 @@ class _NotificationModelState extends State<NotificationModel> {
               backgroundColor: const Color(0xfff25e37).withOpacity(0.1),
               child: Icon(
                 Icons.notifications_rounded,
-                color: color,
+                color: kPrimary,
               )),
           title: Text(
             'New Notification',

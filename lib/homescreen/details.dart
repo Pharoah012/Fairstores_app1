@@ -1,5 +1,7 @@
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
 import 'package:fairstores/whatsappchat.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -56,14 +58,14 @@ class _DetailsState extends State<Details> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      Text(
-                        'Contact Us',
-                        style: GoogleFonts.manrope(color: color, fontSize: 15),
+                      CustomText(
+                        text: "Contact Us",
+                        color: kPrimary,
                       ),
                       Expanded(child: SizedBox()),
                       Icon(
                         Icons.whatsapp,
-                        color: color,
+                        color: kPrimary,
                       )
                     ],
                   ),

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -25,7 +26,7 @@ class WebViewExampleState extends State<WebViewExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: color,
+        backgroundColor: kPrimary,
         title: Text(widget.title),
       ),
       body: const WebView(

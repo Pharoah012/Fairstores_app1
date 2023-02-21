@@ -1,3 +1,4 @@
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +20,7 @@ class _PurchsaeSuccessfulState extends State<PurchsaeSuccessful> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () {
               Navigator.pop(context);

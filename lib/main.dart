@@ -4,21 +4,22 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
 import 'package:fairstores/backend/firebase_options.dart';
+import 'package:fairstores/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
-Color color = const Color(0xffF25E37);
 DateTime timestamp = DateTime.now();
 final userref = FirebaseFirestore.instance.collection('Users');
 final schoolref = FirebaseFirestore.instance.collection('Schools');
 final notificationsref = FirebaseFirestore.instance.collection('Notifications');
 final tokensref = FirebaseFirestore.instance.collection('UserTokens');
-final onboardingref = FirebaseFirestore.instance.collection('Onboarding');
+
 final securityref = FirebaseFirestore.instance.collection('Security');
 final menuref = FirebaseFirestore.instance.collection('FoodMenu');
 final sideoptions = FirebaseFirestore.instance.collection('FoodSideOptions');
@@ -51,6 +52,8 @@ Future<void> main() async {
   );
 
 //  await postDetailsToFirestore();
+
+  // Set up Awesome notifications
   AwesomeNotifications().initialize(
       // set the icon to null if you want to use the default app icon
       null,
@@ -69,7 +72,8 @@ Future<void> main() async {
             channelGroupkey: 'basic_channel_group',
             channelGroupName: 'Basic group')
       ],
-      debug: true);
+      debug: true
+  );
 
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
@@ -80,12 +84,19 @@ Future<void> main() async {
     }
   });
 
-  // Create customized instance which can be registered via dependency injection
+  // Make status bar transparent on Android
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent, // transparent status bar
+  ));
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) {
-    runApp(const MyApp());
-  });
+  // Create customized instance which can be registered via dependency injection
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  runApp(
+    ProviderScope(
+      child: const MyApp()
+    )
+  );
 
 //  await postDetailsToFirestore();
 }
@@ -98,18 +109,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'FairStores',
-        theme: ThemeData(focusColor: color, primaryColor: color
-            // This is the theme of your application.
-            //
-            // Try running your application with "flutter run". You'll see the
-            // application has a blue toolbar. Then, without quitting the app, try
-            // changing the primarySwatch below to Colors.green and then invoke
-            // "hot reload" (press "r" in the console where you ran "flutter run",
-            // or simply save your changes to "hot reload" in a Flutter IDE).
-            // Notice that the counter didn't reset back to zero; the application
-            // is not restarted.
-            ),
-        home: const OnboardingScreen());
+        theme: ThemeData(
+          focusColor: kPrimary,
+          primaryColor: kPrimary
+        ),
+        home: const OnboardingScreen()
+    );
   }
 }
 

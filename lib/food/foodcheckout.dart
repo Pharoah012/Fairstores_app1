@@ -1,6 +1,17 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
-import 'package:fairstores/backend/model.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/sendnotification.dart';
 import 'package:fairstores/backend/tokenmodel.dart';
@@ -59,7 +70,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   late Paybox paybox;
   TextEditingController phonecontroller = TextEditingController();
   TextEditingController instructioncontroller = TextEditingController();
-  late Model userModel;
+  late UserModel userModel;
   String network = '';
   List<String> orderdetails = [];
   String orderid = const Uuid().v4();
@@ -78,7 +89,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
         await userref.where('ismanager', isEqualTo: true).get();
     List<String> tokens = [];
     snapshot.docs.forEach((element) async {
-      Model model = Model.fromDocument(element);
+      UserModel model = UserModel.fromDocument(element);
 
       DocumentSnapshot doc = await tokensref.doc(model.uid).get();
       TokenModel tokenModel = TokenModel.fromDocument(doc);
@@ -91,7 +102,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
 
   getuserinfo() async {
     DocumentSnapshot doc = await userref.doc(widget.userid).get();
-    Model userModel = Model.fromDocument(doc);
+    UserModel userModel = UserModel.fromDocument(doc);
     setState(() {
       this.userModel = userModel;
     });
@@ -282,13 +293,13 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     }),
                     controller: phonecontroller,
                     focusNode: myFocusNode,
-                    cursorColor: color,
+                    cursorColor: kPrimary,
                     decoration: InputDecoration(
-                        focusColor: color,
+                        focusColor: kPrimary,
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide(
-                              color: color,
+                              color: kPrimary,
                             )),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -301,7 +312,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: myFocusNode.hasFocus
-                                    ? color
+                                    ? kPrimary
                                     : const Color(0xff374151)))),
                   ),
                 ),
@@ -402,12 +413,12 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                   BoxDecoration(borderRadius: BorderRadius.circular(100)),
               child: TextField(
                 controller: instructioncontroller,
-                cursorColor: color,
+                cursorColor: kPrimary,
                 decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(100),
                         borderSide: BorderSide(
-                          color: color,
+                          color: kPrimary,
                         )),
                     enabledBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
@@ -633,7 +644,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
             title: Text(
               'Payment',
               style: GoogleFonts.montserrat(
-                  color: color, fontWeight: FontWeight.bold),
+                  color: kPrimary, fontWeight: FontWeight.bold),
             ),
             children: [
               SimpleDialogOption(
@@ -706,7 +717,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                   child: Text(
                 'Cash Payment',
                 style: GoogleFonts.montserrat(
-                    color: color, fontWeight: FontWeight.bold),
+                    color: kPrimary, fontWeight: FontWeight.bold),
               )),
               children: [
                 SimpleDialogOption(
@@ -754,7 +765,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                   child: Center(
                       child: Text('Place Order',
                           style: GoogleFonts.manrope(
-                              color: color, fontWeight: FontWeight.w500))),
+                              color: kPrimary, fontWeight: FontWeight.w500))),
                 )
               ]);
         });
@@ -768,7 +779,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
@@ -831,7 +842,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () async {
               final con = confirmation();
@@ -920,7 +931,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Expanded(child: const SizedBox()),
             CircularProgressIndicator(
-              color: color,
+              color: kPrimary,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 14.0),
@@ -937,10 +948,13 @@ class _FoodCheckoutState extends State<FoodCheckout> {
               child: Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: Text('Try Again',
-                      style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: color))),
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: kPrimary
+                    )
+                  )
+              ),
             ),
             Text(
               'Click the button below once Payment has been made',
@@ -955,7 +969,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     Navigator.pop(context);
                   },
                   child: Text('Go Back',
-                      style: GoogleFonts.manrope(fontSize: 16, color: color))),
+                      style: GoogleFonts.manrope(fontSize: 16, color: kPrimary))),
             )
           ]),
         ),

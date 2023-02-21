@@ -1,5 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodsideoptions.dart';
@@ -125,7 +129,7 @@ class _FoodhomeState extends State<Foodhome> {
           ],
         ),
         leading: CircleAvatar(
-          backgroundColor: color,
+          backgroundColor: kPrimary,
           radius: 25,
           backgroundImage: NetworkImage(widget.logo),
         ),
@@ -235,7 +239,7 @@ class _FoodhomeState extends State<Foodhome> {
                     Text(jointmenuoption.name,
                         style: GoogleFonts.manrope(
                             color: optionpage == jointmenuoption.id
-                                ? color
+                                ? kPrimary
                                 : Colors.black,
                             fontSize: 14,
                             fontWeight: FontWeight.w700)),
@@ -243,7 +247,7 @@ class _FoodhomeState extends State<Foodhome> {
                       padding: const EdgeInsets.only(top: 10.6),
                       child: Container(
                           color: optionpage == jointmenuoption.id
-                              ? color
+                              ? kPrimary
                               : const Color(0xffF7F7F9),
                           height: 2,
                           width: 20),
@@ -341,7 +345,7 @@ class _FoodhomeState extends State<Foodhome> {
                               const Offset(0, 20), // changes position of shadow
                         ),
                       ],
-                      color: color,
+                      color: kPrimary,
                     ),
                     width: MediaQuery.of(context).size.width,
                     height: 70,
@@ -410,7 +414,7 @@ class _FoodhomeState extends State<Foodhome> {
               onPressed: updatefavourites,
               icon: Icon(
                 Icons.favorite_outline,
-                color: isliked == true ? color : Colors.black,
+                color: isliked == true ? kPrimary : Colors.black,
               ))
         ],
         leading: GestureDetector(
@@ -536,7 +540,7 @@ class _OptionsTileState extends State<OptionsTile> {
                   child: Text(
                 'Cart',
                 style: GoogleFonts.montserrat(
-                    color: color, fontWeight: FontWeight.bold),
+                    color: kPrimary, fontWeight: FontWeight.bold),
               )),
               actions: [
                 Text(
@@ -558,7 +562,7 @@ class _OptionsTileState extends State<OptionsTile> {
                   child: Center(
                       child: Text(
                     'Clear Cart',
-                    style: TextStyle(color: color),
+                    style: TextStyle(color: kPrimary),
                   )),
                 )
               ]);
@@ -837,7 +841,7 @@ class _OptionsTileState extends State<OptionsTile> {
                       ),
                       child: Container(
                         decoration: BoxDecoration(
-                            color: color,
+                            color: kPrimary,
                             borderRadius: BorderRadius.circular(100)),
                         height: 56,
                         width: MediaQuery.of(context).size.width * 0.45,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 
 import 'package:fairstores/food/foodtile.dart';
@@ -159,7 +160,7 @@ class _SavedItemsState extends State<SavedItems> {
                             width: MediaQuery.of(context).size.width * 0.25,
                             decoration: BoxDecoration(
                               color:
-                                  page == 'food' ? color : Colors.transparent,
+                                  page == 'food' ? kPrimary : Colors.transparent,
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Center(
@@ -186,7 +187,7 @@ class _SavedItemsState extends State<SavedItems> {
                               width: 100,
                               decoration: BoxDecoration(
                                 color: page == 'events'
-                                    ? color
+                                    ? kPrimary
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(100),
                               ),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/backend/model.dart';
+import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/main.dart';
@@ -20,7 +21,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  Model model = Model(ismanager: false);
+  UserModel model = UserModel(ismanager: false);
   String search = '';
   String page = 'food';
   List<FoodTile> foodlist = [];
@@ -28,13 +29,13 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
-    getschool();
+    getUser();
     //print(search);
   }
 
-  getschool() async {
+  getUser() async {
     DocumentSnapshot doc = await userref.doc(widget.user).get();
-    Model model = Model.fromDocument(doc);
+    UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
     });
@@ -145,7 +146,7 @@ class _SearchState extends State<Search> {
                       height: 33.6,
                       width: MediaQuery.of(context).size.width * 0.25,
                       decoration: BoxDecoration(
-                        color: page == 'food' ? color : Colors.transparent,
+                        color: page == 'food' ? kPrimary : Colors.transparent,
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Center(
@@ -170,7 +171,7 @@ class _SearchState extends State<Search> {
                         height: 33.6,
                         width: 100,
                         decoration: BoxDecoration(
-                          color: page == 'events' ? color : Colors.transparent,
+                          color: page == 'events' ? kPrimary : Colors.transparent,
                           borderRadius: BorderRadius.circular(100),
                         ),
                         child: Center(
@@ -258,17 +259,17 @@ class _SearchState extends State<Search> {
                           search = value;
                         });
                       },
-                      cursorColor: color,
+                      cursorColor: kPrimary,
                       decoration: InputDecoration(
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(100),
                               borderSide: BorderSide(
-                                color: color,
+                                color: kPrimary,
                               )),
-                          focusColor: color,
+                          focusColor: kPrimary,
                           prefixIcon: Icon(
                             Icons.search,
-                            color: color,
+                            color: kPrimary,
                             size: 14,
                           ),
                           labelText: 'Search FairStores app',

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/homescreen/securitymodel.dart';
@@ -87,7 +89,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
               ],
             ),
             leading: CircleAvatar(
-              backgroundColor: color,
+              backgroundColor: kPrimary,
               radius: 25,
               backgroundImage: NetworkImage(widget.foodTile.headerimage),
             ),
@@ -173,7 +175,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
               height: 42,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: color.withOpacity(0.1),
+                color: kPrimary.withOpacity(0.1),
               ),
               width: MediaQuery.of(context).size.width * 0.9,
               child: Row(
@@ -185,7 +187,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                         style: GoogleFonts.manrope(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: color)),
+                            color: kPrimary)),
                   )),
                 ],
               ),
@@ -318,7 +320,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
               height: 60,
               decoration: BoxDecoration(
                   border: Border.all(color: const Color(0xffE7E4E4)),
-                  color: color,
+                  color: kPrimary,
                   borderRadius: BorderRadius.circular(100)),
               child: TextButton(
                 onPressed: () {

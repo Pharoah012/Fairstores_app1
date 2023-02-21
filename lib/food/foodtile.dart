@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
@@ -256,7 +257,7 @@ class _FoodTileState extends State<FoodTile> {
                         },
                         icon: Icon(
                           Icons.favorite_rounded,
-                          color: isliked == false ? Colors.white : color,
+                          color: isliked == false ? Colors.white : kPrimary,
                           size: 25,
                         ))
                   ],

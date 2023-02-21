@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/backend/model.dart';
+import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventhistory.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/events/eventspage.dart';
@@ -38,11 +39,11 @@ class _HistoryState extends State<History> {
     getschool();
   }
 
-  Model model = Model(ismanager: false);
+  UserModel model = UserModel(ismanager: false);
 
   getschool() async {
     DocumentSnapshot doc = await userref.doc(widget.user).get();
-    Model model = Model.fromDocument(doc);
+    UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
     });
@@ -81,7 +82,9 @@ class _HistoryState extends State<History> {
             padding: const EdgeInsets.only(top: 20.0),
             child: Container(
               decoration: BoxDecoration(
-                  color: color, borderRadius: BorderRadius.circular(100)),
+                  color: kPrimary,
+                  borderRadius: BorderRadius.circular(100)
+              ),
               height: 50,
               width: 140,
               child: MaterialButton(
@@ -339,7 +342,7 @@ class _HistoryState extends State<History> {
                             width: 100,
                             decoration: BoxDecoration(
                               color: isvisible[0] == true
-                                  ? color
+                                  ? kPrimary
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(100),
                             ),
@@ -369,7 +372,7 @@ class _HistoryState extends State<History> {
                             width: 100,
                             decoration: BoxDecoration(
                               color: isvisible[1] == true
-                                  ? color
+                                  ? kPrimary
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(100),
                             ),
@@ -548,7 +551,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                             width: MediaQuery.of(context).size.width * 0.5,
                             height: MediaQuery.of(context).size.height * 0.045,
                             decoration: BoxDecoration(
-                                color: color,
+                                color: kPrimary,
                                 borderRadius: BorderRadius.circular(100),
                                 border:
                                     Border.all(color: const Color(0xffE7E4E4))),
@@ -726,7 +729,7 @@ class _HistoryTileState extends State<HistoryTile> {
                       padding: const EdgeInsets.only(top: 6.0),
                       child: Text('GHS ${widget.total}',
                           style: GoogleFonts.manrope(
-                              color: color,
+                              color: kPrimary,
                               fontWeight: FontWeight.w600,
                               fontSize: 10)),
                     ),

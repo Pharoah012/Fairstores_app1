@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketpurchase.dart';
 import 'package:fairstores/events/videoplayer.dart';
 import 'package:fairstores/main.dart';
@@ -154,7 +157,7 @@ class _EventState extends State<Event> {
           horizontalTitleGap: 10,
           leading: CircleAvatar(
             radius: 25,
-            backgroundColor: color,
+            backgroundColor: kPrimary,
             backgroundImage: CachedNetworkImageProvider(widget.organizerimage),
           ),
           title: Text(
@@ -200,7 +203,7 @@ class _EventState extends State<Event> {
                               width: 35,
                               height: 35,
                               decoration: BoxDecoration(
-                                  color: color,
+                                  color: kPrimary,
                                   border: Border.all(color: Colors.white),
                                   borderRadius: BorderRadius.circular(100)),
                             )),
@@ -310,7 +313,7 @@ class _EventState extends State<Event> {
               child: Text(
                 'Tickets not Available',
                 style: GoogleFonts.manrope(
-                    fontSize: 15, fontWeight: FontWeight.w500, color: color),
+                    fontSize: 15, fontWeight: FontWeight.w500, color: kPrimary),
               ),
             )),
       ),
@@ -324,7 +327,7 @@ class _EventState extends State<Event> {
         width: MediaQuery.of(context).size.width,
         height: 60,
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(100)),
+            color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () {
               Navigator.push(

@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
+import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventspage.dart';
 import 'package:fairstores/homescreen/schoolmodel.dart';
 import 'package:fairstores/homescreen/search.dart';
@@ -128,9 +131,9 @@ class _EventsPageState extends State<EventsPage> {
                   focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(100),
                       borderSide: BorderSide(
-                        color: color,
+                        color: kPrimary,
                       )),
-                  focusColor: color,
+                  focusColor: kPrimary,
                   prefixIcon: const Icon(
                     Icons.search,
                     size: 14,
@@ -434,7 +437,7 @@ class _EventsPageModelState extends State<EventsPageModel> {
                         child: Icon(
                           Icons.bookmark,
                           size: 20,
-                          color: isliked ? color : Colors.black,
+                          color: isliked ? kPrimary : Colors.black,
                         )),
                   ),
                 ],
@@ -518,7 +521,7 @@ class _EventsPageModelState extends State<EventsPageModel> {
                                       width: 24,
                                       height: 24,
                                       decoration: BoxDecoration(
-                                          color: color,
+                                          color: kPrimary,
                                           border:
                                               Border.all(color: Colors.white),
                                           borderRadius:

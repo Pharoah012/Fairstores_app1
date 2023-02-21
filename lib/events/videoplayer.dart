@@ -1,4 +1,4 @@
-import 'package:fairstores/main.dart';
+import 'package:fairstores/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -60,7 +60,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                   : _controller.play();
             });
           },
-          backgroundColor: color,
+          backgroundColor: kPrimary,
           child: Icon(
             _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
           ),
