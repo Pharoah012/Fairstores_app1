@@ -1,25 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/homescreen/history.dart';
 import 'package:fairstores/homescreen/home.dart';
 import 'package:fairstores/homescreen/profile.dart';
 import 'package:fairstores/homescreen/schoolmodel.dart';
 import 'package:fairstores/homescreen/search.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/models/userModel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -29,17 +15,12 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String userId;
-  final String phonenumber;
-  final String password;
-  final String signinmethod;
+  final User user;
 
-  const HomeScreen(
-      {Key? key,
-      required this.userId,
-      required this.signinmethod,
-      required this.password,
-      required this.phonenumber})
+  const HomeScreen({
+    Key? key,
+    required this.user
+  })
       : super(key: key);
 
   @override
@@ -63,22 +44,22 @@ class _HomeScreenState extends State<HomeScreen> {
     list
       ..add(
         Home(
-          user: widget.userId,
+          user: widget.user.uid!,
         ),
       )
       ..add(
         Search(
           addappbar: false,
-          user: widget.userId,
+          user: widget.user.uid!,
         ),
       )
       ..add(
         History(
-          user: widget.userId,
+          user: widget.user.uid!,
         ),
       )
       ..add(
-        Profile(user: widget.userId),
+        Profile(user: widget.user.uid!),
       );
     super.initState();
     checkUserInFirestore();
@@ -90,13 +71,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final status = await OneSignal.shared.getDeviceState();
     final String? osUserID = status?.userId;
     print(osUserID);
-    tokensref.doc(widget.userId).set({'devtoken': osUserID});
+    tokensRef.doc(widget.user.uid).set({'devtoken': osUserID});
   }
 
   late FirebaseMessaging _messaging;
 
   schoolList() async {
-    QuerySnapshot snapshot = await schoolref.get();
+    QuerySnapshot snapshot = await schoolRef.get();
     List<String> schoollist = [];
     for (var doc in snapshot.docs) {
       SchoolModel schoolModel = SchoolModel.fromDocument(doc);
@@ -116,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   checkUserInFirestore() async {
-    DocumentSnapshot doc = await userref.doc(_auth.currentUser?.uid).get();
+    DocumentSnapshot doc = await userRef.doc(_auth.currentUser?.uid).get();
 
     if (doc.exists) {
     } else if (!doc.exists) {
@@ -235,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: TextFormField(
                               controller: phonecontroller,
                               validator: (value) {
-                                Future<QuerySnapshot> phone = userref
+                                Future<QuerySnapshot> phone = userRef
                                     .where('number',
                                         isEqualTo: phonecontroller.text)
                                     .get();
@@ -317,23 +298,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: MaterialButton(
                   onPressed: () async {
                     if (_userdetailsformkey.currentState!.validate()) {
-                      await userref
+                      await userRef
                           .where('number', isEqualTo: phonecontroller.text)
                           .get()
                           .then((value) {
                         if (value.docs.isEmpty) {
-                          userref.doc(_auth.currentUser?.uid).set({
+                          userRef.doc(_auth.currentUser?.uid).set({
                             'ismanager': false,
-                            'number': widget.phonenumber == ''
+                            'number': widget.user.phoneNumber == ''
                                 ? phonecontroller.text
-                                : widget.phonenumber,
-                            'uid': widget.userId,
+                                : widget.user.phoneNumber,
+                            'uid': widget.user.uid,
                             'username': namecontroller.text,
                             'school': selectedValue,
                             'timestamp': timestamp,
-                            'password': widget.password,
+                            'password': "widget.user.password",
                             'email': emailcontroller.text,
-                            'signinmethod': widget.signinmethod,
+                            'signinmethod': "widget.user.signinmethod",
                           });
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(

@@ -77,19 +77,19 @@ class _FoodCartModelState extends State<FoodCartModel> {
                           onTap: () {
                             setState(() {
                               if (count == 1) {
-                                foodcartref
+                                foodCartRef
                                     .doc(widget.user)
                                     .collection('Orders')
                                     .doc(widget.orderid)
                                     .delete();
-                                foodcartref
+                                foodCartRef
                                     .doc(widget.user)
                                     .collection('Orders')
                                     .doc(widget.orderid)
                                     .update({'quantity': count});
                               } else {
                                 count -= 1;
-                                foodcartref
+                                foodCartRef
                                     .doc(widget.user)
                                     .collection('Orders')
                                     .doc(widget.orderid)
@@ -122,7 +122,7 @@ class _FoodCartModelState extends State<FoodCartModel> {
                           onTap: () {
                             setState(() {
                               count += 1;
-                              foodcartref
+                              foodCartRef
                                   .doc(widget.user)
                                   .collection('Orders')
                                   .doc(widget.orderid)

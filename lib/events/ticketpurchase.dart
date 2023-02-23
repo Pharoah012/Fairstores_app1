@@ -82,7 +82,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
   }
 
   getuserinfo() async {
-    DocumentSnapshot doc = await userref.doc(widget.userid).get();
+    DocumentSnapshot doc = await userRef.doc(widget.userid).get();
     UserModel userModel = UserModel.fromDocument(doc);
     setState(() {
       this.userModel = userModel;
@@ -90,7 +90,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
   }
 
   schoolList() async {
-    QuerySnapshot snapshot = await schoolref.get();
+    QuerySnapshot snapshot = await schoolRef.get();
     List<String> schoollist = [];
     for (var doc in snapshot.docs) {
       SchoolModel schoolModel = SchoolModel.fromDocument(doc);
@@ -625,7 +625,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                   onPressed: () async {
                     if (page == 'fairticket') {
                       for (int i = 0; i < quantity; i++) {
-                        eventticketspurchaseref.doc(orderid).set({
+                        eventTicketsPurchaseRef.doc(orderid).set({
                           'orderid': orderid,
                           'eventid': widget.eventid,
                           'tickettype': page,
@@ -645,7 +645,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                         });
                       }
                     } else {
-                      eventticketspurchaseref.doc(orderid).set({
+                      eventTicketsPurchaseRef.doc(orderid).set({
                         'orderid': orderid,
                         'eventid': widget.eventid,
                         'tickettype': page,
@@ -777,7 +777,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                 print(widget.userid);
                 if (page == 'fairticket') {
                   for (int i = 0; i < quantity; i++) {
-                    eventticketspurchaseref.doc(orderid).set({
+                    eventTicketsPurchaseRef.doc(orderid).set({
                       'orderid': orderid,
                       'eventid': widget.eventid,
                       'tickettype': page,
@@ -797,7 +797,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                     });
                   }
                 } else {
-                  eventticketspurchaseref.doc(orderid).set({
+                  eventTicketsPurchaseRef.doc(orderid).set({
                     'orderid': orderid,
                     'eventid': widget.eventid,
                     'tickettype': page,

@@ -59,7 +59,7 @@ class _AdminState extends State<Admin> {
             ),
           ),
           StreamBuilder<QuerySnapshot>(
-              stream: transactionsref.snapshots(),
+              stream: transactionsRef.snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const ListTile(

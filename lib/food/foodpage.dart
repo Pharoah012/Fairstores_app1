@@ -44,7 +44,7 @@ class _FoodPageState extends State<FoodPage> {
 
   getcategories() {
     return StreamBuilder<QuerySnapshot>(
-        stream: categoryref
+        stream: categoryRef
             .doc('FairFood')
             .collection('categories')
             .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
@@ -112,9 +112,9 @@ class _FoodPageState extends State<FoodPage> {
 
   getads() async {
     QuerySnapshot snapshot1 =
-        await adsref.doc('General').collection('content').get();
+        await adsRef.doc('General').collection('content').get();
 
-    QuerySnapshot snapshot2 = await adsref
+    QuerySnapshot snapshot2 = await adsRef
         .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
         .collection('content')
         .get();
@@ -136,7 +136,7 @@ class _FoodPageState extends State<FoodPage> {
   getjoints() {
     if (categorySelection == '01') {
       return StreamBuilder<QuerySnapshot>(
-          stream: jointsref
+          stream: jointsRef
               .doc(selectedSchool)
               .collection('Joints')
               .orderBy('lockshop', descending: false)
@@ -161,7 +161,7 @@ class _FoodPageState extends State<FoodPage> {
           });
     } else {
       return StreamBuilder<QuerySnapshot>(
-          stream: jointsref
+          stream: jointsRef
               .doc(selectedSchool)
               .collection('Joints')
               .where('categoryid', isEqualTo: categorySelection)
@@ -191,7 +191,7 @@ class _FoodPageState extends State<FoodPage> {
   getbestsellers() {
     if (categorySelection == '01') {
       return StreamBuilder<QuerySnapshot>(
-          stream: jointsref
+          stream: jointsRef
               .doc(selectedSchool)
               .collection('Joints')
               .orderBy('foodjoint_favourite_count', descending: true)
@@ -221,7 +221,7 @@ class _FoodPageState extends State<FoodPage> {
           });
     } else {
       return StreamBuilder<QuerySnapshot>(
-          stream: jointsref
+          stream: jointsRef
               .doc(selectedSchool)
               .collection('Joints')
               .where('categoryid', isEqualTo: categorySelection)
@@ -254,7 +254,7 @@ class _FoodPageState extends State<FoodPage> {
   }
 
   schoolList() async {
-    QuerySnapshot snapshot = await schoolref.get();
+    QuerySnapshot snapshot = await schoolRef.get();
     List<String> schoollist = [];
     for (var doc in snapshot.docs) {
       SchoolModel schoolModel = SchoolModel.fromDocument(doc);
@@ -533,7 +533,7 @@ class _HomeTileState extends State<HomeTile> {
           .showSnackBar(const SnackBar(content: Text('Added to Favourites')));
     }
 
-    jointsref
+    jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.tileid)

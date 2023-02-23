@@ -37,7 +37,7 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   schoolList() async {
-    QuerySnapshot snapshot = await schoolref.get();
+    QuerySnapshot snapshot = await schoolRef.get();
     List<String> schoollist = [];
     for (var doc in snapshot.docs) {
       SchoolModel schoolModel = SchoolModel.fromDocument(doc);
@@ -154,8 +154,8 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   Future<QuerySnapshot> customFuture() async {
-    var alldocs = await eventsref.doc('All').collection('events').get().then(
-        (value) => eventsref.doc(widget.school).collection('events').get());
+    var alldocs = await eventsRef.doc('All').collection('events').get().then(
+        (value) => eventsRef.doc(widget.school).collection('events').get());
 
     return alldocs;
   }
@@ -180,7 +180,7 @@ class _EventsPageState extends State<EventsPage> {
                 ),
               ),
               StreamBuilder<QuerySnapshot>(
-                  stream: eventsref.doc('All').collection('events').snapshots(),
+                  stream: eventsRef.doc('All').collection('events').snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       print('object');
@@ -198,7 +198,7 @@ class _EventsPageState extends State<EventsPage> {
                     ));
                   }),
               StreamBuilder<QuerySnapshot>(
-                  stream: eventsref
+                  stream: eventsRef
                       .doc(selectedSchool)
                       .collection('events')
                       .snapshots(),
@@ -323,7 +323,7 @@ class _EventsPageModelState extends State<EventsPageModel> {
   int favoritecount = 0;
 
   geteventgoers() async {
-    QuerySnapshot snapshot = await eventticketspurchaseref
+    QuerySnapshot snapshot = await eventTicketsPurchaseRef
         .doc(widget.eventid)
         .collection('Purchases')
         .where('status', isEqualTo: 'Active')
@@ -352,22 +352,22 @@ class _EventsPageModelState extends State<EventsPageModel> {
           .showSnackBar(const SnackBar(content: Text('Added to Favourites')));
     }
 
-    eventsref
+    eventsRef
         .doc('All')
         .collection('events')
         .doc(widget.eventid)
         .update({'favourites_list': widget.favouriteslist});
-    eventsref
+    eventsRef
         .doc('All')
         .collection('events')
         .doc(widget.eventid)
         .update({'favourite_count': favoritecount});
-    eventsref
+    eventsRef
         .doc(widget.school)
         .collection('events')
         .doc(widget.eventid)
         .update({'favourites_list': widget.favouriteslist});
-    eventsref
+    eventsRef
         .doc(widget.school)
         .collection('events')
         .doc(widget.eventid)

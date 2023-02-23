@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
   }
 
   getmanager() async {
-    DocumentSnapshot snapshot = await userref.doc(widget.user).get();
+    DocumentSnapshot snapshot = await userRef.doc(widget.user).get();
     UserModel model = UserModel.fromDocument(snapshot);
     setState(() {
       ismanager = model.ismanager;
@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
   UserModel model = UserModel(ismanager: false);
 
   getschool() async {
-    DocumentSnapshot doc = await userref.doc(widget.user).get();
+    DocumentSnapshot doc = await userRef.doc(widget.user).get();
     UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
 
   homeHeader() {
     return StreamBuilder<DocumentSnapshot>(
-        stream: userref.doc(widget.user).snapshots(),
+        stream: userRef.doc(widget.user).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Padding(

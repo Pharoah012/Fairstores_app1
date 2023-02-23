@@ -25,7 +25,7 @@ class _NotificationsState extends State<Notifications> {
 
   getnotifications() async {
     print(widget.user);
-    QuerySnapshot snapshot = await notificationsref
+    QuerySnapshot snapshot = await notificationsRef
         .doc(widget.user)
         .collection('Notifications')
         .get();
@@ -42,7 +42,7 @@ class _NotificationsState extends State<Notifications> {
       padding: const EdgeInsets.only(top: 40),
       child: MaterialButton(
         onPressed: () async {
-          QuerySnapshot snapshot = await notificationsref
+          QuerySnapshot snapshot = await notificationsRef
               .doc(widget.user)
               .collection('Notifications')
               .get();

@@ -34,7 +34,7 @@ class _SearchState extends State<Search> {
   }
 
   getUser() async {
-    DocumentSnapshot doc = await userref.doc(widget.user).get();
+    DocumentSnapshot doc = await userRef.doc(widget.user).get();
     UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
@@ -44,7 +44,7 @@ class _SearchState extends State<Search> {
   pagetoggle(page) {
     if (page == 'food') {
       return StreamBuilder<QuerySnapshot>(
-          stream: jointsref
+          stream: jointsRef
               .doc(widget.school ?? model.school)
               .collection('Joints')
               .where('foodjoint_name', isGreaterThanOrEqualTo: search)
@@ -82,7 +82,7 @@ class _SearchState extends State<Search> {
           });
     } else if (page == 'events') {
       return FutureBuilder<QuerySnapshot>(
-          future: eventsref
+          future: eventsRef
               .doc(widget.school ?? model.school)
               .collection('events')
               .where('eventname', isGreaterThanOrEqualTo: search)

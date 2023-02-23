@@ -92,7 +92,7 @@ class _FoodTileState extends State<FoodTile> {
       });
     }
 
-    jointsref
+    jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.tileid)

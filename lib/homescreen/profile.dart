@@ -38,7 +38,7 @@ class _ProfileState extends State<Profile> {
   }
 
   getuser() async {
-    DocumentSnapshot doc = await userref.doc(widget.user).get();
+    DocumentSnapshot doc = await userRef.doc(widget.user).get();
     if (doc.exists) {
       UserModel model = UserModel.fromDocument(doc);
       setState(() {
@@ -98,7 +98,7 @@ class _ProfileState extends State<Profile> {
 
   profilemenu() {
     return FutureBuilder<DocumentSnapshot>(
-        future: securityref.doc('Security_keys').get(),
+        future: securityRef.doc('Security_keys').get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const SizedBox();
@@ -247,7 +247,7 @@ class _ProfileState extends State<Profile> {
 
   editprofile() {
     return StreamBuilder<DocumentSnapshot>(
-        stream: userref.doc(widget.user).snapshots(),
+        stream: userRef.doc(widget.user).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const SizedBox();
@@ -317,7 +317,7 @@ class _ProfileState extends State<Profile> {
   }
 
   postDetailsToFirestore(String email, String phonenumber) {
-    userref.doc(widget.user).update({'email': email, 'number': phonenumber});
+    userRef.doc(widget.user).update({'email': email, 'number': phonenumber});
   }
 
   showeditdetails(context) {

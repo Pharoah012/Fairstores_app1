@@ -33,7 +33,7 @@ class _ViewOrderState extends State<ViewOrder> {
 
   receipt() {
     return FutureBuilder<QuerySnapshot>(
-        future: foodcartref
+        future: foodCartRef
             .doc(widget.userid)
             .collection('Orders')
             .where('userid', isEqualTo: widget.userid)
@@ -236,7 +236,7 @@ class _ViewOrderState extends State<ViewOrder> {
           centerTitle: true,
           leading: GestureDetector(
             onTap: () async {
-              QuerySnapshot snapshot = await foodcartref
+              QuerySnapshot snapshot = await foodCartRef
                   .doc(widget.userid)
                   .collection('Orders')
                   .get();

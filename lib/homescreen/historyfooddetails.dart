@@ -47,7 +47,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
   }
 
   getservicecharge() async {
-    DocumentSnapshot doc = await securityref.doc('Security_keys').get();
+    DocumentSnapshot doc = await securityRef.doc('Security_keys').get();
     SecurityModel securityModel = SecurityModel.fromDocument(doc);
     setState(() {
       taxes = securityModel.taxfee.toDouble();
@@ -56,7 +56,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
   }
 
   getdeliveryprice() async {
-    DocumentSnapshot doc = await jointsref
+    DocumentSnapshot doc = await jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.foodTile.tileid)

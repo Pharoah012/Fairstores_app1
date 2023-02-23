@@ -39,7 +39,7 @@ class _FoodBagState extends State<FoodBag> {
   }
 
   getservicecharge() async {
-    DocumentSnapshot doc = await securityref.doc('Security_keys').get();
+    DocumentSnapshot doc = await securityRef.doc('Security_keys').get();
     SecurityModel securityModel = SecurityModel.fromDocument(doc);
     setState(() {
       taxes = securityModel.taxfee.toDouble();
@@ -48,7 +48,7 @@ class _FoodBagState extends State<FoodBag> {
   }
 
   getdeliveryprice() async {
-    DocumentSnapshot doc = await jointsref
+    DocumentSnapshot doc = await jointsRef
         .doc(widget.schoolname)
         .collection('Joints')
         .doc(widget.shopid)
@@ -240,7 +240,7 @@ class _FoodBagState extends State<FoodBag> {
 
   getcartitems() {
     return StreamBuilder<QuerySnapshot>(
-        stream: foodcartref
+        stream: foodCartRef
             .doc(widget.user)
             .collection('Orders')
             .where('status', isEqualTo: 'pending')
@@ -306,7 +306,7 @@ class _FoodBagState extends State<FoodBag> {
               ),
             ),
             StreamBuilder<QuerySnapshot>(
-                stream: foodcartref
+                stream: foodCartRef
                     .doc(widget.user)
                     .collection('Orders')
                     .where('status', isEqualTo: 'pending')

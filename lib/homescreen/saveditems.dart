@@ -30,7 +30,7 @@ class _SavedItemsState extends State<SavedItems> {
   }
 
   geteventsfavorite() async {
-    QuerySnapshot snapshot = await eventsref
+    QuerySnapshot snapshot = await eventsRef
         .doc(widget.school)
         .collection('events')
         .where('favourites_list', arrayContains: widget.user)
@@ -47,7 +47,7 @@ class _SavedItemsState extends State<SavedItems> {
   }
 
   getfavoritesfood() async {
-    QuerySnapshot snapshot = await jointsref
+    QuerySnapshot snapshot = await jointsRef
         .doc(widget.school)
         .collection('Joints')
         .where('foodjoint_favourites', arrayContains: widget.user)

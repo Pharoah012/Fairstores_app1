@@ -2,7 +2,6 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/onboarding_model.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 
 class OnboardingWidget extends StatelessWidget {

@@ -86,12 +86,12 @@ class _FoodCheckoutState extends State<FoodCheckout> {
 
   getmanagertokens() async {
     QuerySnapshot snapshot =
-        await userref.where('ismanager', isEqualTo: true).get();
+        await userRef.where('ismanager', isEqualTo: true).get();
     List<String> tokens = [];
     snapshot.docs.forEach((element) async {
       UserModel model = UserModel.fromDocument(element);
 
-      DocumentSnapshot doc = await tokensref.doc(model.uid).get();
+      DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
       TokenModel tokenModel = TokenModel.fromDocument(doc);
       tokens.add(tokenModel.devtoken.toString());
     });
@@ -101,7 +101,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   }
 
   getuserinfo() async {
-    DocumentSnapshot doc = await userref.doc(widget.userid).get();
+    DocumentSnapshot doc = await userRef.doc(widget.userid).get();
     UserModel userModel = UserModel.fromDocument(doc);
     setState(() {
       this.userModel = userModel;
@@ -110,7 +110,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
 
   receipt() {
     return FutureBuilder<QuerySnapshot>(
-        future: foodcartref
+        future: foodCartRef
             .doc(widget.userid)
             .collection('Orders')
             .where('userid', isEqualTo: widget.userid)
@@ -261,7 +261,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   }
 
   schoolList() async {
-    QuerySnapshot snapshot = await schoolref.get();
+    QuerySnapshot snapshot = await schoolRef.get();
     List<String> schoollist = [];
     for (var doc in snapshot.docs) {
       SchoolModel schoolModel = SchoolModel.fromDocument(doc);
@@ -658,7 +658,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                   Navigator.pop(context);
                   Navigator.pop(context);
 
-                  QuerySnapshot snapshot = await foodcartref
+                  QuerySnapshot snapshot = await foodCartRef
                       .doc(widget.userid)
                       .collection('Orders')
                       .get();
@@ -666,7 +666,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     e.reference.delete();
                   }
 
-                  transactionsref.doc(orderid).set({
+                  transactionsRef.doc(orderid).set({
                     'orderid': orderid,
                     'shopid': widget.shopid,
                     'school': widget.school,
@@ -726,7 +726,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                         style: GoogleFonts.manrope())),
                 SimpleDialogOption(
                   onPressed: () async {
-                    transactionsref.doc(orderid).set({
+                    transactionsRef.doc(orderid).set({
                       'orderid': orderid,
                       'shopid': widget.shopid,
                       'school': widget.school,
@@ -857,7 +857,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     content: Text(
                         'Pop Up not initialized. Please Wait or Try again')));
               } else if (confirm.status == 'Success') {
-                transactionsref.doc(orderid).set({
+                transactionsRef.doc(orderid).set({
                   'orderid': orderid,
                   'shopid': widget.shopid,
                   'school': widget.school,

@@ -1,48 +1,26 @@
 import 'dart:async';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
 import 'package:fairstores/backend/firebase_options.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/credentials.dart';
+import 'package:fairstores/homescreen/homescreen.dart';
+import 'package:fairstores/providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
-DateTime timestamp = DateTime.now();
-final userref = FirebaseFirestore.instance.collection('Users');
-final schoolref = FirebaseFirestore.instance.collection('Schools');
-final notificationsref = FirebaseFirestore.instance.collection('Notifications');
-final tokensref = FirebaseFirestore.instance.collection('UserTokens');
-
-final securityref = FirebaseFirestore.instance.collection('Security');
-final menuref = FirebaseFirestore.instance.collection('FoodMenu');
-final sideoptions = FirebaseFirestore.instance.collection('FoodSideOptions');
-final adsref = FirebaseFirestore.instance.collection('Ads');
-final jointsref = FirebaseFirestore.instance.collection('foodJoints');
-final eventsref = FirebaseFirestore.instance.collection('EventsPrograms');
-final eventcontentref = FirebaseFirestore.instance.collection('EventsContent');
-final foodcartref = FirebaseFirestore.instance.collection('FoodCart');
-final transactionsref = FirebaseFirestore.instance.collection('ActiveOrders');
-final categoryref = FirebaseFirestore.instance.collection('Categories');
-final eventhisoryref = FirebaseFirestore.instance.collection('Eventshistory');
-final historyref = FirebaseFirestore.instance.collection('History');
-final eventticketspurchaseref =
-    FirebaseFirestore.instance.collection('EventsTicketPurchases');
-
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    "fair_stores", "fair_stores notification",
-    description: "fair_stores", importance: Importance.max, playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-//This methoed is to subscribe them to a particular topic
+Future<void> initOneSignal() async {
+  OneSignal.shared.setAppId(oneSignalAppId);
+  OneSignal.shared
+      .promptUserForPushNotificationPermission()
+      .then((accepted) {});
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +62,9 @@ Future<void> main() async {
     }
   });
 
+  // set up one signal
+  initOneSignal();
+
   // Make status bar transparent on Android
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent, // transparent status bar
@@ -94,26 +75,55 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      child: const MyApp()
+      child: MyApp()
     )
   );
 
 //  await postDetailsToFirestore();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends ConsumerWidget {
+  MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final _auth = ref.watch(authProvider);
+
     return MaterialApp(
         title: 'FairStores',
         theme: ThemeData(
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),
-        home: const OnboardingScreen()
+        home: StreamBuilder<User?>(
+            stream: _auth.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.active) {
+                User? user = snapshot.data;
+
+                //Check if the user has signed in
+                if (user == null) {
+                  //Display the signIn page if the user has not logged in
+                  return const OnboardingScreen();
+                }
+
+                // Navigate to home page when the authentication is successful
+                // Redirect the user to the main screen if they're logged in already
+                return HomeScreen(
+                  user: user,
+                );
+              }
+
+              //Display a loading UI while the data is loading
+              return const Scaffold(
+                // backgroundColor: Colors.white,
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+        )
     );
   }
 }

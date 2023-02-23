@@ -42,7 +42,7 @@ class _HistoryState extends State<History> {
   UserModel model = UserModel(ismanager: false);
 
   getschool() async {
-    DocumentSnapshot doc = await userref.doc(widget.user).get();
+    DocumentSnapshot doc = await userRef.doc(widget.user).get();
     UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
@@ -127,7 +127,7 @@ class _HistoryState extends State<History> {
       return Column(
         children: [
           StreamBuilder<QuerySnapshot>(
-              stream: transactionsref
+              stream: transactionsRef
                   .where('userid', isEqualTo: widget.user)
                   .snapshots(),
               builder: (context, snapshot) {
@@ -168,7 +168,7 @@ class _HistoryState extends State<History> {
                             ),
                           ),
                     StreamBuilder<QuerySnapshot>(
-                        stream: historyref
+                        stream: historyRef
                             .doc(widget.user)
                             .collection('foodhistory')
                             .snapshots(),
@@ -216,7 +216,7 @@ class _HistoryState extends State<History> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: StreamBuilder<QuerySnapshot>(
-                stream: eventticketspurchaseref
+                stream: eventTicketsPurchaseRef
                     .where('userid', isEqualTo: widget.user)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -257,7 +257,7 @@ class _HistoryState extends State<History> {
                 }),
           ),
           StreamBuilder<QuerySnapshot>(
-              stream: eventhisoryref
+              stream: eventhistoryRef
                   .doc(widget.user)
                   .collection('history')
                   .snapshots(),
@@ -472,7 +472,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
   }
 
   getshop() async {
-    DocumentSnapshot doc = await jointsref
+    DocumentSnapshot doc = await jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.shopid)
@@ -644,7 +644,7 @@ class _HistoryTileState extends State<HistoryTile> {
       tileprice: 0);
 
   getshop() async {
-    DocumentSnapshot doc = await jointsref
+    DocumentSnapshot doc = await jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.shopid)

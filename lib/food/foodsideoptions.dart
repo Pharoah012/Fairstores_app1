@@ -51,7 +51,7 @@ class _FoodOptionsState extends State<FoodOptions> {
 
   openorder() {
     //open order to be prepared
-    foodcartref.doc(widget.userid).collection('Orders').doc(orderid).set({
+    foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).set({
       'cartid': 'cart${widget.userid}',
       'orderid': orderid,
       'shopid': widget.shopid,
@@ -69,7 +69,7 @@ class _FoodOptionsState extends State<FoodOptions> {
 
   closeorder() async {
     //open order to be prepared
-    DocumentSnapshot snapshot = await foodcartref
+    DocumentSnapshot snapshot = await foodCartRef
         .doc(widget.userid)
         .collection('Orders')
         .doc(orderid)
@@ -160,7 +160,7 @@ class _FoodOptionsState extends State<FoodOptions> {
     // print(widget.categoryid);
     // print(widget.mealid);
     return StreamBuilder<QuerySnapshot>(
-        stream: menuref
+        stream: menuRef
             .doc(widget.shopid)
             .collection('categories')
             .doc(widget.categoryid)
@@ -226,7 +226,7 @@ class _FoodOptionsState extends State<FoodOptions> {
                   ),
                 ),
                 StreamBuilder<QuerySnapshot>(
-                    stream: menuref
+                    stream: menuRef
                         .doc(widget.shopid)
                         .collection('categories')
                         .doc(widget.categoryid)
@@ -261,7 +261,7 @@ class _FoodOptionsState extends State<FoodOptions> {
             ));
           }
 
-          foodcartref
+          foodCartRef
               .doc(widget.userid)
               .collection('Orders')
               .doc(orderid)
@@ -274,7 +274,7 @@ class _FoodOptionsState extends State<FoodOptions> {
   }
 
   checkisrequired() async {
-    DocumentSnapshot snapshot = await foodcartref
+    DocumentSnapshot snapshot = await foodCartRef
         .doc(widget.userid)
         .collection('Orders')
         .doc(orderid)
@@ -286,7 +286,7 @@ class _FoodOptionsState extends State<FoodOptions> {
           const SnackBar(content: Text('Please select required')));
     } else {
       Navigator.pop(context);
-      foodcartref.doc(widget.userid).collection('Orders').doc(orderid).update({
+      foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).update({
         'status': 'pending',
         'instructions': instructioncontroller.text,
       });
@@ -507,7 +507,7 @@ class _SideOptionState extends State<SideOption> {
 
   checkisrequiredsatisfied(istrue) {
     if (widget.isrequired == true) {
-      foodcartref
+      foodCartRef
           .doc(widget.userid)
           .collection('Orders')
           .doc(widget.orderid)
@@ -525,7 +525,7 @@ class _SideOptionState extends State<SideOption> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-        stream: foodcartref
+        stream: foodCartRef
             .doc(widget.userid)
             .collection('Orders')
             .doc(widget.orderid)
@@ -555,17 +555,17 @@ class _SideOptionState extends State<SideOption> {
               sidesselection.remove(widget.name);
               maxitems[indexmaxitems] = maxitems[indexmaxitems] + 1;
               checkisrequiredsatisfied(false);
-              foodcartref
+              foodCartRef
                   .doc(widget.userid)
                   .collection('Orders')
                   .doc(widget.orderid)
                   .update({'sides': sidesselection});
-              foodcartref
+              foodCartRef
                   .doc(widget.userid)
                   .collection('Orders')
                   .doc(widget.orderid)
                   .update({'maxitems': maxitems});
-              foodcartref
+              foodCartRef
                   .doc(widget.userid)
                   .collection('Orders')
                   .doc(widget.orderid)
@@ -581,17 +581,17 @@ class _SideOptionState extends State<SideOption> {
                 checkisrequiredsatisfied(true);
                 maxitems[indexmaxitems] = maxitems[indexmaxitems] - 1;
 
-                foodcartref
+                foodCartRef
                     .doc(widget.userid)
                     .collection('Orders')
                     .doc(widget.orderid)
                     .update({'sides': sidesselection});
-                foodcartref
+                foodCartRef
                     .doc(widget.userid)
                     .collection('Orders')
                     .doc(widget.orderid)
                     .update({'maxitems': maxitems});
-                foodcartref
+                foodCartRef
                     .doc(widget.userid)
                     .collection('Orders')
                     .doc(widget.orderid)

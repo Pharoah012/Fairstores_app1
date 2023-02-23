@@ -71,7 +71,7 @@ class _EventState extends State<Event> {
   }
 
   geteventgoers() async {
-    QuerySnapshot snapshot = await eventticketspurchaseref
+    QuerySnapshot snapshot = await eventTicketsPurchaseRef
         .doc(widget.eventid)
         .collection('Purchases')
         .where('status', isEqualTo: 'Active')
@@ -85,7 +85,7 @@ class _EventState extends State<Event> {
     List<VideoModel> videolist = [];
     print(widget.eventid);
     QuerySnapshot snapshot =
-        await eventcontentref.doc(widget.eventid).collection('videos').get();
+        await transactionsRef.doc(widget.eventid).collection('videos').get();
     videolist = snapshot.docs.map((e) => VideoModel.fromDocument(e)).toList();
 
     setState(() {

@@ -69,7 +69,7 @@ class _FoodhomeState extends State<Foodhome> {
       });
     }
 
-    jointsref
+    jointsRef
         .doc(widget.school)
         .collection('Joints')
         .doc(widget.jointid)
@@ -216,7 +216,7 @@ class _FoodhomeState extends State<Foodhome> {
   jointMenuOptionTile() {
     return StreamBuilder<QuerySnapshot>(
         stream:
-            menuref.doc(widget.jointid).collection('categories').snapshots(),
+            menuRef.doc(widget.jointid).collection('categories').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const SizedBox();
@@ -277,7 +277,7 @@ class _FoodhomeState extends State<Foodhome> {
 
   jointMenu() {
     return StreamBuilder<QuerySnapshot>(
-        stream: menuref
+        stream: menuRef
             .doc(widget.jointid)
             .collection('categories')
             .doc(optionpage)
@@ -301,7 +301,7 @@ class _FoodhomeState extends State<Foodhome> {
 
   itemInCart() {
     return StreamBuilder<QuerySnapshot>(
-        stream: foodcartref
+        stream: foodCartRef
             .doc(widget.user)
             .collection('Orders')
             .where('shopid', isEqualTo: widget.jointid)
@@ -549,7 +549,7 @@ class _OptionsTileState extends State<OptionsTile> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    QuerySnapshot snapshot = await foodcartref
+                    QuerySnapshot snapshot = await foodCartRef
                         .doc(widget.userid)
                         .collection('Orders')
                         .get();
@@ -570,7 +570,7 @@ class _OptionsTileState extends State<OptionsTile> {
   }
 
   checkcartavailability() async {
-    QuerySnapshot snapshot = await foodcartref
+    QuerySnapshot snapshot = await foodCartRef
         .doc(widget.userid)
         .collection('Orders')
         .where('shopid', isNotEqualTo: widget.shopid)
@@ -584,7 +584,7 @@ class _OptionsTileState extends State<OptionsTile> {
 
   closeorder() async {
     //open order to be prepared
-    DocumentSnapshot snapshot = await foodcartref
+    DocumentSnapshot snapshot = await foodCartRef
         .doc(widget.userid)
         .collection('Orders')
         .doc(orderid)
@@ -600,7 +600,7 @@ class _OptionsTileState extends State<OptionsTile> {
   }
 
   getoptions() async {
-    DocumentSnapshot snapshot = await menuref
+    DocumentSnapshot snapshot = await menuRef
         .doc(widget.shopid)
         .collection('categories')
         .doc(widget.categoryid)
@@ -621,7 +621,7 @@ class _OptionsTileState extends State<OptionsTile> {
   orderfood() {
     if (widget.hassides == false) {
       checkcartavailability();
-      foodcartref.doc(widget.userid).collection('Orders').doc(orderid).set({
+      foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).set({
         'cartid': 'cart${widget.userid}',
         'orderid': orderid,
         'shopid': widget.shopid,
@@ -726,7 +726,7 @@ class _OptionsTileState extends State<OptionsTile> {
                                 side:
                                     const BorderSide(color: Color(0xffE7E4E4))),
                             child: StreamBuilder<DocumentSnapshot>(
-                                stream: foodcartref
+                                stream: foodCartRef
                                     .doc(widget.userid)
                                     .collection('Orders')
                                     .doc(orderid)
@@ -790,7 +790,7 @@ class _OptionsTileState extends State<OptionsTile> {
                                                   if (count == 1) {
                                                   } else {
                                                     count -= 1;
-                                                    foodcartref
+                                                    foodCartRef
                                                         .doc(widget.userid)
                                                         .collection('Orders')
                                                         .doc(orderid)
@@ -818,7 +818,7 @@ class _OptionsTileState extends State<OptionsTile> {
                                             child: IconButton(
                                               onPressed: () {
                                                 count += 1;
-                                                foodcartref
+                                                foodCartRef
                                                     .doc(widget.userid)
                                                     .collection('Orders')
                                                     .doc(orderid)
@@ -847,7 +847,7 @@ class _OptionsTileState extends State<OptionsTile> {
                         width: MediaQuery.of(context).size.width * 0.45,
                         child: MaterialButton(
                             onPressed: () {
-                              foodcartref
+                              foodCartRef
                                   .doc(widget.userid)
                                   .collection('Orders')
                                   .doc(orderid)
