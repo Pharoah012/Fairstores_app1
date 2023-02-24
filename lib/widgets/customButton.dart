@@ -42,7 +42,7 @@ class CustomButton extends StatelessWidget {
           child: CustomText(
             text: text,
             isMediumWeight: true,
-            color: isOrange ? kWhite : kWhiteButtonTextColor,
+            color: isOrange ? kWhite : kDarkGrey,
           )
         ),
       ),

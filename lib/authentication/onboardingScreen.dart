@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fairstores/homescreen/homescreen.dart';
 import 'package:fairstores/providers/auth_provider.dart';
+import 'package:fairstores/providers/otp_timer_provider.dart';
 import 'package:fairstores/widgets/customAuthLoader.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:fairstores/widgets/customOTPDrawer.dart';
@@ -42,7 +43,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   TextEditingController otpController = TextEditingController();
   final CarouselController _controller = CarouselController();
 
-  String verificationIdRecieved = "";
 
   List<OnboardingWidget> onboardinglist = List.generate(3, (index) => OnboardingWidget(
       onboardModel: OnboardingModel(
@@ -106,14 +106,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // this function handles the OTP drawer
   otpDrawer({
     required String phoneNumber,
-    required VoidCallback verificationLogic
+    required VoidCallback verificationLogic,
   }){
     showBarModalBottomSheet(
       context: context,
       builder: (context) => CustomOTPDrawer(
         phoneNumber: phoneNumber,
         verificationLogic: verificationLogic,
-        otpController: otpController
+        otpController: otpController,
       )
     );
   }
@@ -175,7 +175,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           CustomText(
                             text: 'Enter your phone for the verification process. '
                                 'We will send a 6 digit code to your number.',
-                            color: kWhiteButtonTextColor,
+                            color: kDarkGrey,
                           ),
                           SizedBox(height: 20,),
                           CustomTextFormField(
@@ -207,7 +207,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               // send the OTP for verification
                               await _auth.sendOTPForVerification(
                                 phoneNumber: forgotPassPhoneController.text,
-                                receivedVerificationID: verificationIdRecieved
+
+                                ref: ref
                               );
 
                               // remove the loader
@@ -217,10 +218,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 phoneNumber: forgotPassPhoneController.text,
                                 verificationLogic: (){
 
-                                  Map<String, dynamic> verifyOTP = _auth
-                                      .verfiyOTP(
+                                  Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
                                       otp: otpController.text,
-                                      receivedVerificationID: verificationIdRecieved
+                                    ref: ref
                                   );
 
                                   // check if the user's input is valid
@@ -398,7 +398,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         'Tap the button below and start engaging with a '
                         'variety of joints',
                     isCenter: true,
-                    color: kWhiteButtonTextColor,
+                    color: kDarkGrey,
                   ),
                   signUpForm(
                       signUpPasswordController: signUpPasswordController,
@@ -417,8 +417,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                       // send OTP to verify the user's number
                       await _auth.sendOTPForVerification(
-                          phoneNumber: signUpPhoneController.text,
-                          receivedVerificationID: verificationIdRecieved
+                        phoneNumber: signUpPhoneController.text,
+
+                        ref: ref
                       );
 
                       // remove the loader
@@ -430,10 +431,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           verificationLogic: () async {
 
                             // verifiy the user's OTP input
-                            Map<String, dynamic> verifyOTP = _auth
-                                .verfiyOTP(
+                            Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
                                 otp: otpController.text,
-                                receivedVerificationID: verificationIdRecieved
+                              ref: ref
                             );
 
                             // check if the user's input is valid
@@ -595,7 +595,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               text: 'Lets lead you right back to your page. '
                   'Tap the button below',
               isCenter: true,
-              color: kWhiteButtonTextColor,
+              color: kDarkGrey,
             ),
             loginForm(
               phoneNumberController: loginPhoneController,
@@ -651,7 +651,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     // Send the OTP
                     await _auth.sendOTPForVerification(
                       phoneNumber: loginPhoneController.text,
-                      receivedVerificationID: verificationIdRecieved
+                      ref: ref
                     );
 
                     // remove the loader
@@ -664,10 +664,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       phoneNumber: loginPhoneController.text,
                       verificationLogic: (){
 
-                        Map<String, dynamic> verifyOTP = _auth
-                            .verfiyOTP(
-                            otp: otpController.text,
-                            receivedVerificationID: verificationIdRecieved
+                        Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
+                          otp: otpController.text,
+                          ref: ref
                         );
 
                         // check if the user's input is valid
@@ -785,6 +784,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final _auth = ref.watch(authProvider);
+    final duration = ref.watch(durationProvider);
+    final _otpTimer = ref.watch(otpTimerProvider);
+    final _minutes = ref.watch(minuteProvider);
+    final _seconds = ref.watch(secondsProvider);
+    final _resendToken = ref.watch(resendTokenProvider);
+    final _receivedVerificationID = ref.watch(receivedVerificationIDProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,

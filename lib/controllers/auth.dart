@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/providers/otp_timer_provider.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -82,11 +84,11 @@ class Auth {
   // This function verifies the OTP
   Map<String, dynamic> verfiyOTP({
     required String otp,
-    required String receivedVerificationID
+    required WidgetRef ref
   }) {
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: receivedVerificationID,
+          verificationId: ref.read(receivedVerificationIDProvider)!,
           smsCode: otp
       );
 
@@ -100,33 +102,53 @@ class Auth {
   //e This method sends the otp to the user and checks if the phone number is valid
   Future<void> sendOTPForVerification({
     required String phoneNumber,
-    required String receivedVerificationID
+    required WidgetRef ref
   }) async {
 
-    await _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // await _firebaseAuth
-        //     .signInWithCredential(credential)
-        //     .then((value) => {print("You are logged in successfully")});
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        // print(e);
-        if (e.code == 'invalid-phone-number') {
-          Fluttertoast.showToast(
-              timeInSecForIosWeb: 2,
-              msg: "Oops Something went wrong please try again later");
-        }
-      },
-      codeSent: (String verificationId, int? resendToken) async {
-        // TODO: WHEN OTP IS SENT
-        // verificationIDReceived = verificationId;
-        // otpCodeVisible = true
-        // setState(() {});
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+
+    // Only send the OTP if the number the user is trying to verify is different
+    // OR the number is the same but the timer has expired
+    if (ref.read(numberToVerify.notifier).state != phoneNumber
+      || (ref.read(numberToVerify.notifier).state == phoneNumber
+        && (ref.read(otpTimerProvider) == null
+        || ref.read(otpTimerProvider.notifier).enabledResend)
+      )
+    ){
+
+      // reset the timer if is it running before a new OTP is sent
+      if (ref.read(otpTimerProvider) != null){
+        ref.read(otpTimerProvider.notifier).stopTimer();
+      }
+
+      // Send the OTP
+      await _firebaseAuth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {},
+        verificationFailed: (FirebaseAuthException e) {
+
+          // print(e);
+          if (e.code == 'invalid-phone-number') {
+            Fluttertoast.showToast(
+                timeInSecForIosWeb: 2,
+                msg: "Oops Something went wrong please try again later");
+          }
+        },
+        forceResendingToken: ref.read(resendTokenProvider),
+        codeSent: (String verificationID, int? resendToken) async {
+          log("OTP");
+          ref.read(resendTokenProvider.notifier).state = resendToken;
+          ref.read(receivedVerificationIDProvider.notifier).state = verificationID;
+
+          // set the current number that the OTP was sent to
+          ref.read(numberToVerify.notifier).state = phoneNumber;
+
+          ref.read(otpTimerProvider.notifier).startTimer();
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    }
+
   }
 
 

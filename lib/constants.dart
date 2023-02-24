@@ -6,7 +6,7 @@ const Color kPrimary = Color(0xffF25E37);
 const Color kWhite = Colors.white;
 const Color kBlack = Colors.black;
 const Color kBrownText = Color(0xff180602);
-const Color kWhiteButtonTextColor = Color(0xff374151);
+const Color kDarkGrey = Color(0xff374151);
 
 
 // ----------- Button Colors ------------
