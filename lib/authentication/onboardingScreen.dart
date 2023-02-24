@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fairstores/homescreen/homescreen.dart';
 import 'package:fairstores/providers/auth_provider.dart';
+import 'package:fairstores/widgets/customAuthLoader.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:fairstores/widgets/customOTPDrawer.dart';
 import 'package:fairstores/widgets/customSocialAuthButton.dart';
@@ -107,7 +110,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }){
     showBarModalBottomSheet(
       context: context,
-      builder: (context) => CustomOTPController(
+      builder: (context) => CustomOTPDrawer(
         phoneNumber: phoneNumber,
         verificationLogic: verificationLogic,
         otpController: otpController
@@ -196,9 +199,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 return;
                               }
 
-                              Navigator.pop(context);
-
-                              // TODO: SHOW LOADER
+                              showDialog(
+                                context: context,
+                                builder: (context) => CustomAuthLoader()
+                              );
 
                               // send the OTP for verification
                               await _auth.sendOTPForVerification(
@@ -207,7 +211,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               );
 
                               // remove the loader
-                              // Navigator.of(context).pop();
+                              Navigator.of(context).pop();
 
                               otpDrawer(
                                 phoneNumber: forgotPassPhoneController.text,
@@ -225,11 +229,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     otpController.clear();
 
                                     showDialog(
-                                        context: context,
-                                        builder: (context) => verifyOTP['object']
+                                      context: context,
+                                      builder: (context) => verifyOTP['object']
                                     );
                                   }
                                   else {
+
+                                    //close OTP drawer
+                                    Navigator.of(context).pop();
+
                                     // clear the otp
                                     otpController.clear();
 
@@ -393,8 +401,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: kWhiteButtonTextColor,
                   ),
                   signUpForm(
-                    signUpPasswordController: signUpPasswordController,
-                    signUpPhoneController: signUpPhoneController
+                      signUpPasswordController: signUpPasswordController,
+                      signUpPhoneController: signUpPhoneController
                   ),
                   CustomButton(
                     onPressed: () async {
@@ -402,134 +410,151 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         return;
                       }
 
-                      // TODO: SHOW LOADER
+                      showDialog(
+                        context: context,
+                        builder: (context) => CustomAuthLoader()
+                      );
 
                       // send OTP to verify the user's number
                       await _auth.sendOTPForVerification(
-                        phoneNumber: signUpPhoneController.text,
-                        receivedVerificationID: verificationIdRecieved
+                          phoneNumber: signUpPhoneController.text,
+                          receivedVerificationID: verificationIdRecieved
                       );
 
                       // remove the loader
-                      // Navigator.of(context).pop();
+                      Navigator.of(context).pop();
 
                       // show OTP drawer
                       otpDrawer(
-                        phoneNumber: signUpPhoneController.text,
-                        verificationLogic: () async {
+                          phoneNumber: signUpPhoneController.text,
+                          verificationLogic: () async {
 
-                          // verifiy the user's OTP input
-                          Map<String, dynamic> verifyOTP = _auth
-                              .verfiyOTP(
-                              otp: otpController.text,
-                              receivedVerificationID: verificationIdRecieved
-                          );
-
-                          // check if the user's input is valid
-                          if (verifyOTP['type'] == "error"){
-                            // clear the otp
-                            otpController.clear();
-
-                            showDialog(
-                                context: context,
-                                builder: (context) => verifyOTP['object']
-                            );
-                          }
-                          else {
-                            // clear the otp
-                            otpController.clear();
-
-                            Map<String, dynamic> signUp = await _auth.signUp(
-                              phoneAuthCredential: verifyOTP['object'],
-                              phoneNumber: signUpPhoneController.text,
-                              password: signUpPasswordController.text
+                            // verifiy the user's OTP input
+                            Map<String, dynamic> verifyOTP = _auth
+                                .verfiyOTP(
+                                otp: otpController.text,
+                                receivedVerificationID: verificationIdRecieved
                             );
 
-                            if (signUp['type'] == "error"){
+                            // check if the user's input is valid
+                            if (verifyOTP['type'] == "error"){
+                              // clear the otp
+                              otpController.clear();
+
                               showDialog(
                                   context: context,
-                                  builder: (context) => signUp['object']
+                                  builder: (context) => verifyOTP['object']
                               );
                             }
-                            else{
-                              // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
-                              // close the otp drawer and sign up screens
-                              Navigator.of(context).pop();
+                            else {
+                              // Remove OTP drawer
                               Navigator.of(context).pop();
 
-                              // redirect the user to login
-                              showLogin();
+                              // clear the otp
+                              otpController.clear();
+
+                              // show loader while sign up process is ongoing
+                              showDialog(
+                                context: context,
+                                builder: (context) => CustomAuthLoader()
+                              );
+
+                              Map<String, dynamic> signUp = await _auth.signUp(
+                                  phoneAuthCredential: verifyOTP['object'],
+                                  phoneNumber: signUpPhoneController.text,
+                                  password: signUpPasswordController.text
+                              );
+
+                              if (signUp['type'] == "error"){
+                                // remove the loader
+                                Navigator.of(context).pop();
+
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => signUp['object']
+                                );
+
+
+                              }
+                              else{
+                                // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
+                                // close the otp drawer and sign up screens
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+
+                                // redirect the user to login
+                                showLogin();
+                              }
                             }
                           }
-                        }
                       );
-                  },
-                  text: "Sign Up",
-                  isOrange: true,
-                ),
-                SizedBox(height: 20,),
-                RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                    TextSpan(
-                      text: 'Have an account? ',
-                      style: GoogleFonts.manrope(
-                          color: const Color(0xff333333),
-                          fontWeight: FontWeight.w400,
-                          fontSize: 14
-                      )
-                    ),
-                    TextSpan(
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.pop(context);
-                          showLogin();
-                        },
-                        text: 'Sign in',
-                        style: GoogleFonts.manrope(
-                          color: kPrimary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14
-                        )
-                    )
-                  ]
+                    },
+                    text: "Sign Up",
+                    isOrange: true,
                   ),
-                ),
-                SizedBox(height: 20,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      color: kBrownText,
-                      height: 0.8,
-                      width: 140,
+                  SizedBox(height: 20,),
+                  RichText(
+                    text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Have an account? ',
+                              style: GoogleFonts.manrope(
+                                  color: const Color(0xff333333),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14
+                              )
+                          ),
+                          TextSpan(
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.pop(context);
+                                  showLogin();
+                                },
+                              text: 'Sign in',
+                              style: GoogleFonts.manrope(
+                                  color: kPrimary,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14
+                              )
+                          )
+                        ]
                     ),
-                    CustomText(
-                      text: "OR",
-                      color: kBrownText,
-                      isMediumWeight: true
-                    ),
-                    Container(
-                      color: kBrownText,
-                      height: 0.8,
-                      width: 140,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30,),
-                CustomSocialAuthButton(
-                  onPressed: () async {
-                    ref.read(authProvider).handleSignIn(signInType: "apple");
-                  },
-                ),
-                SizedBox(height: 15,),
-                CustomSocialAuthButton(
-                  isApple: false,
-                  onPressed: () async {
-                    ref.read(authProvider).handleSignIn(signInType: "google");
-                  },
-                )
-              ]
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        color: kBrownText,
+                        height: 0.8,
+                        width: 140,
+                      ),
+                      CustomText(
+                          text: "OR",
+                          color: kBrownText,
+                          isMediumWeight: true
+                      ),
+                      Container(
+                        color: kBrownText,
+                        height: 0.8,
+                        width: 140,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30,),
+                  CustomSocialAuthButton(
+                    onPressed: () async {
+                      ref.read(authProvider).handleSignIn(signInType: "apple");
+                    },
+                  ),
+                  SizedBox(height: 15,),
+                  CustomSocialAuthButton(
+                    isApple: false,
+                    onPressed: () async {
+                      ref.read(authProvider).handleSignIn(signInType: "google");
+                    },
+                  )
+                ]
             ),
           ),
         );
@@ -580,18 +605,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               onPressed: () async {
                 if (_loginformKey.currentState!.validate()) {
 
-                  // TODO: show a loader while firebase sends the OTP
+                  // show the loader
+                  showDialog(
+                    context: context,
+                    builder: (context) => CustomAuthLoader()
+                  );
 
                   // check if the user exists
                   Map<String, dynamic> getUser = await _auth
                       .getUser(phoneNumber: loginPhoneController.text);
 
+
+
                   // throw an error when the user does not exist
                   if (getUser['type'] == "error"){
+                    // remove the loader
+                    Navigator.of(context).pop();
+
                     showDialog(
                       context: context,
                       builder: (context) => getUser['object']
                     );
+
+
                   }
                   else{
 
@@ -619,16 +655,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     );
 
                     // remove the loader
-                    // Navigator.of(context).pop();
+                    Navigator.of(context, rootNavigator: true).pop();
 
                     // show OTP drawer for user to verify the OTP
                     // that was sent
+
                     otpDrawer(
                       phoneNumber: loginPhoneController.text,
                       verificationLogic: (){
 
                         Map<String, dynamic> verifyOTP = _auth
-                          .verfiyOTP(
+                            .verfiyOTP(
                             otp: otpController.text,
                             receivedVerificationID: verificationIdRecieved
                         );
@@ -639,8 +676,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           otpController.clear();
 
                           showDialog(
-                            context: context,
-                            builder: (context) => verifyOTP['object']
+                              context: context,
+                              builder: (context) => verifyOTP['object']
                           );
                         }
                         else {
@@ -649,9 +686,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (context) => HomeScreen(
-                                user: _auth.currentUser!
-                              )
+                                builder: (context) => HomeScreen(
+                                    user: _auth.currentUser!
+                                )
                             ),
                             (route)=> false
                           );
@@ -659,6 +696,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       },
 
                     );
+
                   }
                 }
               },
@@ -755,83 +793,84 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           padding: EdgeInsets.all(16.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-          children: [
-            Spacer(),
-            sliderInfo(),
-            sliderindicator(),
-            Spacer(),
-            CustomButton(
-              onPressed: (){
-                showSignup();
-              },
-              text: 'Create an Account',
-              isOrange: true,
-            ),
-            SizedBox(height: 8.0,),
-            CustomButton(
-              onPressed: (){
-                showLogin();
-              },
-              text: 'Already have an account',
-              isOrange: false
-            ),
-            SizedBox(height: 20,),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'By logging or registering, you agree to our ',
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color: kBlack
-                    )
-                  ),
-                  TextSpan(
+            children: [
+              Spacer(),
+              sliderInfo(),
+              sliderindicator(),
+              Spacer(),
+              CustomButton(
+                onPressed: (){
+                  showSignup();
+                },
+                text: 'Create an Account',
+                isOrange: true,
+              ),
+              SizedBox(height: 8.0,),
+              CustomButton(
+                  onPressed: (){
+                    showLogin();
+                  },
+                  text: 'Already have an account',
+                  isOrange: false
+              ),
+              SizedBox(height: 20,),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'By logging or registering, you agree to our ',
+                      style: GoogleFonts.manrope(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color: kBlack
+                      )
+                    ),
+                    TextSpan(
                       text: 'Terms of Services ',
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => WebViewExample(
-                                title: 'Terms and Conditions',
-                                url: termsAndConditions
-                              )
-                          )
-                      ),
+                                builder: (context) => WebViewExample(
+                                    title: 'Terms and Conditions',
+                                    url: termsAndConditions
+                                )
+                            )
+                        ),
                       style: GoogleFonts.manrope(
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
                           color: kPrimary
                       )
-                  ),
-                  TextSpan(
+                    ),
+                    TextSpan(
                       text: 'and ',
                       style: GoogleFonts.manrope(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
                           color: kBlack)
-                  ),
-                  TextSpan(
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                        builder: (context) => WebViewExample(
-                            title: 'Privacy Policy',
-                            url: privacyPolicy
-                        )
-                      )
                     ),
-                    text: 'Privacy Policy.',
-                    style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                      color: kPrimary
+                    TextSpan(
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => WebViewExample(
+                                    title: 'Privacy Policy',
+                                    url: privacyPolicy
+                                )
+                            )
+                        ),
+                      text: 'Privacy Policy.',
+                      style: GoogleFonts.manrope(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          color: kPrimary
+                        )
                     )
-                  )
-                ]
+                  ]
+                )
               )
-            )]
+            ]
           ),
         ),
       ),

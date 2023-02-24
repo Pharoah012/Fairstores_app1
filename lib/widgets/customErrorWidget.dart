@@ -1,7 +1,6 @@
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CustomError extends StatelessWidget {
   final String errorMessage;
@@ -25,6 +24,7 @@ class CustomError extends StatelessWidget {
       ),
       actions: [
         CustomButton(
+          isOrange: true,
           text: "Okay",
           onPressed: (){
             oneRemove == true ? null : Navigator.of(context).pop();

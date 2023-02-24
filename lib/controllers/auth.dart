@@ -27,6 +27,7 @@ class Auth {
       "type": "error",
       "object": CustomError(
         errorMessage: errorMessage,
+        oneRemove: true,
       )
     };
   }

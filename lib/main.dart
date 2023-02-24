@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
 import 'package:fairstores/backend/firebase_options.dart';
@@ -6,6 +7,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/credentials.dart';
 import 'package:fairstores/homescreen/homescreen.dart';
 import 'package:fairstores/providers/auth_provider.dart';
+import 'package:fairstores/providers/offline_status_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ Future<void> initOneSignal() async {
       .promptUserForPushNotificationPermission()
       .then((accepted) {});
 }
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,17 +81,71 @@ Future<void> main() async {
       child: MyApp()
     )
   );
-
-//  await postDetailsToFirestore();
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   MyApp({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+
+  // This function constantly checks the internet status of the user and alerts them
+  Future<void> internetChecker() async {
+
+    log(
+      'Current status: ${await InternetConnectionChecker().connectionStatus}',
+    );
+    // Prints either InternetConnectionStatus.connected
+    // or InternetConnectionStatus.disconnected
+
+    final StreamSubscription<InternetConnectionStatus> listener =
+    InternetConnectionChecker().onStatusChange.listen(
+          (InternetConnectionStatus status) {
+        switch (status) {
+          case InternetConnectionStatus.connected:
+
+            // check if the current status is offline
+            if (ref.read(offlineProvider)){
+              Fluttertoast.showToast(
+                  msg: 'You are back online.');
+
+              ref.read(offlineProvider.notifier).state = false;
+            }
+          // ignore: avoid_print
+            print('Data connection is available.');
+            break;
+          case InternetConnectionStatus.disconnected:
+          // ignore: avoid_print
+            Fluttertoast.showToast(
+                msg: 'You are disconnected from the internet.');
+            ref.read(offlineProvider.notifier).state = true;
+            break;
+        }
+      },
+    );
+
+    // close listener after 30 seconds, so the program doesn't run forever
+    // await Future<void>.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      internetChecker();
+    });
+
+    super.initState();
+  }
+
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final _auth = ref.watch(authProvider);
+    final offlineChecker = ref.watch(offlineProvider);
 
     return MaterialApp(
         title: 'FairStores',
@@ -96,76 +153,35 @@ class MyApp extends ConsumerWidget {
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),
-        home: StreamBuilder<User?>(
-            stream: _auth.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.active) {
-                User? user = snapshot.data;
-
-                //Check if the user has signed in
-                if (user == null) {
-                  //Display the signIn page if the user has not logged in
-                  return const OnboardingScreen();
-                }
-
-                // Navigate to home page when the authentication is successful
-                // Redirect the user to the main screen if they're logged in already
-                return HomeScreen(
-                  user: user,
-                );
-              }
-
-              //Display a loading UI while the data is loading
-              return const Scaffold(
-                // backgroundColor: Colors.white,
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-        )
+        home: OnboardingScreen()
+        // StreamBuilder<User?>(
+        //     stream: _auth.authStateChanges(),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.connectionState == ConnectionState.active) {
+        //         User? user = snapshot.data;
+        //
+        //         //Check if the user has signed in
+        //         if (user == null) {
+        //           //Display the signIn page if the user has not logged in
+        //           return const OnboardingScreen();
+        //         }
+        //
+        //         // Navigate to home page when the authentication is successful
+        //         // Redirect the user to the main screen if they're logged in already
+        //         return HomeScreen(
+        //           user: user,
+        //         );
+        //       }
+        //
+        //       //Display a loading UI while the data is loading
+        //       return const Scaffold(
+        //         // backgroundColor: Colors.white,
+        //         body: Center(
+        //           child: CircularProgressIndicator(),
+        //         ),
+        //       );
+        //     }
+        // )
     );
   }
-}
-
-Future<void> execute(
-  InternetConnectionChecker internetConnectionChecker,
-) async {
-  // Simple check to see if we have Internet
-  // ignore: avoid_print
-  print('''The statement 'this machine is connected to the Internet' is: ''');
-  final bool isConnected = await InternetConnectionChecker().hasConnection;
-  // ignore: avoid_print
-  print(
-    isConnected.toString(),
-  );
-  // returns a bool
-
-  // We can also get an enum instead of a bool
-  // ignore: avoid_print
-  print(
-    'Current status: ${await InternetConnectionChecker().connectionStatus}',
-  );
-  // Prints either InternetConnectionStatus.connected
-  // or InternetConnectionStatus.disconnected
-
-  final StreamSubscription<InternetConnectionStatus> listener =
-      InternetConnectionChecker().onStatusChange.listen(
-    (InternetConnectionStatus status) {
-      switch (status) {
-        case InternetConnectionStatus.connected:
-          // ignore: avoid_print
-          print('Data connection is available.');
-          break;
-        case InternetConnectionStatus.disconnected:
-          // ignore: avoid_print
-          Fluttertoast.showToast(
-              msg: 'You are disconnected from the internet.');
-          break;
-      }
-    },
-  );
-
-  // close listener after 30 seconds, so the program doesn't run forever
-  await Future<void>.delayed(const Duration(seconds: 1));
 }
