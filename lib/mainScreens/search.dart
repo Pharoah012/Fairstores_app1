@@ -3,25 +3,25 @@ import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Search extends StatefulWidget {
+class Search extends ConsumerStatefulWidget {
   final bool addappbar;
-  final String user;
-  final String? school;
 
-  const Search(
-      {Key? key, this.school, required this.addappbar, required this.user})
-      : super(key: key);
+  const Search({
+    Key? key,
+    required this.addappbar,
+  });
 
   @override
-  State<Search> createState() => _SearchState();
+  ConsumerState<Search> createState() => _SearchState();
 }
 
-class _SearchState extends State<Search> {
-  UserModel model = UserModel(ismanager: false);
+class _SearchState extends ConsumerState<Search> {
   String search = '';
   String page = 'food';
   List<FoodTile> foodlist = [];
@@ -29,23 +29,14 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
-    getUser();
-    //print(search);
   }
 
-  getUser() async {
-    DocumentSnapshot doc = await userRef.doc(widget.user).get();
-    UserModel model = UserModel.fromDocument(doc);
-    setState(() {
-      this.model = model;
-    });
-  }
 
   pagetoggle(page) {
     if (page == 'food') {
       return StreamBuilder<QuerySnapshot>(
           stream: jointsRef
-              .doc(widget.school ?? model.school)
+              .doc(ref.read(userProvider).school)
               .collection('Joints')
               .where('foodjoint_name', isGreaterThanOrEqualTo: search)
               .snapshots(),
@@ -56,8 +47,13 @@ class _SearchState extends State<Search> {
 
             List<FoodTile> foodlist = [];
             for (var doc in snapshot.data!.docs) {
-              foodlist
-                  .add(FoodTile.fromDocument(doc, widget.user, model.school));
+              foodlist.add(
+                FoodTile.fromDocument(
+                  doc,
+                  ref.read(authProvider).currentUser!.uid,
+                    ref.read(userProvider).school
+                )
+              );
             }
 
             return Padding(
@@ -83,7 +79,7 @@ class _SearchState extends State<Search> {
     } else if (page == 'events') {
       return FutureBuilder<QuerySnapshot>(
           future: eventsRef
-              .doc(widget.school ?? model.school)
+              .doc(ref.read(userProvider).school)
               .collection('events')
               .where('eventname', isGreaterThanOrEqualTo: search)
               .get(),
@@ -95,7 +91,11 @@ class _SearchState extends State<Search> {
             List<EventsPageModel> eventlist = [];
             for (var doc in snapshot.data!.docs) {
               eventlist.add(
-                  EventsPageModel.fromDocument(doc, model.school, widget.user));
+                EventsPageModel.fromDocument(
+                  doc,
+                  ref.read(userProvider).school,
+                  ref.read(authProvider).currentUser!.uid,
+                ));
             }
 
             return Padding(

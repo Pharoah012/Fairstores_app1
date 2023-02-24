@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
-import 'package:fairstores/homescreen/historyfooddetails.dart';
-import 'package:fairstores/main.dart';
 import 'package:fairstores/whatsappchat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

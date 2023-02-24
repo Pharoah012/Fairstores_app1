@@ -54,4 +54,8 @@ class UserModel {
   Future<void> createUser(UserModel userModel) async {
     return await userRef.doc(userModel.uid).set(userModel.toMap());
   }
+
+  Future<void> updateUserDetails() async {
+    await userRef.doc(this.uid).update(toMap());
+  }
 }

@@ -1,8 +1,6 @@
-
-import 'package:fairstores/homescreen/customercare.dart';
-
-import 'package:fairstores/homescreen/details.dart';
-import 'package:fairstores/homescreen/securitymodel.dart';
+import 'package:fairstores/mainScreens/customercare.dart';
+import 'package:fairstores/mainScreens/details.dart';
+import 'package:fairstores/mainScreens/securitymodel.dart';
 
 import 'package:fairstores/webview.dart';
 import 'package:flutter/material.dart';

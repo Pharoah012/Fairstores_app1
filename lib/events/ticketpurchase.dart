@@ -13,7 +13,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketsuccessful.dart';
-import 'package:fairstores/homescreen/schoolmodel.dart';
+import 'package:fairstores/models/schoolmodel.dart';
 import 'package:fairstores/main.dart';
 import 'package:fairstores/splashscreen.dart';
 import 'package:flutter/material.dart';

@@ -7,7 +7,13 @@ class SchoolModel {
   final bool eventsaccess;
   final bool deliveryaccess;
 
-  SchoolModel({required this.buyandsellaccess, required this.deliveryaccess,required  this.eventsaccess, required this.foodaccess, required this.schoolname});
+  SchoolModel({
+    required this.buyandsellaccess,
+    required this.deliveryaccess,
+    required this.eventsaccess,
+    required this.foodaccess,
+    required this.schoolname
+  });
 
   factory SchoolModel.fromDocument(DocumentSnapshot doc) {
     return SchoolModel(

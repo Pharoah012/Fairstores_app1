@@ -1,58 +1,40 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
+import 'package:fairstores/mainScreens/saveditems.dart';
+import 'package:fairstores/mainScreens/securitymodel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
-
-import 'package:fairstores/homescreen/details.dart';
-import 'package:fairstores/homescreen/help.dart';
-import 'package:fairstores/homescreen/notifications.dart';
-import 'package:fairstores/homescreen/saveditems.dart';
-import 'package:fairstores/homescreen/securitymodel.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/providers/authProvider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'details.dart';
+import 'help.dart';
+import 'notifications.dart';
 
-final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly']);
-
-class Profile extends StatefulWidget {
-  final String user;
-  const Profile({Key? key, required this.user}) : super(key: key);
+class Profile extends ConsumerStatefulWidget {
+  const Profile({Key? key}) : super(key: key);
 
   @override
-  State<Profile> createState() => _ProfileState();
+  ConsumerState<Profile> createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends ConsumerState<Profile> {
   UserModel model = UserModel(ismanager: false);
   TextEditingController namecontroller = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
   TextEditingController phoneController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    getuser();
-  }
-
-  getuser() async {
-    DocumentSnapshot doc = await userRef.doc(widget.user).get();
-    if (doc.exists) {
-      UserModel model = UserModel.fromDocument(doc);
-      setState(() {
-        this.model = model;
-        phoneController.text = model.number.toString();
-        namecontroller.text = model.name.toString();
-        emailcontroller.text = model.email.toString();
-      });
-    }
   }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
+
   profileheader() {
     return Center(
       child: Padding(
@@ -116,7 +98,7 @@ class _ProfileState extends State<Profile> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Notifications(
-                            user: widget.user,
+                            user: ref.read(authProvider).currentUser!.uid,
                           ),
                         ));
                   },
@@ -138,7 +120,7 @@ class _ProfileState extends State<Profile> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SavedItems(
-                              user: widget.user,
+                              user: ref.read(authProvider).currentUser!.uid,
                               school: model.school.toString()),
                         ));
                   },
@@ -247,7 +229,7 @@ class _ProfileState extends State<Profile> {
 
   editprofile() {
     return StreamBuilder<DocumentSnapshot>(
-        stream: userRef.doc(widget.user).snapshots(),
+        stream: userRef.doc(ref.read(authProvider).currentUser!.uid,).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const SizedBox();
@@ -317,7 +299,7 @@ class _ProfileState extends State<Profile> {
   }
 
   postDetailsToFirestore(String email, String phonenumber) {
-    userRef.doc(widget.user).update({'email': email, 'number': phonenumber});
+    userRef.doc(ref.read(authProvider).currentUser!.uid,).update({'email': email, 'number': phonenumber});
   }
 
   showeditdetails(context) {
@@ -373,6 +355,8 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
+
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,

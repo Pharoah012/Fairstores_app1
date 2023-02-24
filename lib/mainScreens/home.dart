@@ -1,26 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/admin/admin.dart';
+import 'package:fairstores/mainScreens/notifications.dart';
+import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/delivery/deliveryonboarding.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
-import 'package:fairstores/homescreen/notifications.dart';
-import 'package:fairstores/homescreen/search.dart';
-import 'package:fairstores/main.dart';
 import 'package:fairstores/products/productonboarding.dart';
+import 'package:fairstores/providers/authProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Home extends StatefulWidget {
-  final String user;
-  const Home({Key? key, required this.user}) : super(key: key);
+class Home extends ConsumerStatefulWidget {
+
+  const Home({Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  ConsumerState<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends ConsumerState<Home> {
   @override
   void initState() {
     super.initState();
@@ -29,7 +30,7 @@ class _HomeState extends State<Home> {
   }
 
   getmanager() async {
-    DocumentSnapshot snapshot = await userRef.doc(widget.user).get();
+    DocumentSnapshot snapshot = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
     UserModel model = UserModel.fromDocument(snapshot);
     setState(() {
       ismanager = model.ismanager;
@@ -40,7 +41,7 @@ class _HomeState extends State<Home> {
   UserModel model = UserModel(ismanager: false);
 
   getschool() async {
-    DocumentSnapshot doc = await userRef.doc(widget.user).get();
+    DocumentSnapshot doc = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
     UserModel model = UserModel.fromDocument(doc);
     setState(() {
       this.model = model;
@@ -63,7 +64,6 @@ class _HomeState extends State<Home> {
                     MaterialPageRoute(
                       builder: (context) => Search(
                         addappbar: true,
-                        user: widget.user,
                       ),
                     ));
               },
@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
 
   homeHeader() {
     return StreamBuilder<DocumentSnapshot>(
-        stream: userRef.doc(widget.user).snapshots(),
+        stream: userRef.doc(ref.read(authProvider).currentUser!.uid).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Padding(
@@ -180,7 +180,7 @@ class _HomeState extends State<Home> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => Notifications(
-                                user: widget.user,
+                                user: ref.read(authProvider).currentUser!.uid,
                               ),
                             ));
                       },
@@ -200,7 +200,7 @@ class _HomeState extends State<Home> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  FoodPage(user: widget.user, school: model.school.toString()),
+                  FoodPage(user: ref.read(authProvider).currentUser!.uid, school: model.school.toString()),
             ));
       },
       child: Container(
@@ -289,7 +289,7 @@ class _HomeState extends State<Home> {
               context,
               MaterialPageRoute(
                   builder: (context) => EventsPage(
-                        user: widget.user,
+                        user: ref.read(authProvider).currentUser!.uid,
                         school: model.school.toString(),
                       )));
         },

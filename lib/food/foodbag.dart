@@ -3,8 +3,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/homescreen/securitymodel.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/mainScreens/securitymodel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

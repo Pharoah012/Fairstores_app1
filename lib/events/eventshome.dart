@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventspage.dart';
-import 'package:fairstores/homescreen/schoolmodel.dart';
-import 'package:fairstores/homescreen/search.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/mainScreens/search.dart';
+import 'package:fairstores/models/schoolmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -122,8 +119,6 @@ class _EventsPageState extends State<EventsPage> {
                     MaterialPageRoute(
                       builder: (context) => Search(
                         addappbar: true,
-                        user: widget.user,
-                        school: widget.school,
                       ),
                     ));
               },

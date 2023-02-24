@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:fairstores/homescreen/homescreen.dart';
-import 'package:fairstores/providers/auth_provider.dart';
-import 'package:fairstores/providers/otp_timer_provider.dart';
+import 'package:fairstores/mainScreens/homescreen.dart';
+import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/otpTimerProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customAuthLoader.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:fairstores/widgets/customOTPDrawer.dart';
@@ -216,9 +215,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                               otpDrawer(
                                 phoneNumber: forgotPassPhoneController.text,
-                                verificationLogic: (){
+                                verificationLogic: () async {
 
-                                  Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
+                                  Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
                                       otp: otpController.text,
                                     ref: ref
                                   );
@@ -284,6 +283,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                                 CustomButton(
                                                   onPressed: () async {
 
+                                                    // show loader
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) => CustomAuthLoader()
+                                                    );
+
                                                     // Attempt to reset the user's password
                                                     Map<String, dynamic> resetPassword = await _auth.resetPassword(
                                                       phoneNumber: forgotPassPhoneController.text,
@@ -292,6 +297,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                                     );
 
                                                     if (resetPassword['type'] == "error"){
+                                                      Navigator.of(context).pop();
+
                                                       showDialog(
                                                         context: context,
                                                         builder: (context) => resetPassword['object']
@@ -299,6 +306,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                                     }
                                                     else{
                                                       Fluttertoast.showToast(msg: 'Your password has been sucessfully reset.');
+
+                                                      // pop the loader and reset bottom modal sheets
+                                                      Navigator.of(context).pop();
                                                       Navigator.of(context).pop();
                                                     }
                                                   },
@@ -431,7 +441,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           verificationLogic: () async {
 
                             // verifiy the user's OTP input
-                            Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
+                            Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
                                 otp: otpController.text,
                               ref: ref
                             );
@@ -544,14 +554,46 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   SizedBox(height: 30,),
                   CustomSocialAuthButton(
                     onPressed: () async {
-                      ref.read(authProvider).handleSignIn(signInType: "apple");
+                      Map<String, dynamic> signUp = await _auth.socialAuthentication(
+                        authMethod: "apple",
+                      );
+
+                      if (signUp['type'] == "error"){
+                        return showDialog(
+                          context: context,
+                          builder: (context) => signUp['object']
+                        );
+                      }
+
+                      // remove the sign up screen
+                      Navigator.of(context).pop();
+
+                      // redirect the user to login
+                      showLogin();
+
                     },
                   ),
                   SizedBox(height: 15,),
                   CustomSocialAuthButton(
                     isApple: false,
                     onPressed: () async {
-                      ref.read(authProvider).handleSignIn(signInType: "google");
+
+                      Map<String, dynamic> signUp = await _auth.socialAuthentication(
+                        authMethod: "google",
+                      );
+
+                      if (signUp['type'] == "error"){
+                        return showDialog(
+                            context: context,
+                            builder: (context) => signUp['object']
+                        );
+                      }
+
+                      // remove the sign up screen
+                      Navigator.of(context).pop();
+
+                      // redirect the user to login
+                      showLogin();
                     },
                   )
                 ]
@@ -613,7 +655,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                   // check if the user exists
                   Map<String, dynamic> getUser = await _auth
-                      .getUser(phoneNumber: loginPhoneController.text);
+                      .isUserAMember(phoneNumber: loginPhoneController.text);
 
 
 
@@ -662,9 +704,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                     otpDrawer(
                       phoneNumber: loginPhoneController.text,
-                      verificationLogic: (){
+                      verificationLogic: () async {
 
-                        Map<String, dynamic> verifyOTP = _auth.verfiyOTP(
+                        Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
                           otp: otpController.text,
                           ref: ref
                         );
@@ -683,11 +725,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           // clear the otp
                           otpController.clear();
 
+                          ref.read(userProvider.notifier).state = verifyOTP['object'];
+
                           Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen(
-                                    user: _auth.currentUser!
-                                )
+                                builder: (context) => HomeScreen()
                             ),
                             (route)=> false
                           );
@@ -758,14 +800,54 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             SizedBox(height: 30,),
             CustomSocialAuthButton(
               onPressed: () async {
-                ref.read(authProvider).handleSignIn(signInType: "apple");
+
+                Map<String, dynamic> signIn = await _auth.socialAuthentication(
+                  authMethod: "apple",
+                );
+
+                if (signIn['type'] == "error"){
+                  return showDialog(
+                      context: context,
+                      builder: (context) => signIn['object']
+                  );
+                }
+
+                ref.read(userProvider.notifier).state = signIn['object'];
+
+                // redirect the user to homeScreen
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => HomeScreen()
+                    ),
+                        (route)=> false
+                );
               },
             ),
             SizedBox(height: 15,),
             CustomSocialAuthButton(
               isApple: false,
               onPressed: () async {
-                ref.read(authProvider).handleSignIn(signInType: "google");
+
+                Map<String, dynamic> signIn = await _auth.socialAuthentication(
+                  authMethod: "google",
+                );
+
+                if (signIn['type'] == "error"){
+                  return showDialog(
+                      context: context,
+                      builder: (context) => signIn['object']
+                  );
+                }
+
+                ref.read(userProvider.notifier).state = signIn['object'];
+
+                // redirect the user to homeScreen
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (context) => HomeScreen()
+                    ),
+                      (route)=> false
+                );
               },
             )
           ]),

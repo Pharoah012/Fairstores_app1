@@ -5,9 +5,8 @@ import 'package:fairstores/ads/adsmodel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/homescreen/schoolmodel.dart';
-import 'package:fairstores/homescreen/search.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/mainScreens/search.dart';
+import 'package:fairstores/models/schoolmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -339,8 +338,6 @@ class _FoodPageState extends State<FoodPage> {
                     MaterialPageRoute(
                       builder: (context) => Search(
                         addappbar: true,
-                        user: widget.user,
-                        school: widget.school,
                       ),
                     ));
               },

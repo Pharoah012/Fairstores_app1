@@ -3,12 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/userModel.dart';
-import 'package:fairstores/providers/otp_timer_provider.dart';
+import 'package:fairstores/providers/otpTimerProvider.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:encrypt/encrypt.dart' as crypt;
 
@@ -43,14 +44,18 @@ class Auth {
   }
 
   // Update the notification token
-  Future<dynamic> updatePushToken({userID, token}){
-    CollectionReference users = FirebaseFirestore.instance.collection("users");
+  Future<void> storetokens() async {
+    final status = await OneSignal.shared.getDeviceState();
+    final String? osUserID = status?.userId;
+    print(osUserID);
+    tokensRef.doc(currentUser!.uid).set({'devtoken': osUserID});
+  }
 
-    return users.doc(userID).update({
-      "pushToken": token
-    })
-        .then((value) => true)
-        .catchError((error) => false);
+  // ------------------- USER DETAILS ---------------------
+
+  // get the details of the current user
+  Future<UserModel> getUser() async {
+      return UserModel.fromDocument(await userRef.doc(currentUser!.uid).get());
   }
 
   // ---------------- MAIN AUTHENTICATION -----------------
@@ -82,17 +87,21 @@ class Auth {
 
 
   // This function verifies the OTP
-  Map<String, dynamic> verfiyOTP({
+  Future<Map<String, dynamic>> verfiyOTP({
     required String otp,
     required WidgetRef ref
-  }) {
+  }) async {
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: ref.read(receivedVerificationIDProvider)!,
           smsCode: otp
       );
 
-      return successReport(successObject: credential);
+      // get the user model
+      UserModel user = await getUser();
+
+      return successReport(successObject: user);
+
     }
     catch(exception) {
       return errorReport(errorMessage: "The OTP you entered is invalid.");
@@ -127,12 +136,17 @@ class Auth {
         verificationCompleted: (PhoneAuthCredential credential) async {},
         verificationFailed: (FirebaseAuthException e) {
 
-          // print(e);
-          if (e.code == 'invalid-phone-number') {
-            Fluttertoast.showToast(
-                timeInSecForIosWeb: 2,
-                msg: "Oops Something went wrong please try again later");
-          }
+          Fluttertoast.showToast(
+            msg: "An error occurred while sending the OTP. "
+            "Please try again later."
+          );
+
+          // // print(e);
+          // if (e.code == 'invalid-phone-number') {
+          //   Fluttertoast.showToast(
+          //       timeInSecForIosWeb: 2,
+          //       msg: "Oops Something went wrong please try again later");
+          // }
         },
         forceResendingToken: ref.read(resendTokenProvider),
         codeSent: (String verificationID, int? resendToken) async {
@@ -197,21 +211,9 @@ class Auth {
         );
       }
     }
-
-    // Navigator.pushReplacement(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) => HomeScreen(
-    //             signinmethod: 'PhoneAuth',
-    //             userId: _auth.currentUser!.uid,
-    //             password: encryptPassword(password: password),
-    //             phonenumber: signUpPhoneController.text
-    //         )
-    //     )
-    // )
   }
 
-  Future<Map<String, dynamic>> getUser({
+  Future<Map<String, dynamic>> isUserAMember({
     required String phoneNumber
   }) async {
 
@@ -228,18 +230,23 @@ class Auth {
     return successReport(successObject: UserModel.fromDocument(user.docs.first));
   }
 
-  Future<Map<String, dynamic>> login({
-    required PhoneAuthCredential credential,
-  }) async {
-
-    await _firebaseAuth.signInWithCredential(credential)
-        .then((value) => successReport(successObject: value.user)
-    ).catchError((e) => errorReport(
-        errorMessage: "There is no account associated with the given credentials."
-    ));
-
-    return errorReport(errorMessage: "An error occurred while logging you in");
-  }
+  // Future<Map<String, dynamic>> login({
+  //   required PhoneAuthCredential credential,
+  // }) async {
+  //
+  //   await _firebaseAuth.signInWithCredential(credential)
+  //       .then((value) async {
+  //     // get the user model
+  //     UserModel user = await getUser();
+  //
+  //     return successReport(successObject: user);
+  //   })
+  //     .catchError((e) => errorReport(
+  //       errorMessage: "There is no account associated with the given credentials."
+  //   ));
+  //
+  //   return errorReport(errorMessage: "An error occurred while logging you in");
+  // }
 
 
   Future<Map<String, dynamic>> resetPassword({
@@ -281,7 +288,7 @@ class Auth {
   // add the user's credentials to the firebase database
   Future<bool> postUserDetailsToFirestore({
     required String phoneNumber,
-    required String password
+    required String password,
   }) async {
 
     try {
@@ -308,11 +315,13 @@ class Auth {
 
   // ---------------- SOCIAL AUTHENTICATION -----------------
 
-  Future<Map<String, dynamic>> handleSignIn({required signInType}) async {
+  Future<Map<String, dynamic>> socialAuthentication({
+    required String authMethod
+  }) async {
 
     try{
 
-      if (signInType == "google"){
+      if (authMethod == "google"){
 
         // final GoogleSignIn _googleSignIn = GoogleSignIn(
         //     scopes: ['email', googleSignInURL]);
@@ -335,7 +344,10 @@ class Auth {
             final UserCredential userCredential =
             await _firebaseAuth.signInWithCredential(credential);
 
-            return successReport(successObject: userCredential.user);
+            // get the user model
+            UserModel user = await getUser();
+
+            return successReport(successObject: user);
 
             // Navigator.pushReplacement(
             //     context,
@@ -393,7 +405,10 @@ class Auth {
         final UserCredential authResult =
         await _firebaseAuth.signInWithCredential(oauthCredential);
 
-        return successReport(successObject: authResult.user);
+        // get the user model
+        UserModel user = await getUser();
+
+        return successReport(successObject: user);
 
       }
     }
@@ -405,5 +420,8 @@ class Auth {
     }
 
   }
+
+  // -------------- SIGN OUT FUNCTIONS -----------------
+  // Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
 }

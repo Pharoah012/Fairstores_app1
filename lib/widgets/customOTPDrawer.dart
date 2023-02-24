@@ -1,6 +1,6 @@
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/providers/auth_provider.dart';
-import 'package:fairstores/providers/otp_timer_provider.dart';
+import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/otpTimerProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/customTextButton.dart';
