@@ -27,7 +27,7 @@ class CustomTextButton extends StatelessWidget {
     return Container(
       // width: width ?? MediaQuery.of(context).size.width,
       child: TextButton(
-        onPressed: isEnabled ? onPressed : null,
+        onPressed: isEnabled ? onPressed : (){},
         child: child == null
           ? CustomText(
             text: title!,

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,7 @@ class CustomDropdown extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    log(items.toString());
     return SizedBox(
       height: 56,
       width: MediaQuery.of(context).size.width * 0.87,

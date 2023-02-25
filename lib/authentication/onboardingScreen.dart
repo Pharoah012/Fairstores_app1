@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fairstores/mainScreens/homescreen.dart';
+import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/otpTimerProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
@@ -428,7 +431,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       // send OTP to verify the user's number
                       await _auth.sendOTPForVerification(
                         phoneNumber: signUpPhoneController.text,
-
                         ref: ref
                       );
 
@@ -442,7 +444,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                             // verifiy the user's OTP input
                             Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
-                                otp: otpController.text,
+                              otp: otpController.text,
                               ref: ref
                             );
 
@@ -469,31 +471,54 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 builder: (context) => CustomAuthLoader()
                               );
 
-                              Map<String, dynamic> signUp = await _auth.signUp(
-                                  phoneAuthCredential: verifyOTP['object'],
-                                  phoneNumber: signUpPhoneController.text,
-                                  password: signUpPasswordController.text
+                              // check if the user exists
+                              Map<String, dynamic> getUser = await _auth
+                                  .isUserAMember(
+                                  phoneNumber: signUpPhoneController.text
                               );
 
-                              if (signUp['type'] == "error"){
+                              // throw an error when the user does not exist
+                              if (getUser['type'] != "error"){
+                                log("message");
                                 // remove the loader
                                 Navigator.of(context).pop();
 
                                 showDialog(
-                                    context: context,
-                                    builder: (context) => signUp['object']
+                                  context: context,
+                                  builder: (context) => CustomError(
+                                    errorMessage: "An account with these credentials already exists",
+                                    oneRemove: true,
+                                  )
                                 );
-
 
                               }
                               else{
-                                // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
-                                // close the otp drawer and sign up screens
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
+                                Map<String, dynamic> signUp = await _auth.signUp(
+                                    phoneAuthCredential: verifyOTP['object'],
+                                    phoneNumber: signUpPhoneController.text,
+                                    password: signUpPasswordController.text
+                                );
 
-                                // redirect the user to login
-                                showLogin();
+                                if (signUp['type'] == "error"){
+                                  // remove the loader
+                                  Navigator.of(context).pop();
+
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => signUp['object']
+                                  );
+
+
+                                }
+                                else{
+                                  // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
+                                  // close the otp drawer and sign up screens
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+
+                                  // redirect the user to login
+                                  showLogin();
+                                }
                               }
                             }
                           }
@@ -553,9 +578,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   SizedBox(height: 30,),
                   CustomSocialAuthButton(
+                    isSignIn: false,
                     onPressed: () async {
                       Map<String, dynamic> signUp = await _auth.socialAuthentication(
                         authMethod: "apple",
+                        isSignIn: false
                       );
 
                       if (signUp['type'] == "error"){
@@ -565,17 +592,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         );
                       }
 
-                      // remove the sign up screen
-                      Navigator.of(context).pop();
-
-                      // redirect the user to login
-                      showLogin();
+                      // redirect the user to homeScreen
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => HomeScreen(
+                              isSocialAuth: true,
+                              authType: signUp['object'],
+                            )
+                        ),
+                        (route)=> false
+                      );
 
                     },
                   ),
                   SizedBox(height: 15,),
                   CustomSocialAuthButton(
                     isApple: false,
+                    isSignIn: false,
                     onPressed: () async {
 
                       Map<String, dynamic> signUp = await _auth.socialAuthentication(
@@ -589,11 +622,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         );
                       }
 
-                      // remove the sign up screen
-                      Navigator.of(context).pop();
-
-                      // redirect the user to login
-                      showLogin();
+                      // redirect the user to homeScreen
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                isSocialAuth: true,
+                                authType: signUp['object'],
+                              )
+                          ),
+                              (route)=> false
+                      );
                     },
                   )
                 ]
@@ -725,14 +763,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           // clear the otp
                           otpController.clear();
 
-                          ref.read(userProvider.notifier).state = verifyOTP['object'];
-
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()
-                            ),
-                            (route)=> false
+                          Map<String, dynamic> login = await _auth.login(
+                              credential: verifyOTP['object'],
                           );
+
+                          if (login['type'] == "error"){
+                            // remove the loader
+                            Navigator.of(context).pop();
+
+                            showDialog(
+                                context: context,
+                                builder: (context) => login['object']
+                            );
+
+
+                          }
+                          else{
+                            ref.read(userProvider.notifier).state = verifyOTP['object'];
+
+                            Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (context) => HomeScreen()
+                                ),
+                                    (route)=> false
+                            );
+                          }
+
                         }
                       },
 
@@ -812,12 +868,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   );
                 }
 
-                ref.read(userProvider.notifier).state = signIn['object'];
+                // check if the sign in object is an auth method
+                // meaning that the user does not have an account
+                if (signIn['object'] is String){
+                  ref.read(userProvider.notifier).state = UserModel(
+                    ismanager: false,
+                    uid: ref.read(authProvider).currentUser!.uid
+                  );
+                }
+                else{
+                  // set the user provider to the user object that is returned
+                  ref.read(userProvider.notifier).state = signIn['object'];
+                }
+
+
 
                 // redirect the user to homeScreen
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen()
+                        builder: (context) => HomeScreen(
+                          authType: signIn['object'],
+                          isSocialAuth: true,
+                        )
                     ),
                         (route)=> false
                 );
@@ -839,12 +911,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   );
                 }
 
-                ref.read(userProvider.notifier).state = signIn['object'];
+                // check if the sign in object is an auth method
+                // meaning that the user does not have an account
+                if (signIn['object'] is String){
+                  ref.read(userProvider.notifier).state = UserModel(
+                      ismanager: false,
+                      uid: ref.read(authProvider).currentUser!.uid
+                  );
+                }
+                else{
+                  // set the user provider to the user object that is returned
+                  ref.read(userProvider.notifier).state = signIn['object'];
+                }
+
 
                 // redirect the user to homeScreen
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) => HomeScreen()
+                        builder: (context) => HomeScreen(
+                          authType: signIn['object'],
+                          isSocialAuth: true,
+                        )
                     ),
                       (route)=> false
                 );

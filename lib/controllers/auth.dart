@@ -55,7 +55,7 @@ class Auth {
 
   // get the details of the current user
   Future<UserModel> getUser() async {
-      return UserModel.fromDocument(await userRef.doc(currentUser!.uid).get());
+    return UserModel.fromDocument(await userRef.doc(currentUser!.uid).get());
   }
 
   // ---------------- MAIN AUTHENTICATION -----------------
@@ -89,21 +89,21 @@ class Auth {
   // This function verifies the OTP
   Future<Map<String, dynamic>> verfiyOTP({
     required String otp,
-    required WidgetRef ref
+    required WidgetRef ref,
+    bool isSignUp = false
   }) async {
     try {
+
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: ref.read(receivedVerificationIDProvider)!,
           smsCode: otp
       );
 
-      // get the user model
-      UserModel user = await getUser();
-
-      return successReport(successObject: user);
+      return successReport(successObject: credential);
 
     }
     catch(exception) {
+      log(exception.toString());
       return errorReport(errorMessage: "The OTP you entered is invalid.");
     }
   }
@@ -179,6 +179,11 @@ class Auth {
         phoneAuthCredential
       );
 
+      // check if the user exists
+      UserModel userModel = await getUser();
+
+
+
       bool addUserDetailsToFirebase = await postUserDetailsToFirestore(
         phoneNumber: phoneNumber,
         password: password
@@ -190,7 +195,9 @@ class Auth {
         );
       }
 
-      return successReport(successObject: user.user);
+
+
+      return successReport(successObject: userModel);
     }
     on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
@@ -230,23 +237,33 @@ class Auth {
     return successReport(successObject: UserModel.fromDocument(user.docs.first));
   }
 
-  // Future<Map<String, dynamic>> login({
-  //   required PhoneAuthCredential credential,
-  // }) async {
-  //
-  //   await _firebaseAuth.signInWithCredential(credential)
-  //       .then((value) async {
-  //     // get the user model
-  //     UserModel user = await getUser();
-  //
-  //     return successReport(successObject: user);
-  //   })
-  //     .catchError((e) => errorReport(
-  //       errorMessage: "There is no account associated with the given credentials."
-  //   ));
-  //
-  //   return errorReport(errorMessage: "An error occurred while logging you in");
-  // }
+  Future<Map<String, dynamic>> login({
+    required PhoneAuthCredential credential,
+  }) async {
+    try {
+      UserModel user = await getUser();
+
+      return successReport(successObject: user);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'account-exists-with-different-credential') {
+        return errorReport(
+            errorMessage: "This account exists with different credentials"
+        );
+        // handle the error here
+      }
+      else if (e.code == 'invalid-credential') {
+        // handle the error here
+        return errorReport(
+            errorMessage: "Your credentials are invalid"
+        );
+      }
+      else {
+        return errorReport(
+            errorMessage: "An error occurred while logging you in. Please try again later."
+        );
+      }
+    }
+  }
 
 
   Future<Map<String, dynamic>> resetPassword({
@@ -296,9 +313,9 @@ class Auth {
 
       userModel.email = "";
       userModel.uid = currentUser!.uid;
-      userModel.name = "";
+      userModel.username = "";
       userModel.number = phoneNumber;
-      userModel.password = password;
+      userModel.password = encryptPassword(password: password);
       userModel.school = '';
       userModel.signinmethod = '';
 
@@ -316,7 +333,8 @@ class Auth {
   // ---------------- SOCIAL AUTHENTICATION -----------------
 
   Future<Map<String, dynamic>> socialAuthentication({
-    required String authMethod
+    required String authMethod,
+    bool isSignIn = true
   }) async {
 
     try{
@@ -344,21 +362,35 @@ class Auth {
             final UserCredential userCredential =
             await _firebaseAuth.signInWithCredential(credential);
 
-            // get the user model
-            UserModel user = await getUser();
+            // check if the user exists
+            DocumentSnapshot user = await userRef.doc(_firebaseAuth.currentUser!.uid).get();
 
-            return successReport(successObject: user);
+            // check if the user is signing up with existing credentials
+            if (!isSignIn && user.exists){
 
-            // Navigator.pushReplacement(
-            //     context,
-            //     MaterialPageRoute(
-            //       builder: (context) => HomeScreen(
-            //         signinmethod: 'GoogleAuth',
-            //         userId: _auth.currentUser!.uid,
-            //         phonenumber: '',
-            //         password: '',
-            //       ),
-            //     ));
+              return errorReport(
+                  errorMessage: "An account with these credentials already exists."
+              );
+
+            }
+            else if (!isSignIn){
+              //check if the user is signing up with unique credentials
+              return successReport(successObject: authMethod);
+            }
+            else if (isSignIn && !user.exists){
+              // check if the user is signing in for the first time
+              return successReport(successObject: authMethod);
+            }
+            else{
+
+              // check if the user is signing in
+
+              // get the user model
+              UserModel user = await getUser();
+
+              return successReport(successObject: user);
+            }
+
           } on FirebaseAuthException catch (e) {
             if (e.code == 'account-exists-with-different-credential') {
               return errorReport(
@@ -405,10 +437,34 @@ class Auth {
         final UserCredential authResult =
         await _firebaseAuth.signInWithCredential(oauthCredential);
 
-        // get the user model
-        UserModel user = await getUser();
+        // check if the user exists
+        DocumentSnapshot user = await userRef.doc(_firebaseAuth.currentUser!.uid).get();
 
-        return successReport(successObject: user);
+        // check if the user is signing up with existing credentials
+        if (!isSignIn && user.exists){
+
+          return errorReport(
+              errorMessage: "An account with these credentials already exists."
+          );
+
+        }
+        else if (!isSignIn){
+          //check if the user is signing up with unique credentials
+          return successReport(successObject: authMethod);
+        }
+        else if (isSignIn && !user.exists){
+          // check if the user is signing in for the first time
+          return successReport(successObject: authMethod);
+        }
+        else{
+
+          // check if the user is signing in
+
+          // get the user model
+          UserModel user = await getUser();
+
+          return successReport(successObject: user);
+        }
 
       }
     }

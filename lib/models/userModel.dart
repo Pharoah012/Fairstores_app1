@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -6,7 +8,7 @@ class UserModel {
 
   String? email;
   String? number;
-  String? name;
+  String? username;
   String? school;
   String? uid;
   String? password;
@@ -17,7 +19,7 @@ class UserModel {
     this.email,
     this.number,
     required this.ismanager,
-    this.name,
+    this.username,
     this.signinmethod,
     this.school,
     this.uid,
@@ -26,6 +28,7 @@ class UserModel {
 
   //recieves data from the server
   factory UserModel.fromDocument(DocumentSnapshot doc) {
+
     return UserModel(
         email: doc.get('email'),
         ismanager: doc.get('ismanager'),
@@ -34,7 +37,7 @@ class UserModel {
         school: doc.get('school'),
         signinmethod: doc.get('signinmethod'),
         uid: doc.get('uid'),
-        name: doc.get('username'));
+        username: doc.get('username'));
   }
 
   //sends data to the server
@@ -44,7 +47,7 @@ class UserModel {
       'ismanager': ismanager,
       'number': number,
       'password': password,
-      'name': name,
+      'username': username,
       'signinmethod': signinmethod,
       'school': school,
       'uid': uid

@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
-          "client_id": "8007123972-9sstm56if5pdsnuj3ov5eguth88l1r3u.apps.googleusercontent.com",
+          "client_id": "8007123972-674n2uvtsahbo2j61ldtjph189nl50th.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.app.fairstores",
-            "certificate_hash": "3a46d0166df952d46b8ba40b4cb00b0942a443b5"
+            "certificate_hash": "ebc652d0a940de504763e235d9d46f5e2378c665"
+          }
+        },
+        {
+          "client_id": "8007123972-ir2aed8or18sg6cfn8pptudch01r69uj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.fairstores",
+            "certificate_hash": "2f053b71ca2b192cf1b318247ac1c43ef42c8fc7"
+          }
+        },
+        {
+          "client_id": "8007123972-kvuvsl5imu9mcma546r95cgsj3lofpkh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.fairstores",
+            "certificate_hash": "de6487077084ea54d5cb36efd26e0c9509178e0a"
           }
         },
         {
@@ -101,6 +117,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "8007123972-4f24e0vut92a7lvjg7oa5kkhb1efdr4v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fairstore.fairstore",
+            "certificate_hash": "7254932839595f686716d9b24531f421bc1461ce"
+          }
+        },
         {
           "client_id": "8007123972-q5rkcc79kbuu321o3to4c6gede2frcgj.apps.googleusercontent.com",
           "client_type": 1,

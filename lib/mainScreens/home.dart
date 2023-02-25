@@ -9,6 +9,7 @@ import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
 import 'package:fairstores/products/productonboarding.dart';
 import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,28 +26,28 @@ class _HomeState extends ConsumerState<Home> {
   @override
   void initState() {
     super.initState();
-    getschool();
-    getmanager();
+    // getschool();
+    // getmanager();
   }
 
-  getmanager() async {
-    DocumentSnapshot snapshot = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
-    UserModel model = UserModel.fromDocument(snapshot);
-    setState(() {
-      ismanager = model.ismanager;
-    });
-  }
+  // getmanager() async {
+  //   DocumentSnapshot snapshot = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
+  //   UserModel model = UserModel.fromDocument(snapshot);
+  //   setState(() {
+  //     ismanager = model.ismanager;
+  //   });
+  // }
 
   bool ismanager = false;
   UserModel model = UserModel(ismanager: false);
 
-  getschool() async {
-    DocumentSnapshot doc = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
-    UserModel model = UserModel.fromDocument(doc);
-    setState(() {
-      this.model = model;
-    });
-  }
+  // getschool() async {
+  //   DocumentSnapshot doc = await userRef.doc(ref.read(authProvider).currentUser!.uid).get();
+  //   UserModel model = UserModel.fromDocument(doc);
+  //   setState(() {
+  //     this.model = model;
+  //   });
+  // }
 
   search() {
     return Padding(
@@ -143,10 +144,10 @@ class _HomeState extends ConsumerState<Home> {
                         style: GoogleFonts.manrope(
                             fontWeight: FontWeight.w400, fontSize: 12),
                       ),
-                      userModel.name == null
+                      userModel.username == null
                           ? const SizedBox()
                           : Text(
-                              userModel.name.toString(),
+                              userModel.username.toString(),
                               style: GoogleFonts.manrope(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
@@ -396,15 +397,25 @@ class _HomeState extends ConsumerState<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final _user = ref.watch(userProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          homeHeader(),
-          search(),
-          homebuttons(),
-        ]),
-      ),
+      body: (
+          _user.email != null
+          && _user.username != null
+          && _user.school != null
+          && _user.number != null
+      ) ? SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            homeHeader(),
+            search(),
+            homebuttons(),
+          ]
+        ),
+      ) : SizedBox.shrink(),
     );
   }
 }

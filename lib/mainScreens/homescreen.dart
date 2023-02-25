@@ -9,6 +9,7 @@ import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customDropdown.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/customTextFormField.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,8 +20,14 @@ final currentScreenProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 
 class HomeScreen extends ConsumerStatefulWidget {
+  final bool isSocialAuth;
+  final String? authType;
 
-  const HomeScreen({Key? key,}) : super(key: key);
+  const HomeScreen({
+    Key? key,
+    this.isSocialAuth = false,
+    this.authType
+  }) : super(key: key);
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -30,6 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController numberController = TextEditingController();
   GlobalKey<FormState> _userDetailsFormKey = GlobalKey<FormState>();
 
 
@@ -45,8 +53,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    checkUserInFirestore();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      checkUserInFirestore();
       ref.read(authProvider).storetokens();
     });
 
@@ -56,17 +65,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // Check if the user is using the app for the first time
   checkUserInFirestore() async {
 
-    // Get the user model
-    final user = ref.read(userProvider);
-
     // Get the schools
     final schools = ref.watch(schoolsProvider);
+
+    // Get the user model
+    final user = ref.watch(userProvider);
 
 
 
     // check if any of the details are missing from the user's document
     if (
-      user.name == null
+      user.username == null
       || user.email == null
       || user.school == null
     ){
@@ -74,131 +83,151 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return showMaterialModalBottomSheet(
         enableDrag: false,
         isDismissible: false,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(21)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20)
+          )),
         barrierColor: kPrimary,
         context: context,
         builder: (context) => SizedBox(
           height: MediaQuery.of(context).size.height * 0.85,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 32.0),
-                child: Text('Provide Extra Details',
-                    style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 30.0, right: 30, bottom: 30, top: 5),
-                child: Text(
-                  'Lets lead you right back to your page. Tap the button below',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
-                      fontSize: 14, fontWeight: FontWeight.w400),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomText(
+                    text: 'Provide Extra Details',
+                    fontSize: 20,
+                    isMediumWeight: true,
+                    color: kBlack,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: CustomText(
+                      text: 'Lets lead you right back to your page. Tap the button below',
+                      fontSize: 14,
+                      isMediumWeight: true,
+                      isCenter: true,
+                      color: kBrownText,
+                    ),
+                  ),
+                  SizedBox(height: 30,),
+                  Form(
+                    key: _userDetailsFormKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomTextFormField(
+                          labelText: "Full name",
+                          controller: nameController
+                        ),
+                        SizedBox(height: 10,),
+                        CustomTextFormField(
+                          labelText: 'Email',
+                          controller: emailController
+                        ),
+                        widget.isSocialAuth
+                          ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 10,),
+                            CustomTextFormField(
+                              labelText: 'Phone number',
+                              controller: numberController,
+                              validator: (value) {
+                                if (!value!.startsWith('+')) {
+                                  return 'Start with country code';
+                                } else if (value.isEmpty) {
+                                  return 'Type in phone number';
+                                } else {
+                                  return null;
+                                }
+                              },
+                            ),
+                          ],
+                        )
+                          : SizedBox.shrink(),
+                        SizedBox(height: 10,),
+                        schools.when(
+                          data: (data) {
+                            log(data.toString());
+
+                            return CustomDropdown(
+                                currentValue: selectedSchoolProvider,
+                                items: data
+                            );
+                          },
+                          error: (_, err){
+                            log(err.toString());
+                            return CustomDropdown(
+                              currentValue: selectedSchoolProvider,
+                              items: ["-Select School-"]
+                            );
+                          },
+                          loading: () => CustomDropdown(
+                            currentValue: selectedSchoolProvider,
+                            items: ["-Select School-"]
+                          )
+                        ),
+                        // SizedBox(height: 10,),
+                        // Spacer(),
+                      ],
+                    ),
                 ),
-              ),
-              Form(
-                key: _userDetailsFormKey,
-                child: Column(
-                  children: [
-                    CustomTextFormField(
-                      labelText: "Full name",
-                      controller: nameController
-                    ),
-                    SizedBox(height: 10,),
-                    CustomTextFormField(
-                      labelText: 'Email',
-                      controller: emailController
-                    ),
-                    SizedBox(height: 10,),
-                    schools.when(
-                      data: (data) => CustomDropdown(
-                        currentValue: selectedSchoolProvider,
-                        items: data
-                      ),
-                      error: (_, err){
-                        log(err.toString());
-                        return CustomDropdown(
-                          currentValue: selectedSchoolProvider,
-                          items: ["-Select School-"]
-                        );
-                      },
-                      loading: () => CustomDropdown(
-                        currentValue: selectedSchoolProvider,
-                        items: ["-Select School-"]
-                      )
-                    ),
-                    Spacer(),
-                    CustomButton(
-                      isOrange: true,
-                      text: 'Continue',
-                      onPressed: () {
-                        if (!_userDetailsFormKey.currentState!.validate()) {
-                          return;
-                        }
+                Spacer(),
+                CustomButton(
+                  isOrange: true,
+                  text: 'Continue',
+                  onPressed: () {
+                    if (!_userDetailsFormKey.currentState!.validate()) {
+                      return;
+                    }
 
-                        // update the user model with the input details
-                        user.email = emailController.text;
-                        user.name = nameController.text;
-                        user.school = ref.read(selectedSchoolProvider);
+                    // update the user model with the input details
+                    user.email = emailController.text;
+                    user.username = nameController.text;
+                    user.school = ref.read(selectedSchoolProvider);
+                    user.signinmethod = "phone";
 
-                        try {
+                    // check if the user is coming from socialAuth
+                    if (widget.isSocialAuth){
+                      user.number = numberController.text;
+                      user.password = "";
+                      user.signinmethod = widget.authType!;
+                    }
 
-                          // update the details in firestore
-                          user.updateUserDetails();
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Welcome to FairStores')
-                              )
-                          );
+                    try {
 
-                        }
-                        catch (exception) {
-                          log(exception.toString());
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("An error occurred while updating your details")
-                              )
-                          );
-                        }
+                      // update the details in firestore
+                      user.updateUserDetails();
+                      ref.invalidate(userProvider);
 
-                        //
-                        //   await userRef
-                        //       .where('number', isEqualTo: phonecontroller.text)
-                        //       .get()
-                        //       .then((value) {
-                        //     if (value.docs.isEmpty) {
-                        //       userRef.doc(_auth.currentUser?.uid).set({
-                        //         'ismanager': false,
-                        //         'number': widget.user.phoneNumber == ''
-                        //             ? phonecontroller.text
-                        //             : widget.user.phoneNumber,
-                        //         'uid': widget.user.uid,
-                        //         'username': nameController.text,
-                        //         'school': ref.read(selectedSchoolProvider),
-                        //         'timestamp': timestamp,
-                        //         'password': "widget.user.password",
-                        //         'email': emailController.text,
-                        //         'signinmethod': "widget.user.signinmethod",
-                        //       });
-                        //       Navigator.pop(context);
-                        //
-                        //     } else {
-                        //       Fluttertoast.showToast(
-                        //           msg: 'Phone Number already in Use');
-                        //     }
-                        //   });
-                        // } else {}
-                      },
 
-                    )
-                  ],
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Welcome to FairStores')
+                          )
+                      );
+
+                    }
+                    catch (exception) {
+                      log(exception.toString());
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("An error occurred while updating your details")
+                          )
+                      );
+                    }
+                  },
                 )
+              ]
+              ),
             ),
-          ]
           ),
         ),
       );
@@ -209,6 +238,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final _currentScreen = ref.watch(currentScreenProvider);
     final _user = ref.watch(userProvider);
+    final schools = ref.watch(schoolsProvider);
+
+    schools.when(
+      data: (data) => log("loaded schools"),
+      error: (_, err) => log("Error loading school: ${err.toString()}"),
+      loading: () => log("loading schools")
+    );
 
     return WillPopScope(
         onWillPop: () async => false,

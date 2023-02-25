@@ -595,7 +595,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
           phonecontroller.text,
           userModel.email.toString(),
           widget.userid,
-          userModel.name.toString()))!;
+          userModel.username.toString()))!;
 
       setState(() {
         this.paybox = paybox;

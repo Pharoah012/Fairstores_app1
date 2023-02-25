@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 
 class CustomSocialAuthButton extends StatelessWidget {
   final bool isApple;
+  final bool isSignIn;
   final VoidCallback onPressed;
 
   const CustomSocialAuthButton({
     Key? key,
     required this.onPressed,
     this.isApple = true,
+    this.isSignIn = true
   }) : super(key: key);
 
   @override
@@ -46,7 +48,7 @@ class CustomSocialAuthButton extends StatelessWidget {
         Image.asset("images/applelogo.png"),
         SizedBox(width: 10,),
         CustomText(
-          text: "Sign in with Apple",
+          text: isSignIn ? "Sign in with Apple" : "Sign up with Apple",
           color: kWhite,
             isBold: true
         )
@@ -61,7 +63,7 @@ class CustomSocialAuthButton extends StatelessWidget {
         Image.asset("images/google.png"),
         SizedBox(width: 10,),
         CustomText(
-          text: "Sign in with Google",
+          text: isSignIn ? "Sign in with Google" : "Sign up with Google",
           color: kBlack,
           isBold: true
         )

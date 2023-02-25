@@ -48,7 +48,7 @@ class _ProfileState extends ConsumerState<Profile> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 19.0),
-              child: Text(model.name == null ? '' : model.name.toString(),
+              child: Text(model.username == null ? '' : model.username.toString(),
                   style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w600, fontSize: 16)),
             ),
@@ -273,7 +273,7 @@ class _ProfileState extends ConsumerState<Profile> {
                   style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w600, fontSize: 14),
                 ),
-                trailing: Text(model.name.toString(),
+                trailing: Text(model.username.toString(),
                     style: GoogleFonts.manrope(
                         fontWeight: FontWeight.w600, fontSize: 14)),
               ),
