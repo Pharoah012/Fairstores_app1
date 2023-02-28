@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/admin/admin.dart';
 import 'package:fairstores/mainScreens/notifications.dart';
@@ -9,6 +11,7 @@ import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
 import 'package:fairstores/products/productonboarding.dart';
 import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -398,6 +401,13 @@ class _HomeState extends ConsumerState<Home> {
   @override
   Widget build(BuildContext context) {
     final _user = ref.watch(userProvider);
+    final schools = ref.watch(schoolsProvider);
+
+    schools.when(
+        data: (data) => log("loaded schools"),
+        error: (_, err) => log("Error loading school: ${err.toString()}"),
+        loading: () => log("loading schools")
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,

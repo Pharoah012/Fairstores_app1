@@ -6,46 +6,62 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomDropdown extends ConsumerWidget {
-  final StateProvider<String> currentValue;
   final List<String> items;
+  StateProvider<String> currentValue;
+  final bool dropdownError;
+  final String? label;
 
-  const CustomDropdown({
+  CustomDropdown({
     Key? key,
+    required this.items,
+    this.dropdownError = false,
     required this.currentValue,
-    required this.items
+    this.label
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log(items.toString());
+    log("DROPDOWN: " + items.toString());
+    final _currentValue = ref.watch(currentValue);
+
     return SizedBox(
-      height: 56,
-      width: MediaQuery.of(context).size.width * 0.87,
       child: DropdownButtonFormField<String>(
           validator: ((value) {
-            if (value!.isEmpty) {
-              return null;
+            if (value == "-Select School-") {
+              return "Kindly select a school";
             } else {
               return null;
             }
           }),
+          value: _currentValue,
           decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(
-                    color: kPrimary,
-                  )),
-              focusColor: kPrimary,
-              labelStyle: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: const Color(0xff8B8380)),
-              enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color(0xffE5E5E5),
-                  ),
-                  borderRadius:
-                  BorderRadius.circular(10))),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: kPrimary,
+                )
+            ),
+            focusColor: kPrimary,
+            labelStyle: GoogleFonts.manrope(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: kLabelColor
+            ),
+            enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Color(0xffE5E5E5),
+                ),
+                borderRadius:
+                BorderRadius.circular(10)
+            ),
+            errorBorder: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Colors.red,
+                ),
+                borderRadius:
+                BorderRadius.circular(10)
+            ),
+          ),
           hint: const Text("Select School"),
           items: items.map((value) {
             return DropdownMenuItem<String>(

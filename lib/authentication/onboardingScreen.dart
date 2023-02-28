@@ -592,12 +592,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         );
                       }
 
+                      // check if the sign up object is an auth method
+                      // meaning that the user does not have an account
+                      if (signUp['object'] is String){
+                        ref.read(userProvider.notifier).state = UserModel(
+                          ismanager: false,
+                          uid: ref.read(authProvider).currentUser!.uid,
+                          email: ref.read(authProvider).currentUser!.email,
+                          username: ref.read(authProvider).currentUser!.displayName
+                        );
+                      }
+                      else{
+                        // set the user provider to the user object that is returned
+                        ref.read(userProvider.notifier).state = signUp['object'];
+                      }
+
                       // redirect the user to homeScreen
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
                             builder: (context) => HomeScreen(
                               isSocialAuth: true,
-                              authType: signUp['object'],
                             )
                         ),
                         (route)=> false
@@ -622,12 +636,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         );
                       }
 
+                      // check if the sign up object is an auth method
+                      // meaning that the user does not have an account
+                      if (signUp['object'] is String){
+                        ref.read(userProvider.notifier).state = UserModel(
+                            ismanager: false,
+                            uid: ref.read(authProvider).currentUser!.uid,
+                            email: ref.read(authProvider).currentUser!.email,
+                            username: ref.read(authProvider).currentUser!.displayName
+                        );
+                      }
+                      else{
+                        // set the user provider to the user object that is returned
+                        ref.read(userProvider.notifier).state = signUp['object'];
+                      }
+
                       // redirect the user to homeScreen
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                               builder: (context) => HomeScreen(
                                 isSocialAuth: true,
-                                authType: signUp['object'],
                               )
                           ),
                               (route)=> false
@@ -873,7 +901,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 if (signIn['object'] is String){
                   ref.read(userProvider.notifier).state = UserModel(
                     ismanager: false,
-                    uid: ref.read(authProvider).currentUser!.uid
+                    uid: ref.read(authProvider).currentUser!.uid,
+                    email: ref.read(authProvider).currentUser!.email,
+                    username: ref.read(authProvider).currentUser!.displayName
                   );
                 }
                 else{
@@ -881,13 +911,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ref.read(userProvider.notifier).state = signIn['object'];
                 }
 
-
-
                 // redirect the user to homeScreen
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => HomeScreen(
-                          authType: signIn['object'],
                           isSocialAuth: true,
                         )
                     ),
@@ -916,7 +943,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 if (signIn['object'] is String){
                   ref.read(userProvider.notifier).state = UserModel(
                       ismanager: false,
-                      uid: ref.read(authProvider).currentUser!.uid
+                      uid: ref.read(authProvider).currentUser!.uid,
+                      email: ref.read(authProvider).currentUser!.email,
+                      username: ref.read(authProvider).currentUser!.displayName
                   );
                 }
                 else{
@@ -929,7 +958,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
                         builder: (context) => HomeScreen(
-                          authType: signIn['object'],
                           isSocialAuth: true,
                         )
                     ),

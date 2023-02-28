@@ -13,6 +13,8 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:encrypt/encrypt.dart' as crypt;
 
+enum SIGNINMETHOD {PHONE, GOOGLE, APPLE}
+
 class Auth {
 
   // Instance variables
@@ -186,7 +188,8 @@ class Auth {
 
       bool addUserDetailsToFirebase = await postUserDetailsToFirestore(
         phoneNumber: phoneNumber,
-        password: password
+        password: password,
+        signInMethod: SIGNINMETHOD.PHONE
       );
 
       if (!addUserDetailsToFirebase){
@@ -304,20 +307,25 @@ class Auth {
 
   // add the user's credentials to the firebase database
   Future<bool> postUserDetailsToFirestore({
-    required String phoneNumber,
-    required String password,
+    required SIGNINMETHOD signInMethod,
+    String? phoneNumber,
+    String? email,
+    String? username,
+    String? password,
   }) async {
 
     try {
       UserModel userModel = UserModel(ismanager: false);
 
-      userModel.email = "";
+      userModel.email = email ?? "";
       userModel.uid = currentUser!.uid;
-      userModel.username = "";
-      userModel.number = phoneNumber;
-      userModel.password = encryptPassword(password: password);
+      userModel.username = username ?? "";
+      userModel.number = phoneNumber ?? "";
+      userModel.password = password != null
+        ? encryptPassword(password: password)
+        : "";
       userModel.school = '';
-      userModel.signinmethod = '';
+      userModel.signinmethod = signInMethod.name;
 
       await userModel.createUser(userModel);
 
@@ -358,63 +366,9 @@ class Auth {
             idToken: googleSignInAuthentication.idToken,
           );
 
-          try {
-            final UserCredential userCredential =
-            await _firebaseAuth.signInWithCredential(credential);
-
-            // check if the user exists
-            DocumentSnapshot user = await userRef.doc(_firebaseAuth.currentUser!.uid).get();
-
-            // check if the user is signing up with existing credentials
-            if (!isSignIn && user.exists){
-
-              return errorReport(
-                  errorMessage: "An account with these credentials already exists."
-              );
-
-            }
-            else if (!isSignIn){
-              //check if the user is signing up with unique credentials
-              return successReport(successObject: authMethod);
-            }
-            else if (isSignIn && !user.exists){
-              // check if the user is signing in for the first time
-              return successReport(successObject: authMethod);
-            }
-            else{
-
-              // check if the user is signing in
-
-              // get the user model
-              UserModel user = await getUser();
-
-              return successReport(successObject: user);
-            }
-
-          } on FirebaseAuthException catch (e) {
-            if (e.code == 'account-exists-with-different-credential') {
-              return errorReport(
-                  errorMessage: "This account exists with different credentials"
-              );
-              // handle the error here
-            } else if (e.code == 'invalid-credential') {
-              // handle the error here
-              return errorReport(
-                errorMessage: "Your credentials are invalid"
-              );
-            }
-          } catch (e) {
-            // handle the error here
-            log(e.toString());
-            return errorReport(
-                errorMessage: "An error occurred while signing in with socials"
-            );
-          }
+          final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
         }
-
-        return errorReport(
-          errorMessage: "An error during Google sign in"
-        );
 
       }
       else {
@@ -433,45 +387,75 @@ class Auth {
         // If we got this far, a session based on the Apple ID credential has been created in your system,
         // and you can now set this as the app's session
         // ignore: avoid_print
-        print("session");
+
         final UserCredential authResult =
         await _firebaseAuth.signInWithCredential(oauthCredential);
 
-        // check if the user exists
-        DocumentSnapshot user = await userRef.doc(_firebaseAuth.currentUser!.uid).get();
+      }
 
-        // check if the user is signing up with existing credentials
-        if (!isSignIn && user.exists){
+      // check if the user exists
+      DocumentSnapshot user = await userRef.doc(_firebaseAuth.currentUser!.uid).get();
 
-          return errorReport(
-              errorMessage: "An account with these credentials already exists."
-          );
+      // check if the user is signing up with existing credentials
+      if (!isSignIn && user.exists){
 
-        }
-        else if (!isSignIn){
-          //check if the user is signing up with unique credentials
-          return successReport(successObject: authMethod);
-        }
-        else if (isSignIn && !user.exists){
-          // check if the user is signing in for the first time
-          return successReport(successObject: authMethod);
-        }
-        else{
-
-          // check if the user is signing in
-
-          // get the user model
-          UserModel user = await getUser();
-
-          return successReport(successObject: user);
-        }
+        return errorReport(
+            errorMessage: "An account with these credentials already exists."
+        );
 
       }
-    }
+      else if (!isSignIn){
+        //check if the user is signing up with unique credentials
+        await postUserDetailsToFirestore(
+            signInMethod: authMethod == "google" ? SIGNINMETHOD.GOOGLE : SIGNINMETHOD.APPLE,
+            email: currentUser!.email,
+            username: currentUser!.displayName
+        );
 
+        return successReport(successObject: authMethod);
+      }
+      else if (isSignIn && !user.exists){
+        //check if the user is signing up with unique credentials
+        await postUserDetailsToFirestore(
+            signInMethod: authMethod == "google" ? SIGNINMETHOD.GOOGLE : SIGNINMETHOD.APPLE,
+            email: currentUser!.email ?? "",
+            username: currentUser!.displayName ?? ""
+        );
+
+        // check if the user is signing in for the first time
+        return successReport(successObject: authMethod);
+      }
+      else{
+        // check if the user is signing in
+
+        // get the user model
+        UserModel user = await getUser();
+
+        return successReport(successObject: user);
+      }
+
+    }
+    on FirebaseAuthException catch (e) {
+      if (e.code == 'account-exists-with-different-credential') {
+        return errorReport(
+            errorMessage: "This account exists with different credentials"
+        );
+        // handle the error here
+      } else if (e.code == 'invalid-credential') {
+        // handle the error here
+        return errorReport(
+            errorMessage: "Your credentials are invalid"
+        );
+      }
+      else{
+        return errorReport(
+            errorMessage: "An error occurred during your authentication"
+        );
+      }
+    }
     catch (exception){
       return errorReport(
-        errorMessage: "Error signing in with Apple"
+          errorMessage: "An error occurred during your authentication"
       );
     }
 
@@ -479,5 +463,8 @@ class Auth {
 
   // -------------- SIGN OUT FUNCTIONS -----------------
   // Future<void> _handleSignOut() => _googleSignIn.disconnect();
+  Future<void> logout() async {
+    await _firebaseAuth.signOut();
+  }
 
 }

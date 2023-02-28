@@ -1,15 +1,56 @@
 // this screen represents the splash and loading screen of the app
 
+import 'package:fairstores/authentication/onboardingScreen.dart';
+import 'package:fairstores/mainScreens/homescreen.dart';
+import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+      Future.delayed(
+        Duration(seconds: 3),
+        () async {
+          if (ref.read(authProvider).currentUser != null){
+            ref.read(userProvider.notifier).state = await ref.read(authProvider).getUser();
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(
+                      isSocialAuth: ref.read(userProvider).signinmethod != "PHONE",
+                    )
+                ),
+                    (route) => false
+            );
+          }
+          else {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => OnboardingScreen()
+                ),
+                    (route) => false
+            );
+          }
+        }
+      );
+
+    });
+
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

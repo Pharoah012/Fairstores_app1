@@ -5,7 +5,9 @@ import 'package:fairstores/mainScreens/securitymodel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/providers/authProvider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/customSettingsListTile.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,20 +24,10 @@ class Profile extends ConsumerStatefulWidget {
 }
 
 class _ProfileState extends ConsumerState<Profile> {
-  UserModel model = UserModel(ismanager: false);
-  TextEditingController namecontroller = TextEditingController();
-  TextEditingController emailcontroller = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
 
   profileheader() {
+    UserModel user = ref.read(userProvider);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: 70.0),
@@ -48,9 +40,11 @@ class _ProfileState extends ConsumerState<Profile> {
             ),
             Padding(
               padding: const EdgeInsets.only(top: 19.0),
-              child: Text(model.username == null ? '' : model.username.toString(),
-                  style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600, fontSize: 16)),
+              child: CustomText(
+                text: user.username ?? "",
+                fontSize: 16,
+                isMediumWeight: true,
+              )
             ),
             GestureDetector(
               onTap: () {
@@ -66,11 +60,10 @@ class _ProfileState extends ConsumerState<Profile> {
                           topRight: Radius.circular(21)),
                     ));
               },
-              child: Text('Edit Profile',
-                  style: GoogleFonts.manrope(
-                      color: const Color(0xff8B8380),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400)),
+              child: CustomText(
+                text: "Edit Profile",
+                fontSize: 12,
+              )
             )
           ],
         ),
@@ -80,131 +73,91 @@ class _ProfileState extends ConsumerState<Profile> {
 
   profilemenu() {
     return FutureBuilder<DocumentSnapshot>(
-        future: securityRef.doc('Security_keys').get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const SizedBox();
-          }
+      future: securityRef.doc('Security_keys').get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox();
+        }
 
-          SecurityModel securityModel =
-              SecurityModel.fromDocument(snapshot.data!);
-          return Padding(
-            padding: const EdgeInsets.only(top: 50.0),
-            child: Column(
-              children: [
-                ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Notifications(
+        SecurityModel securityModel = SecurityModel.fromDocument(snapshot.data!);
+        return Padding(
+          padding: const EdgeInsets.only(top: 50.0),
+          child: Column(
+            children: [
+              CustomSettingsListTile(
+                label: 'Notifications',
+                icon: Icons.notifications,
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Notifications(
+                          user: ref.read(authProvider).currentUser!.uid,
+                        ),
+                      ));
+                },
+              ),
+              CustomSettingsListTile(
+                label: 'Saved Items',
+                icon: Icons.bookmark,
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SavedItems(
                             user: ref.read(authProvider).currentUser!.uid,
-                          ),
-                        ));
-                  },
-                  leading: Icon(
-                    Icons.notifications,
-                    color: kPrimary,
-                  ),
-                  title: Text('Notifications',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ),
-                ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SavedItems(
-                              user: ref.read(authProvider).currentUser!.uid,
-                              school: model.school.toString()),
-                        ));
-                  },
-                  leading: Icon(
-                    Icons.bookmark,
-                    color: kPrimary,
-                  ),
-                  title: Text('Saved Items',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ),
-                ListTile(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => Help(
-                                  securityModel: securityModel,
-                                ))));
-                  }),
-                  leading: Icon(
-                    Icons.settings,
-                    color: kPrimary,
-                  ),
-                  title: Text('Help',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ),
-                ListTile(
-                  onTap: (() {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => Details(
-                                  details: securityModel.aboutus,
-                                  title: 'About Us',
-                                ))));
-                  }),
-                  leading: Icon(
-                    Icons.info,
-                    color: kPrimary,
-                  ),
-                  title: Text('About Us',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ),
-                ListTile(
-                  onTap: () async {
-                    User? user = _auth.currentUser;
-
-                    _auth.signOut().then((value) => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OnboardingScreen(),
-                        )));
-                  },
-                  leading: Icon(
-                    Icons.logout,
-                    color: kPrimary,
-                  ),
-                  title: Text('Logout',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 14)),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+                            school: ref.read(userProvider).school!),
+                      ));
+                },
+              ),
+              CustomSettingsListTile(
+                label: 'Help',
+                icon: Icons.settings,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: ((context) => Help(
+                          securityModel: securityModel,
+                        )
+                        )
+                    )
+                  );
+                },
+              ),
+              CustomSettingsListTile(
+                label: 'About Us',
+                icon: Icons.info,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: ((context) => Details(
+                          details: securityModel.aboutus,
+                          title: 'About Us',
+                        )
+                        )
+                    )
+                  );
+                }
+              ),
+              CustomSettingsListTile(
+                label: 'Logout',
+                icon: Icons.logout,
+                onTap: () async {
+                  ref.read(authProvider).logout().then((value) => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OnboardingScreen(),
+                      )
+                  ));
+                },
+              ),
+            ],
+          ),
+        );
+      }
+    );
   }
 
   footer() {
@@ -217,104 +170,101 @@ class _ProfileState extends ConsumerState<Profile> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 20.0),
-          child: Text('App Version 1.0',
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                  color: const Color(0xffA0A0A0))),
-        )
+          child: CustomText(
+            text: 'App Version 1.1',
+            isMediumWeight: true,
+          ),
+        ),
       ],
     );
   }
 
   editprofile() {
-    return StreamBuilder<DocumentSnapshot>(
-        stream: userRef.doc(ref.read(authProvider).currentUser!.uid,).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const SizedBox();
-          }
-          UserModel model = UserModel.fromDocument(snapshot.data!);
 
-          return Column(
+    UserModel user = ref.read(userProvider);
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
+              top: 16.0, right: 20, left: 20, bottom: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                    top: 16.0, right: 20, left: 20, bottom: 20),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Cancel',
-                          style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600, fontSize: 16)),
-                    ),
-                    Expanded(
-                      child: const SizedBox(),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        showeditdetails(context);
-                      },
-                      child: Text('Edit',
-                          style: GoogleFonts.manrope(
-                              color: kPrimary,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16)),
-                    )
-                  ],
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: CustomText(
+                  text: 'Cancel',
+                  isMediumWeight: true,
+                  fontSize: 16,
                 ),
               ),
-              ListTile(
-                title: Text(
-                  'Full Name',
-                  style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600, fontSize: 14),
+              GestureDetector(
+                onTap: () {
+                  showeditdetails(context);
+                },
+                child: CustomText(
+                  text: 'Edit',
+                  isMediumWeight: true,
+                  fontSize: 16,
                 ),
-                trailing: Text(model.username.toString(),
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-              ),
-              ListTile(
-                title: Text('Email',
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                trailing: Text(model.email.toString(),
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-              ),
-              ListTile(
-                title: Text('Phone Number',
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
-                trailing: Text(model.number.toString(),
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 14)),
               )
             ],
-          );
-        });
+          ),
+        ),
+        ListTile(
+          title: Text(
+            'Full Name',
+            style: GoogleFonts.manrope(
+                fontWeight: FontWeight.w600, fontSize: 14),
+          ),
+          trailing: Text(user.username.toString(),
+              style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w600, fontSize: 14)),
+        ),
+        ListTile(
+          title: Text('Email',
+              style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w600, fontSize: 14)),
+          trailing: Text(user.email.toString(),
+              style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w600, fontSize: 14)),
+        ),
+        ListTile(
+          title: Text('Phone Number',
+              style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w600, fontSize: 14)),
+          trailing: Text(user.number.toString(),
+              style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w600, fontSize: 14)),
+        )
+      ],
+    );
   }
 
-  postDetailsToFirestore(String email, String phonenumber) {
-    userRef.doc(ref.read(authProvider).currentUser!.uid,).update({'email': email, 'number': phonenumber});
+  postDetailsToFirestore(String email, String phonenumber) async {
+    await userRef.doc(ref.read(authProvider).currentUser!.uid,).update({'email': email, 'number': phonenumber});
   }
 
   showeditdetails(context) {
+    TextEditingController emailcontroller = TextEditingController();
+    TextEditingController phoneController = TextEditingController();
+
     return showDialog(
         context: context,
         builder: (context) => SimpleDialog(
               shape: RoundedRectangleBorder(
                   borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(21),
-                      topRight: Radius.circular(21),
-                      bottomLeft: Radius.circular(21),
-                      bottomRight: Radius.circular(21))),
-              title: Text('Edit your details',
-                  style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w600, fontSize: 20)),
+                    topLeft: Radius.circular(21),
+                    topRight: Radius.circular(21),
+                  ),
+              ),
+              title: CustomText(
+                text: "Edit your details",
+                fontSize: 20,
+              ),
               children: [
                 SimpleDialogOption(
                   child: TextField(
@@ -333,22 +283,25 @@ class _ProfileState extends ConsumerState<Profile> {
                   ),
                 ),
                 SimpleDialogOption(
-                    onPressed: () {
-                      postDetailsToFirestore(
+                    onPressed: () async  {
+                      await postDetailsToFirestore(
                           emailcontroller.text, phoneController.text);
                     },
-                    child: Text(
-                      'Edit',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w500, fontSize: 16),
-                    )),
+                    child: CustomText(
+                      text: 'Edit',
+                      fontSize: 16,
+                      isMediumWeight: true
+                    )
+                ),
                 SimpleDialogOption(
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: Text('Close',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w500, fontSize: 16)))
+                    child: CustomText(
+                        text: 'Close',
+                        fontSize: 16,
+                        isMediumWeight: true
+                    ))
               ],
             ));
   }
@@ -364,13 +317,8 @@ class _ProfileState extends ConsumerState<Profile> {
           children: [
             profileheader(),
             profilemenu(),
-            Expanded(
-              child: const SizedBox(),
-            ),
+            SizedBox(height: 70,),
             footer(),
-            Expanded(
-              child: const SizedBox(),
-            )
           ],
         ));
   }

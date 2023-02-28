@@ -54,6 +54,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
             fontSize: 14,
             color: kLabelColor
           ),
+          floatingLabelBehavior: FloatingLabelBehavior.never,
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: kPrimary),
             borderRadius: BorderRadius.circular(10)

@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:fairstores/authentication/onboardingScreen.dart';
 import 'package:fairstores/backend/firebase_options.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/credentials.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/offlineStatusProvider.dart';
+import 'package:fairstores/splashscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,35 +151,7 @@ class _MyAppState extends ConsumerState<MyApp> {
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),
-        home: OnboardingScreen()
-        // StreamBuilder<User?>(
-        //     stream: _auth.authStateChanges(),
-        //     builder: (context, snapshot) {
-        //       if (snapshot.connectionState == ConnectionState.active) {
-        //         User? user = snapshot.data;
-        //
-        //         //Check if the user has signed in
-        //         if (user == null) {
-        //           //Display the signIn page if the user has not logged in
-        //           return const OnboardingScreen();
-        //         }
-        //
-        //         // Navigate to home page when the authentication is successful
-        //         // Redirect the user to the main screen if they're logged in already
-        //         return HomeScreen(
-        //           user: user,
-        //         );
-        //       }
-        //
-        //       //Display a loading UI while the data is loading
-        //       return const Scaffold(
-        //         // backgroundColor: Colors.white,
-        //         body: Center(
-        //           child: CircularProgressIndicator(),
-        //         ),
-        //       );
-        //     }
-        // )
+        home: SplashScreen(),
     );
   }
 }
