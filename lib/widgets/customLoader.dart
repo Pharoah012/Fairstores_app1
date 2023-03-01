@@ -1,9 +1,9 @@
 import 'package:fairstores/constants.dart';
 import 'package:flutter/material.dart';
 
-class CustomAuthLoader extends StatelessWidget {
+class CustomLoader extends StatelessWidget {
 
-  CustomAuthLoader({
+  CustomLoader({
     Key? key,
   }) : super(key: key);
 

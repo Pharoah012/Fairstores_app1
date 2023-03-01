@@ -89,12 +89,11 @@ class _ProfileState extends ConsumerState<Profile> {
                 icon: Icons.notifications,
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Notifications(
-                          user: ref.read(authProvider).currentUser!.uid,
-                        ),
-                      ));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Notifications(),
+                    )
+                  );
                 },
               ),
               CustomSettingsListTile(
@@ -146,10 +145,10 @@ class _ProfileState extends ConsumerState<Profile> {
                 icon: Icons.logout,
                 onTap: () async {
                   ref.read(authProvider).logout().then((value) => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OnboardingScreen(),
-                      )
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const OnboardingScreen(),
+                    )
                   ));
                 },
               ),
@@ -244,8 +243,11 @@ class _ProfileState extends ConsumerState<Profile> {
     );
   }
 
-  postDetailsToFirestore(String email, String phonenumber) async {
-    await userRef.doc(ref.read(authProvider).currentUser!.uid,).update({'email': email, 'number': phonenumber});
+  postDetailsToFirestore(String email, String phoneNumber) async {
+    await ref.read(userProvider).updateProfileDetails(
+        email: email,
+        phoneNumber: phoneNumber
+    );
   }
 
   showeditdetails(context) {

@@ -16,10 +16,7 @@ const Color kDisabledBorderColor = Color(0xffD1D5DB);
 
 
 // ------------- Firestore References ----------------
-DateTime timestamp = DateTime.now();
-final userRef = FirebaseFirestore.instance.collection('Users');
 final schoolRef = FirebaseFirestore.instance.collection('Schools');
-final notificationsRef = FirebaseFirestore.instance.collection('Notifications');
 final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
 final securityRef = FirebaseFirestore.instance.collection('Security');
 final menuRef = FirebaseFirestore.instance.collection('FoodMenu');

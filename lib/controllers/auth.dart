@@ -315,10 +315,12 @@ class Auth {
   }) async {
 
     try {
-      UserModel userModel = UserModel(ismanager: false);
+      UserModel userModel = UserModel(
+        ismanager: false,
+        uid: currentUser!.uid
+      );
 
       userModel.email = email ?? "";
-      userModel.uid = currentUser!.uid;
       userModel.username = username ?? "";
       userModel.number = phoneNumber ?? "";
       userModel.password = password != null

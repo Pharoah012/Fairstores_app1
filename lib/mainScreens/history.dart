@@ -80,19 +80,13 @@ class _HistoryState extends ConsumerState<History> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => FoodPage(
-                                user: ref.read(authProvider).currentUser!.uid,
-                                school: ref.read(userProvider).school!,
-                          ))
+                            builder: (context) => FoodPage())
                       );
                     } else {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EventsPage(
-                                user: ref.read(authProvider).currentUser!.uid,
-                                school:ref.read(userProvider).school!,
-                          ))
+                            builder: (context) => EventsPage())
                     );
                     }
                   },

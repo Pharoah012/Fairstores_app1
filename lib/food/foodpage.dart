@@ -11,10 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FoodPage extends StatefulWidget {
-  final String school;
-  final String user;
 
-  const FoodPage({Key? key, required this.user, required this.school})
+  const FoodPage({Key? key})
       : super(key: key);
 
   @override
@@ -31,240 +29,240 @@ class _FoodPageState extends State<FoodPage> {
   @override
   void initState() {
     super.initState();
-    schoolList();
-    getads();
-    getcategories();
-    //getbestsellers();
-    // getjoints();
-    setState(() {
-      selectedSchool = widget.school;
-    });
+    // schoolList();
+    // getads();
+    // getcategories();
+    // //getbestsellers();
+    // // getjoints();
+    // setState(() {
+    //   selectedSchool = widget.school;
+    // });
   }
 
-  getcategories() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: categoryRef
-            .doc('FairFood')
-            .collection('categories')
-            .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
-            .collection('shop_categories')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Text('');
-          }
-          print(selectedSchool);
-          List<GestureDetector> foodlist = [];
-          for (var doc in snapshot.data!.docs) {
-            CategoryTileModel categoryTileModel =
-                CategoryTileModel.fromDocument(doc);
-            foodlist.add(
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    categorySelection = categoryTileModel.id;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6.0),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xffEBEAEB)),
-                        color: categorySelection == categoryTileModel.id
-                            ? kPrimary
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Center(
-                          child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 19.0, right: 19, top: 8, bottom: 8),
-                        child: Text(
-                          categoryTileModel.name,
-                          style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                              color: categorySelection == categoryTileModel.id
-                                  ? Colors.white
-                                  : Color(0xff777777)),
-                        ),
-                      ))),
-                ),
-              ),
-            );
-          }
-
-          return Padding(
-            padding: const EdgeInsets.only(
-                top: 10, left: 16, right: 20, bottom: 14.5),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 33,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: foodlist,
-              ),
-            ),
-          );
-        });
-  }
-
-  getads() async {
-    QuerySnapshot snapshot1 =
-        await adsRef.doc('General').collection('content').get();
-
-    QuerySnapshot snapshot2 = await adsRef
-        .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
-        .collection('content')
-        .get();
-
-    List<AdsModel> adsgenerallist = [];
-    List<AdsModel> adslist = [];
-    for (var doc in snapshot1.docs) {
-      adslist.add(AdsModel.fromDocument(doc));
-    }
-    for (var doc in snapshot2.docs) {
-      adslist.add(AdsModel.fromDocument(doc));
-    }
-
-    setState(() {
-      this.adslist = adslist;
-    });
-  }
-
-  getjoints() {
-    if (categorySelection == '01') {
-      return StreamBuilder<QuerySnapshot>(
-          stream: jointsRef
-              .doc(selectedSchool)
-              .collection('Joints')
-              .orderBy('lockshop', descending: false)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Text('');
-            }
-
-            List<FoodTile> foodlist = [];
-            for (var doc in snapshot.data!.docs) {
-              foodlist
-                  .add(FoodTile.fromDocument(doc, widget.user, selectedSchool));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Column(
-                children: foodlist,
-              ),
-            );
-          });
-    } else {
-      return StreamBuilder<QuerySnapshot>(
-          stream: jointsRef
-              .doc(selectedSchool)
-              .collection('Joints')
-              .where('categoryid', isEqualTo: categorySelection)
-              .orderBy('lockshop', descending: false)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Text('');
-            }
-
-            List<FoodTile> foodlist = [];
-            for (var doc in snapshot.data!.docs) {
-              foodlist
-                  .add(FoodTile.fromDocument(doc, widget.user, selectedSchool));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Column(
-                children: foodlist,
-              ),
-            );
-          });
-    }
-  }
-
-  getbestsellers() {
-    if (categorySelection == '01') {
-      return StreamBuilder<QuerySnapshot>(
-          stream: jointsRef
-              .doc(selectedSchool)
-              .collection('Joints')
-              .orderBy('foodjoint_favourite_count', descending: true)
-              .limit(4)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Text('');
-            }
-
-            List<HomeTile> foodlist = [];
-            for (var doc in snapshot.data!.docs) {
-              foodlist
-                  .add(HomeTile.fromDocument(doc, widget.user, selectedSchool));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: foodlist,
-                ),
-              ),
-            );
-          });
-    } else {
-      return StreamBuilder<QuerySnapshot>(
-          stream: jointsRef
-              .doc(selectedSchool)
-              .collection('Joints')
-              .where('categoryid', isEqualTo: categorySelection)
-              .orderBy('foodjoint_favourite_count', descending: true)
-              .limit(4)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Text('');
-            }
-
-            List<HomeTile> foodlist = [];
-            for (var doc in snapshot.data!.docs) {
-              foodlist
-                  .add(HomeTile.fromDocument(doc, widget.user, selectedSchool));
-            }
-
-            return Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: foodlist,
-                ),
-              ),
-            );
-          });
-    }
-  }
-
-  schoolList() async {
-    QuerySnapshot snapshot = await schoolRef.get();
-    List<String> schoollist = [];
-    for (var doc in snapshot.docs) {
-      SchoolModel schoolModel = SchoolModel.fromDocument(doc);
-
-      schoollist.add(schoolModel.schoolname);
-    }
-
-    setState(() {
-      this.schoollist = schoollist;
-    });
-  }
+  // getcategories() {
+  //   return StreamBuilder<QuerySnapshot>(
+  //       stream: categoryRef
+  //           .doc('FairFood')
+  //           .collection('categories')
+  //           .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
+  //           .collection('shop_categories')
+  //           .snapshots(),
+  //       builder: (context, snapshot) {
+  //         if (!snapshot.hasData) {
+  //           return const Text('');
+  //         }
+  //         print(selectedSchool);
+  //         List<GestureDetector> foodlist = [];
+  //         for (var doc in snapshot.data!.docs) {
+  //           CategoryTileModel categoryTileModel =
+  //               CategoryTileModel.fromDocument(doc);
+  //           foodlist.add(
+  //             GestureDetector(
+  //               onTap: () {
+  //                 setState(() {
+  //                   categorySelection = categoryTileModel.id;
+  //                 });
+  //               },
+  //               child: Padding(
+  //                 padding: const EdgeInsets.only(left: 6.0),
+  //                 child: Container(
+  //                     decoration: BoxDecoration(
+  //                       border: Border.all(color: Color(0xffEBEAEB)),
+  //                       color: categorySelection == categoryTileModel.id
+  //                           ? kPrimary
+  //                           : Colors.white,
+  //                       borderRadius: BorderRadius.circular(100),
+  //                     ),
+  //                     child: Center(
+  //                         child: Padding(
+  //                       padding: const EdgeInsets.only(
+  //                           left: 19.0, right: 19, top: 8, bottom: 8),
+  //                       child: Text(
+  //                         categoryTileModel.name,
+  //                         style: GoogleFonts.manrope(
+  //                             fontWeight: FontWeight.w600,
+  //                             fontSize: 12,
+  //                             color: categorySelection == categoryTileModel.id
+  //                                 ? Colors.white
+  //                                 : Color(0xff777777)),
+  //                       ),
+  //                     ))),
+  //               ),
+  //             ),
+  //           );
+  //         }
+  //
+  //         return Padding(
+  //           padding: const EdgeInsets.only(
+  //               top: 10, left: 16, right: 20, bottom: 14.5),
+  //           child: SizedBox(
+  //             width: MediaQuery.of(context).size.width,
+  //             height: 33,
+  //             child: ListView(
+  //               scrollDirection: Axis.horizontal,
+  //               children: foodlist,
+  //             ),
+  //           ),
+  //         );
+  //       });
+  // }
+  //
+  // getads() async {
+  //   QuerySnapshot snapshot1 =
+  //       await adsRef.doc('General').collection('content').get();
+  //
+  //   QuerySnapshot snapshot2 = await adsRef
+  //       .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
+  //       .collection('content')
+  //       .get();
+  //
+  //   List<AdsModel> adsgenerallist = [];
+  //   List<AdsModel> adslist = [];
+  //   for (var doc in snapshot1.docs) {
+  //     adslist.add(AdsModel.fromDocument(doc));
+  //   }
+  //   for (var doc in snapshot2.docs) {
+  //     adslist.add(AdsModel.fromDocument(doc));
+  //   }
+  //
+  //   setState(() {
+  //     this.adslist = adslist;
+  //   });
+  // }
+  //
+  // getjoints() {
+  //   if (categorySelection == '01') {
+  //     return StreamBuilder<QuerySnapshot>(
+  //         stream: jointsRef
+  //             .doc(selectedSchool)
+  //             .collection('Joints')
+  //             .orderBy('lockshop', descending: false)
+  //             .snapshots(),
+  //         builder: (context, snapshot) {
+  //           if (!snapshot.hasData) {
+  //             return const Text('');
+  //           }
+  //
+  //           List<FoodTile> foodlist = [];
+  //           for (var doc in snapshot.data!.docs) {
+  //             foodlist
+  //                 .add(FoodTile.fromDocument(doc, widget.user, selectedSchool));
+  //           }
+  //
+  //           return Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: Column(
+  //               children: foodlist,
+  //             ),
+  //           );
+  //         });
+  //   } else {
+  //     return StreamBuilder<QuerySnapshot>(
+  //         stream: jointsRef
+  //             .doc(selectedSchool)
+  //             .collection('Joints')
+  //             .where('categoryid', isEqualTo: categorySelection)
+  //             .orderBy('lockshop', descending: false)
+  //             .snapshots(),
+  //         builder: (context, snapshot) {
+  //           if (!snapshot.hasData) {
+  //             return const Text('');
+  //           }
+  //
+  //           List<FoodTile> foodlist = [];
+  //           for (var doc in snapshot.data!.docs) {
+  //             foodlist
+  //                 .add(FoodTile.fromDocument(doc, widget.user, selectedSchool));
+  //           }
+  //
+  //           return Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: Column(
+  //               children: foodlist,
+  //             ),
+  //           );
+  //         });
+  //   }
+  // }
+  //
+  // getbestsellers() {
+  //   if (categorySelection == '01') {
+  //     return StreamBuilder<QuerySnapshot>(
+  //         stream: jointsRef
+  //             .doc(selectedSchool)
+  //             .collection('Joints')
+  //             .orderBy('foodjoint_favourite_count', descending: true)
+  //             .limit(4)
+  //             .snapshots(),
+  //         builder: (context, snapshot) {
+  //           if (!snapshot.hasData) {
+  //             return const Text('');
+  //           }
+  //
+  //           List<HomeTile> foodlist = [];
+  //           for (var doc in snapshot.data!.docs) {
+  //             foodlist
+  //                 .add(HomeTile.fromDocument(doc, widget.user, selectedSchool));
+  //           }
+  //
+  //           return Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: SizedBox(
+  //               height: MediaQuery.of(context).size.height * 0.3,
+  //               child: ListView(
+  //                 scrollDirection: Axis.horizontal,
+  //                 children: foodlist,
+  //               ),
+  //             ),
+  //           );
+  //         });
+  //   } else {
+  //     return StreamBuilder<QuerySnapshot>(
+  //         stream: jointsRef
+  //             .doc(selectedSchool)
+  //             .collection('Joints')
+  //             .where('categoryid', isEqualTo: categorySelection)
+  //             .orderBy('foodjoint_favourite_count', descending: true)
+  //             .limit(4)
+  //             .snapshots(),
+  //         builder: (context, snapshot) {
+  //           if (!snapshot.hasData) {
+  //             return const Text('');
+  //           }
+  //
+  //           List<HomeTile> foodlist = [];
+  //           for (var doc in snapshot.data!.docs) {
+  //             foodlist
+  //                 .add(HomeTile.fromDocument(doc, widget.user, selectedSchool));
+  //           }
+  //
+  //           return Padding(
+  //             padding: const EdgeInsets.only(top: 10.0),
+  //             child: SizedBox(
+  //               height: MediaQuery.of(context).size.height * 0.3,
+  //               child: ListView(
+  //                 scrollDirection: Axis.horizontal,
+  //                 children: foodlist,
+  //               ),
+  //             ),
+  //           );
+  //         });
+  //   }
+  // }
+  //
+  // schoolList() async {
+  //   QuerySnapshot snapshot = await schoolRef.get();
+  //   List<String> schoollist = [];
+  //   for (var doc in snapshot.docs) {
+  //     SchoolModel schoolModel = SchoolModel.fromDocument(doc);
+  //
+  //     schoollist.add(schoolModel.schoolname);
+  //   }
+  //
+  //   setState(() {
+  //     this.schoollist = schoollist;
+  //   });
+  // }
 
   foodPageHeader() {
     return Padding(
@@ -429,22 +427,22 @@ class _FoodPageState extends State<FoodPage> {
         children: [
           foodPageHeader(),
           search(),
-          getcategories(),
-          adsection(),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, left: 25, bottom: 0),
-            child: Text('Best Sellers',
-                style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w600, fontSize: 14)),
-          ),
-          getbestsellers(),
-          Padding(
-            padding: const EdgeInsets.only(top: 0.0, left: 25, bottom: 0),
-            child: Text('Restuarants Available',
-                style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w600, fontSize: 14)),
-          ),
-          getjoints()
+          // getcategories(),
+          // adsection(),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 20.0, left: 25, bottom: 0),
+          //   child: Text('Best Sellers',
+          //       style: GoogleFonts.manrope(
+          //           fontWeight: FontWeight.w600, fontSize: 14)),
+          // ),
+          // getbestsellers(),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 0.0, left: 25, bottom: 0),
+          //   child: Text('Restuarants Available',
+          //       style: GoogleFonts.manrope(
+          //           fontWeight: FontWeight.w600, fontSize: 14)),
+          // ),
+          // getjoints()
         ],
       )),
     );

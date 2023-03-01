@@ -6,7 +6,7 @@ import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/otpTimerProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
-import 'package:fairstores/widgets/customAuthLoader.dart';
+import 'package:fairstores/widgets/customLoader.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:fairstores/widgets/customOTPDrawer.dart';
 import 'package:fairstores/widgets/customSocialAuthButton.dart';
@@ -203,7 +203,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                               showDialog(
                                 context: context,
-                                builder: (context) => CustomAuthLoader()
+                                builder: (context) => CustomLoader()
                               );
 
                               // send the OTP for verification
@@ -289,7 +289,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                                     // show loader
                                                     showDialog(
                                                       context: context,
-                                                      builder: (context) => CustomAuthLoader()
+                                                      builder: (context) => CustomLoader()
                                                     );
 
                                                     // Attempt to reset the user's password
@@ -425,7 +425,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
                       showDialog(
                         context: context,
-                        builder: (context) => CustomAuthLoader()
+                        builder: (context) => CustomLoader()
                       );
 
                       // send OTP to verify the user's number
@@ -468,7 +468,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               // show loader while sign up process is ongoing
                               showDialog(
                                 context: context,
-                                builder: (context) => CustomAuthLoader()
+                                builder: (context) => CustomLoader()
                               );
 
                               // check if the user exists
@@ -716,7 +716,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   // show the loader
                   showDialog(
                     context: context,
-                    builder: (context) => CustomAuthLoader()
+                    builder: (context) => CustomLoader()
                   );
 
                   // check if the user exists

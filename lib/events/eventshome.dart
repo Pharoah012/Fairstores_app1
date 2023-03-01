@@ -3,51 +3,28 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventspage.dart';
 import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/models/schoolmodel.dart';
+import 'package:fairstores/providers/schoolListProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/customDropdown.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class EventsPage extends StatefulWidget {
-  final String school;
-  final String user;
+class EventsPage extends ConsumerStatefulWidget {
 
-  const EventsPage({Key? key, required this.user, required this.school})
-      : super(key: key);
+  const EventsPage({Key? key}) : super(key: key);
 
   @override
-  State<EventsPage> createState() => _EventsPageState();
+  ConsumerState<EventsPage> createState() => _EventsPageState();
 }
 
-class _EventsPageState extends State<EventsPage> {
-  String selectedSchool = '';
-  List<String> schoollist = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    schoolList();
-    setState(() {
-      selectedSchool = widget.school;
-    });
-    print(selectedSchool);
-  }
-
-  schoolList() async {
-    QuerySnapshot snapshot = await schoolRef.get();
-    List<String> schoollist = [];
-    for (var doc in snapshot.docs) {
-      SchoolModel schoolModel = SchoolModel.fromDocument(doc);
-
-      schoollist.add(schoolModel.schoolname);
-    }
-
-    setState(() {
-      this.schoollist = schoollist;
-    });
-  }
+class _EventsPageState extends ConsumerState<EventsPage> {
 
   pageLocationHeader() {
+    CustomDropdown schoolsDropdown = ref.read(schoolDropdownProvider);
+
     return Padding(
       padding: const EdgeInsets.only(top: 45.0, bottom: 10),
       child: Row(
@@ -58,41 +35,19 @@ class _EventsPageState extends State<EventsPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.close)),
+              icon: const Icon(Icons.close)
+          ),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 30,
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: DropdownButton<dynamic>(
-                      elevation: 0,
-                      underline: const SizedBox(
-                        height: 0,
-                      ),
-                      hint: Text(
-                        ' Your Location',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w500, fontSize: 12),
-                      ),
-                      items: schoollist
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
-                      isExpanded: true,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedSchool = value;
-                        });
-                      }),
-                ),
-                Text(
-                  selectedSchool,
-                  style: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w800, fontSize: 12),
-                ),
+                schoolsDropdown,
+                CustomText(
+                  text: ref.read(schoolsDropdown.currentValue),
+                  fontSize: 12,
+                  isBold: true,
+                )
               ],
             ),
           )
@@ -150,13 +105,17 @@ class _EventsPageState extends State<EventsPage> {
 
   Future<QuerySnapshot> customFuture() async {
     var alldocs = await eventsRef.doc('All').collection('events').get().then(
-        (value) => eventsRef.doc(widget.school).collection('events').get());
+        (value) => eventsRef.doc(ref.read(userProvider).school).collection('events').get());
 
     return alldocs;
   }
 
   @override
   Widget build(BuildContext context) {
+    final schoolsDropdown = ref.watch(schoolDropdownProvider);
+    final schools = ref.watch(schoolsProvider);
+    final user = ref.watch(userProvider);
+
     return Scaffold(
         backgroundColor: const Color(0xffF8F8FA),
         body: SingleChildScrollView(
@@ -185,7 +144,7 @@ class _EventsPageState extends State<EventsPage> {
                     List<EventsPageModel> eventlist = [];
                     for (var doc in snapshot.data!.docs) {
                       eventlist.add(EventsPageModel.fromDocument(
-                          doc, selectedSchool, widget.user));
+                          doc, ref.read(schoolsDropdown.currentValue), user.uid));
                     }
                     return Center(
                         child: Column(
@@ -194,7 +153,7 @@ class _EventsPageState extends State<EventsPage> {
                   }),
               StreamBuilder<QuerySnapshot>(
                   stream: eventsRef
-                      .doc(selectedSchool)
+                      .doc(ref.read(schoolsDropdown.currentValue))
                       .collection('events')
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -206,7 +165,10 @@ class _EventsPageState extends State<EventsPage> {
                     List<EventsPageModel> eventlist = [];
                     for (var doc in snapshot.data!.docs) {
                       eventlist.add(EventsPageModel.fromDocument(
-                          doc, selectedSchool, widget.user));
+                          doc,
+                          ref.read(schoolsDropdown.currentValue),
+                          user.uid
+                      ));
                     }
                     return Center(
                         child: Column(

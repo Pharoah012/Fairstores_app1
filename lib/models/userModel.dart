@@ -1,16 +1,13 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+final userRef = FirebaseFirestore.instance.collection('Users');
 
 class UserModel {
-  final userRef = FirebaseFirestore.instance.collection('Users');
-
   String? email;
   String? number;
   String? username;
   String? school;
-  String? uid;
+  final String uid;
   String? password;
   bool ismanager;
   String? signinmethod;
@@ -22,7 +19,7 @@ class UserModel {
     this.username,
     this.signinmethod,
     this.school,
-    this.uid,
+    required this.uid,
     this.password
   });
 
@@ -60,5 +57,18 @@ class UserModel {
 
   Future<void> updateUserDetails() async {
     await userRef.doc(this.uid).update(toMap());
+  }
+
+  Future<void> updateProfileDetails({
+    required String email,
+    required String phoneNumber
+  }) async {
+
+    Map<String, String> info = {
+      'email': email,
+      'number': phoneNumber
+    };
+
+    await userRef.doc(this.uid).update(info);
   }
 }

@@ -678,7 +678,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     'deliverylocation': widget.school,
                     'instructions': instructioncontroller.text,
                     'userid': widget.userid,
-                    'timestamp': timestamp
+                    'timestamp': DateTime.now()
                   });
 
                   Navigator.push(
@@ -737,7 +737,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                       'deliverylocation': widget.school,
                       'instructions': instructioncontroller.text,
                       'userid': widget.userid,
-                      'timestamp': timestamp
+                      'timestamp': DateTime.now()
                     });
 
                     Navigator.pop(context);
@@ -868,7 +868,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                   'deliverylocation': widget.school,
                   'instructions': instructioncontroller.text,
                   'userid': widget.userid,
-                  'timestamp': timestamp
+                  'timestamp': DateTime.now()
                 });
                 sendNotification(
                     tokens, 'An order has been placed', 'New Order');

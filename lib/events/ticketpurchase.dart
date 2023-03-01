@@ -638,7 +638,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                           'confirmationid': '',
                           'deliverylocation': widget.school,
                           'userid': widget.userid,
-                          'timestamp': timestamp
+                          'timestamp': DateTime.now()
                         });
                         setState(() {
                           orderid = const Uuid().v4();
@@ -658,7 +658,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                         'deliverylocation': widget.school,
                         'userid': widget.userid,
                         'quantity': quantity,
-                        'timestamp': timestamp
+                        'timestamp': DateTime.now()
                       });
                       setState(() {
                         orderid = const Uuid().v4();
@@ -790,7 +790,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                       'confirmationid': '',
                       'deliverylocation': widget.school,
                       'userid': widget.userid,
-                      'timestamp': timestamp
+                      'timestamp': DateTime.now()
                     });
                     setState(() {
                       orderid = const Uuid().v4();
@@ -810,7 +810,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                     'deliverylocation': widget.school,
                     'userid': widget.userid,
                     'quantity': quantity,
-                    'timestamp': timestamp
+                    'timestamp': DateTime.now()
                   });
                   setState(() {
                     orderid = const Uuid().v4();

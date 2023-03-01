@@ -1,165 +1,129 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/notificationsedit.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/models/notificationModel.dart';
+import 'package:fairstores/providers/notificationProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/customButton.dart';
+import 'package:fairstores/widgets/customLoader.dart';
+import 'package:fairstores/widgets/customNotificationItem.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class Notifications extends StatefulWidget {
-  final String user;
-  const Notifications({Key? key, required this.user}) : super(key: key);
+class Notifications extends ConsumerStatefulWidget {
+  const Notifications({Key? key}) : super(key: key);
 
   @override
-  State<Notifications> createState() => _NotificationsState();
+  ConsumerState<Notifications> createState() => _NotificationsState();
 }
 
-class _NotificationsState extends State<Notifications> {
-  List<NotificationModel> notifications = [];
+class _NotificationsState extends ConsumerState<Notifications> {
 
-  @override
-  void initState() {
-    super.initState();
-    getnotifications();
-  }
+  RefreshController _refreshController = RefreshController(initialRefresh: true);
 
-  getnotifications() async {
-    print(widget.user);
-    QuerySnapshot snapshot = await notificationsRef
-        .doc(widget.user)
-        .collection('Notifications')
-        .get();
-    List<NotificationModel> notifications = [];
-    notifications =
-        snapshot.docs.map((e) => NotificationModel.fromDocument(e)).toList();
-    setState(() {
-      this.notifications = notifications;
-    });
-  }
-
-  footerbutton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 40),
-      child: MaterialButton(
-        onPressed: () async {
-          QuerySnapshot snapshot = await notificationsRef
-              .doc(widget.user)
-              .collection('Notifications')
-              .get();
-          if (snapshot.docs.isNotEmpty) {
-            for (var element in snapshot.docs) {
-              element.reference.delete();
-            }
-          }
-        },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        ),
-        elevation: 0,
-        height: 56,
-        minWidth: 335,
-        color: kPrimary,
-        child: Text('Clear All',
-            style: GoogleFonts.manrope(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: Colors.white)),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(userProvider);
+    final notifications = ref.watch(notificationProvider);
+
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: (() {
+              Navigator.pop(context);
+            }),
+            icon: const Icon(
+              Icons.arrow_back,
+              size: 15,
+              color: Colors.black,
+            )),
+        centerTitle: true,
+        title: CustomText(
+          text: 'Notifications',
+          fontSize: 16,
+          color: kBlack,
+          isMediumWeight: true,
+        ),
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          // actions: [
-          //   IconButton(
-          //       onPressed: () {
-          //         Navigator.push(
-          //             context,
-          //             MaterialPageRoute(
-          //                 builder: (context) => const NotificationEdit()));
-          //       },
-          //       icon: const Icon(
-          //         Icons.edit,
-          //         size: 15,
-          //         color: Color(0xff858585),
-          //       ))
-          // ],
-          leading: IconButton(
-              onPressed: (() {
-                Navigator.pop(context);
-              }),
-              icon: const Icon(
-                Icons.arrow_back,
-                size: 15,
-                color: Colors.black,
-              )),
-          centerTitle: true,
-          title: Text(
-            'Notifications',
-            style: GoogleFonts.manrope(
-                fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          child: Column(children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: ListView(children: notifications),
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Stack(
+          children: [
+            SmartRefresher(
+              controller: _refreshController,
+              onRefresh: (){
+                // refresh the provider
+                ref.invalidate(notificationProvider);
+                // wait for the refresh to end
+                ref.read(notificationProvider.future);
+
+                _refreshController.refreshCompleted();
+              },
+              child: notifications.when(
+                data: (data){
+                  if (data.isEmpty){
+                    return Center(
+                      child: CustomText(
+                        text: "You don't have any notifications",
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index){
+                      return CustomNotifiicationItem(
+                        notification: data[index],
+                      );
+                    }
+                  );
+                },
+                error: (_, err){
+                  log(err.toString());
+                  return Center(
+                    child: CustomText(
+                      text: "An error occurred while fetching your notifications",
+                    ),
+                  );
+                },
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                    color: kPrimary,
+                  ),
+                )
+              ),
             ),
-            footerbutton(),
-          ]),
-        ));
-  }
-}
+            Positioned(
+              bottom: 30,
+              right: 0,
+              left: 0,
+              child: CustomButton(
+                isOrange: true,
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CustomLoader()
+                  );
 
-class NotificationModel extends StatefulWidget {
-  const NotificationModel({Key? key}) : super(key: key);
+                  await CustomNotificationModel.clearNotifications(
+                    userID: user.uid
+                  );
 
-  factory NotificationModel.fromDocument(DocumentSnapshot doc) {
-    return NotificationModel();
-  }
-
-  @override
-  _NotificationModelState createState() => _NotificationModelState();
-}
-
-class _NotificationModelState extends State<NotificationModel> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          leading: CircleAvatar(
-              radius: 20,
-              backgroundColor: const Color(0xfff25e37).withOpacity(0.1),
-              child: Icon(
-                Icons.notifications_rounded,
-                color: kPrimary,
-              )),
-          title: Text(
-            'New Notification',
-            style:
-                GoogleFonts.manrope(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-          subtitle: Text('Grab your meals now on foodfair, Fully loaded',
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w400, fontSize: 10)),
+                  Navigator.of(context).pop();
+                },
+                text: "Clear All"
+              ),
+            )
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 76.0, bottom: 10),
-          child: Text('Today',
-              style: GoogleFonts.manrope(
-                  color: const Color(0xff8B8380),
-                  fontWeight: FontWeight.w400,
-                  fontSize: 10)),
-        )
-      ],
+      )
     );
   }
 }
