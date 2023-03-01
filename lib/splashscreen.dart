@@ -2,6 +2,7 @@
 
 import 'package:fairstores/authentication/onboardingScreen.dart';
 import 'package:fairstores/mainScreens/homescreen.dart';
+import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         () async {
           if (ref.read(authProvider).currentUser != null){
             ref.read(userProvider.notifier).state = await ref.read(authProvider).getUser();
+
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                     builder: (context) => HomeScreen(

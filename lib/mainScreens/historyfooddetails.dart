@@ -2,19 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/mainScreens/securitymodel.dart';
+import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/whatsappchat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HistoryFoodDetail extends StatefulWidget {
-  final FoodTile foodTile;
+  final FoodModel foodTile;
   final String user;
   final String deliverylocation;
   final String school;
   final dynamic ordertotal;
   final List orderdetails;
   final String status;
+
   const HistoryFoodDetail(
       {Key? key,
       required this.orderdetails,
@@ -48,21 +50,21 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
     DocumentSnapshot doc = await securityRef.doc('Security_keys').get();
     SecurityModel securityModel = SecurityModel.fromDocument(doc);
     setState(() {
-      taxes = securityModel.taxfee.toDouble();
-      servicecharge = securityModel.servicecharge;
+      taxes = securityModel.taxFee.toDouble();
+      servicecharge = securityModel.serviceCharge;
     });
   }
 
   getdeliveryprice() async {
-    DocumentSnapshot doc = await jointsRef
-        .doc(widget.school)
-        .collection('Joints')
-        .doc(widget.foodTile.tileid)
-        .get();
-    FoodTile foodtile = FoodTile.fromDocument(doc, widget.user, widget.school);
+    FoodModel food = await FoodModel.getDeliveryPrice(
+      school: widget.school,
+      foodID: widget.foodTile.tileid,
+      userID: ""
+    );
+
     setState(() {
-      delivery = foodtile.tileprice.toDouble();
-      deliverytime = foodtile.tiledistancetime;
+      delivery = food.tileprice.toDouble();
+      deliverytime = food.tiledistancetime;
     });
   }
 

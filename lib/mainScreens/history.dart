@@ -5,6 +5,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
 import 'package:fairstores/food/foodtile.dart';
+import 'package:fairstores/models/foodModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/eventHistoryTile.dart';
@@ -439,23 +440,25 @@ class ActiveOrderTile extends StatefulWidget {
 }
 
 class _ActiveOrderTileState extends State<ActiveOrderTile> {
-  FoodTile foodtile = const FoodTile(
-      rating: 1,
-      headerimage: '',
-      logo: '',
-      location: '',
-      lockshop: false,
-      favouritescount: 1,
-      school: '',
-      tilecategory: '',
-      user: '',
-      tilename: '',
-      tileid: '',
-      deliveryavailable: true,
-      pickupavailable: true,
-      favourites: [],
-      tiledistancetime: '',
-      tileprice: 0);
+  // FoodTile foodtile = const FoodTile(
+  //     rating: 1,
+  //     headerimage: '',
+  //     logo: '',
+  //     location: '',
+  //     lockshop: false,
+  //     favouritescount: 1,
+  //     school: '',
+  //     tilecategory: '',
+  //     user: '',
+  //     tilename: '',
+  //     tileid: '',
+  //     deliveryavailable: true,
+  //     pickupavailable: true,
+  //     favourites: [],
+  //     tiledistancetime: '',
+  //     tileprice: 0);
+  //
+  late FoodModel foodtile;
   @override
   void initState() {
     super.initState();
@@ -463,14 +466,14 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
   }
 
   getshop() async {
-    DocumentSnapshot doc = await jointsRef
-        .doc(widget.school)
-        .collection('Joints')
-        .doc(widget.shopid)
-        .get();
-    FoodTile foodtile = FoodTile.fromDocument(doc, '', '');
+    FoodModel food = await FoodModel.getShop(
+        school: widget.school,
+        shopID: widget.shopid,
+        userID: ""
+    );
+
     setState(() {
-      this.foodtile = foodtile;
+      this.foodtile = food;
     });
   }
 
@@ -616,33 +619,18 @@ class _HistoryTileState extends State<HistoryTile> {
     getshop();
   }
 
-  FoodTile foodtile = const FoodTile(
-      rating: 1,
-      headerimage: '',
-      logo: '',
-      location: '',
-      lockshop: false,
-      favouritescount: 1,
-      school: '',
-      tilecategory: '',
-      user: '',
-      tilename: '',
-      tileid: '',
-      deliveryavailable: true,
-      pickupavailable: true,
-      favourites: [],
-      tiledistancetime: '',
-      tileprice: 0);
+  late FoodModel foodtile;
 
   getshop() async {
-    DocumentSnapshot doc = await jointsRef
-        .doc(widget.school)
-        .collection('Joints')
-        .doc(widget.shopid)
-        .get();
-    FoodTile foodtile = FoodTile.fromDocument(doc, '', '');
+
+    FoodModel food = await FoodModel.getShop(
+        school: widget.school,
+        shopID: widget.shopid,
+        userID: ""
+    );
+
     setState(() {
-      this.foodtile = foodtile;
+      this.foodtile = food;
     });
   }
 
@@ -719,10 +707,12 @@ class _HistoryTileState extends State<HistoryTile> {
                     Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: Text('GHS ${widget.total}',
-                          style: GoogleFonts.manrope(
-                              color: kPrimary,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10)),
+                        style: GoogleFonts.manrope(
+                            color: kPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10
+                        )
+                      ),
                     ),
                   ],
                 ),

@@ -1,6 +1,6 @@
-import 'package:fairstores/mainScreens/customercare.dart';
-import 'package:fairstores/mainScreens/details.dart';
-import 'package:fairstores/mainScreens/securitymodel.dart';
+import 'package:fairstores/profileScreens/customercare.dart';
+import 'package:fairstores/profileScreens/details.dart';
+import 'package:fairstores/models/securityModel.dart';
 
 import 'package:fairstores/webview.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,7 @@ class _HelpState extends State<Help> {
           child: ListTile(
             onTap: (() {
               Navigator.push(context,
-                  MaterialPageRoute(builder: ((context) =>  Details(details: widget.securityModel.aboutus,title: 'About Us',))));
+                  MaterialPageRoute(builder: ((context) =>  Details(details: widget.securityModel.aboutUs,title: 'About Us',))));
             }),
             title: Text('About FairStores',
                 style: GoogleFonts.manrope(
@@ -68,7 +68,7 @@ class _HelpState extends State<Help> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: ((context) =>  Details(details: widget.securityModel.vendordetails,title: 'Vendors',))));
+                    builder: ((context) =>  Details(details: widget.securityModel.vendorDetails,title: 'Vendors',))));
           }),
           title: Text('Vendors',
               style: GoogleFonts.manrope(
@@ -83,7 +83,7 @@ class _HelpState extends State<Help> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: ((context) =>  Details(details: widget.securityModel.deliverydetails,title: 'Delivery',))));
+                    builder: ((context) =>  Details(details: widget.securityModel.deliveryDetails,title: 'Delivery',))));
           }),
           title: Text('Delivery',
               style: GoogleFonts.manrope(
@@ -98,7 +98,7 @@ class _HelpState extends State<Help> {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: ((context) =>  Details(details: widget.securityModel.eventsdetails,title: 'FairEvents',))));
+                    builder: ((context) =>  Details(details: widget.securityModel.eventsDetails,title: 'FairEvents',))));
           }),
           title: Text('Events',
               style: GoogleFonts.manrope(

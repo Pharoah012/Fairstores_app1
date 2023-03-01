@@ -3,7 +3,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/mainScreens/securitymodel.dart';
+import 'package:fairstores/models/securityModel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -41,8 +41,8 @@ class _FoodBagState extends State<FoodBag> {
     DocumentSnapshot doc = await securityRef.doc('Security_keys').get();
     SecurityModel securityModel = SecurityModel.fromDocument(doc);
     setState(() {
-      taxes = securityModel.taxfee.toDouble();
-      servicecharge = securityModel.servicecharge;
+      taxes = securityModel.taxFee.toDouble();
+      servicecharge = securityModel.serviceCharge;
     });
   }
 

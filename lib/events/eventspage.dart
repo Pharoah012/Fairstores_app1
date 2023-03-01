@@ -1,65 +1,25 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketpurchase.dart';
 import 'package:fairstores/events/videoplayer.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/models/eventModel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Event extends StatefulWidget {
-  final String eventheaderimage;
-  final String organizername;
-  final String organizerimage;
-  final String eventlocation;
-  final String eventlocationdescription;
-  final String userid;
-  final String school;
-  final bool issellingtickets;
-  final String eventid;
-  final String eventname;
-  final int eventprice;
-  final bool eticket;
-  final bool physicalticket;
-  final String eventdescription;
-  final Timestamp eventdate;
-  final String eventmonth;
-  final String eventdateday;
-  final String timebegin;
-  final String timeend;
-  final List images;
+class EventDetails extends StatefulWidget {
+  final EventModel event;
 
-  const Event(
-      {Key? key,
-      required this.eventdate,
-      required this.eventlocation,
-      required this.eventlocationdescription,
-      required this.issellingtickets,
-      required this.eventid,
-      required this.school,
-      required this.userid,
-      required this.eticket,
-      required this.physicalticket,
-      required this.timebegin,
-      required this.eventprice,
-      required this.images,
-      required this.timeend,
-      required this.eventdateday,
-      required this.eventmonth,
-      required this.eventdescription,
-      required this.eventheaderimage,
-      required this.eventname,
-      required this.organizerimage,
-      required this.organizername})
-      : super(key: key);
+  const EventDetails({
+    Key? key,
+    required this.event
+  }) : super(key: key);
 
   @override
-  State<Event> createState() => _EventState();
+  State<EventDetails> createState() => _EventDetailsState();
 }
 
-class _EventState extends State<Event> {
+class _EventDetailsState extends State<EventDetails> {
   List<VideoModel> videolist = [];
   int eventgoers = 0;
 
@@ -72,7 +32,7 @@ class _EventState extends State<Event> {
 
   geteventgoers() async {
     QuerySnapshot snapshot = await eventTicketsPurchaseRef
-        .doc(widget.eventid)
+        .doc(widget.event.eventid)
         .collection('Purchases')
         .where('status', isEqualTo: 'Active')
         .get();
@@ -83,9 +43,9 @@ class _EventState extends State<Event> {
 
   getvideos() async {
     List<VideoModel> videolist = [];
-    print(widget.eventid);
+    print(widget.event.eventid);
     QuerySnapshot snapshot =
-        await transactionsRef.doc(widget.eventid).collection('videos').get();
+        await transactionsRef.doc(widget.event.eventid).collection('videos').get();
     videolist = snapshot.docs.map((e) => VideoModel.fromDocument(e)).toList();
 
     setState(() {
@@ -109,14 +69,14 @@ class _EventState extends State<Event> {
                   color: const Color(0xffF25E37).withOpacity(0.1)),
             ),
             title: Text(
-              '${widget.eventdate.toDate().day} ${widget.eventmonth} ${widget.eventdate.toDate().year} ',
+              '${widget.event.eventdate.toDate().day} ${widget.event.eventmonth} ${widget.event.eventdate.toDate().year} ',
               style: GoogleFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-                '${widget.eventdateday}, ${widget.timebegin} - ${widget.timeend}',
+                '${widget.event.eventdateday}, ${widget.event.timebegin} - ${widget.event.timeend}',
                 style: GoogleFonts.manrope(
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -133,13 +93,13 @@ class _EventState extends State<Event> {
                   color: const Color(0xffF25E37).withOpacity(0.1)),
             ),
             title: Text(
-              widget.eventlocation,
+              widget.event.eventlocation,
               style: GoogleFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            subtitle: Text(widget.eventlocationdescription,
+            subtitle: Text("widget.event.eventlocationdescription",
                 style: GoogleFonts.manrope(
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -158,10 +118,10 @@ class _EventState extends State<Event> {
           leading: CircleAvatar(
             radius: 25,
             backgroundColor: kPrimary,
-            backgroundImage: CachedNetworkImageProvider(widget.organizerimage),
+            backgroundImage: CachedNetworkImageProvider(widget.event.organizerimage),
           ),
           title: Text(
-            widget.organizername,
+            widget.event.organizername,
             style:
                 GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w500),
           ),
@@ -179,7 +139,7 @@ class _EventState extends State<Event> {
           ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: CachedNetworkImage(
-                imageUrl: widget.eventheaderimage,
+                imageUrl: widget.event.eventheaderimage,
                 width: MediaQuery.of(context).size.width * 0.9,
                 height: 200,
                 fit: BoxFit.cover,
@@ -259,43 +219,43 @@ class _EventState extends State<Event> {
     );
   }
 
-  mediacontent() {
-    List<ImageModel> imagemodel = [];
-
-    imagemodel = widget.images
-        .map(
-          (e) => ImageModel(image: e),
-        )
-        .toList();
-
-    print(widget.images);
-    return Padding(
-      padding: const EdgeInsets.only(left: 0.0, top: 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 20.0, bottom: 11),
-            child: Text('Media',
-                style: GoogleFonts.manrope(
-                    fontSize: 14, fontWeight: FontWeight.w400)),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 127,
-              child: ListView(
-                  scrollDirection: Axis.horizontal, children: imagemodel),
-            ),
-          ),
-          Column(
-            children: videolist,
-          )
-        ],
-      ),
-    );
-  }
+  // mediacontent() {
+  //   List<ImageModel> imagemodel = [];
+  //
+  //   imagemodel = widget.event.images
+  //       .map(
+  //         (e) => ImageModel(image: e),
+  //       )
+  //       .toList();
+  //
+  //   print(widget.event.images);
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 0.0, top: 30),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Padding(
+  //           padding: const EdgeInsets.only(left: 20.0, bottom: 11),
+  //           child: Text('Media',
+  //               style: GoogleFonts.manrope(
+  //                   fontSize: 14, fontWeight: FontWeight.w400)),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.only(bottom: 10.0),
+  //           child: SizedBox(
+  //             width: MediaQuery.of(context).size.width,
+  //             height: 127,
+  //             child: ListView(
+  //                 scrollDirection: Axis.horizontal, children: imagemodel),
+  //           ),
+  //         ),
+  //         Column(
+  //           children: videolist,
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
   notavailablebutton() {
     return Padding(
@@ -334,14 +294,14 @@ class _EventState extends State<Event> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => TicketPurchase(
-                      eventpic: widget.eventheaderimage,
-                      eventname: widget.eventname,
-                      eticketavailable: widget.eticket,
-                      physicalticketavailable: widget.physicalticket,
-                      price: widget.eventprice,
-                      eventid: widget.eventid,
-                      userid: widget.userid,
-                      school: widget.school,
+                      eventpic: widget.event.eventheaderimage,
+                      eventname: widget.event.eventname,
+                      eticketavailable: widget.event.eticket,
+                      physicalticketavailable: widget.event.physicalticket,
+                      price: widget.event.eventprice,
+                      eventid: widget.event.eventid,
+                      userid: "widget.event.userid",
+                      school: widget.event.school,
                     ),
                   ));
             },
@@ -358,7 +318,7 @@ class _EventState extends State<Event> {
                   ),
                   Expanded(child: const SizedBox()),
                   Text(
-                    'GHS ${widget.eventprice}',
+                    'GHS ${widget.event.eventprice}',
                     style: GoogleFonts.manrope(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -405,7 +365,7 @@ class _EventState extends State<Event> {
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Text(
-                    widget.eventname,
+                    widget.event.eventname,
                     style: GoogleFonts.manrope(
                         fontSize: 20, fontWeight: FontWeight.w600),
                   ),
@@ -413,7 +373,7 @@ class _EventState extends State<Event> {
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Text(
-                    widget.eventdescription,
+                    widget.event.eventdescription,
                     style: GoogleFonts.manrope(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
@@ -422,11 +382,11 @@ class _EventState extends State<Event> {
                   ),
                 ),
                 eventdetails(),
-                mediacontent(),
+                // mediacontent(),
               ],
             ),
           ),
-          widget.issellingtickets ? purchasebutton() : notavailablebutton()
+          widget.event.issellingtickets ? purchasebutton() : notavailablebutton()
         ],
       ),
     );

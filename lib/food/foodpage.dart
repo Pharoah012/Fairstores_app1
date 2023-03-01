@@ -334,9 +334,7 @@ class _FoodPageState extends State<FoodPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Search(
-                        addappbar: true,
-                      ),
+                      builder: (context) => Search(),
                     ));
               },
               decoration: InputDecoration(

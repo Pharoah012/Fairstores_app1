@@ -32,7 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   List mainScreens = [
     Home(),
-    Search(addappbar: false,),
+    Search(),
     History(),
     Profile(),
   ];

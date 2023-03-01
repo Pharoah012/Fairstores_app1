@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
-import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,25 +23,25 @@ class FoodTile extends StatefulWidget {
   final int favouritescount;
   final String headerimage;
 
-  const FoodTile(
-      {Key? key,
-      required this.rating,
-      required this.deliveryavailable,
-      required this.pickupavailable,
-      required this.headerimage,
-      required this.logo,
-      required this.location,
-      required this.lockshop,
-      required this.favouritescount,
-      required this.school,
-      required this.tilecategory,
-      required this.user,
-      required this.tilename,
-      required this.tileid,
-      required this.favourites,
-      required this.tiledistancetime,
-      required this.tileprice})
-      : super(key: key);
+  const FoodTile({
+    Key? key,
+    required this.rating,
+    required this.deliveryavailable,
+    required this.pickupavailable,
+    required this.headerimage,
+    required this.logo,
+    required this.location,
+    required this.lockshop,
+    required this.favouritescount,
+    required this.school,
+    required this.tilecategory,
+    required this.user,
+    required this.tilename,
+    required this.tileid,
+    required this.favourites,
+    required this.tiledistancetime,
+    required this.tileprice
+  }) : super(key: key);
 
   factory FoodTile.fromDocument(DocumentSnapshot doc, user, school) {
     return FoodTile(

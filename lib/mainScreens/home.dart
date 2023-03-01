@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:fairstores/admin/admin.dart';
-import 'package:fairstores/mainScreens/notifications.dart';
-import 'package:fairstores/mainScreens/search.dart';
+import 'package:fairstores/profileScreens/notifications.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/delivery/deliveryonboarding.dart';
@@ -11,10 +10,10 @@ import 'package:fairstores/products/productonboarding.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customHomeOption.dart';
+import 'package:fairstores/widgets/customSearchField.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Home extends ConsumerStatefulWidget {
 
@@ -25,52 +24,6 @@ class Home extends ConsumerStatefulWidget {
 }
 
 class _HomeState extends ConsumerState<Home> {
-
-  search() {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 20,
-      ),
-      child: Center(
-        child: SizedBox(
-          height: 43,
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: TextField(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Search(
-                      addappbar: true,
-                    ),
-                  )
-                );
-              },
-              decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100),
-                      borderSide: BorderSide(
-                        color: kPrimary,
-                      )),
-                  focusColor: kPrimary,
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    size: 14,
-                  ),
-                  labelText: 'Search FairStores app',
-                  labelStyle: GoogleFonts.manrope(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                      color: const Color(0xff8B8380)),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: Color(0xffE5E5E5),
-                      ),
-                      borderRadius: BorderRadius.circular(100)))),
-        ),
-      ),
-    );
-  }
 
   homeHeader() {
     UserModel user = ref.read(userProvider);
@@ -132,7 +85,7 @@ class _HomeState extends ConsumerState<Home> {
     );
   }
 
-  homebuttons() {
+  homeButtons() {
     return Column(
       children: [
         SizedBox(height: 20,),
@@ -203,8 +156,9 @@ class _HomeState extends ConsumerState<Home> {
             mainAxisSize: MainAxisSize.min,
             children: [
               homeHeader(),
-              search(),
-              homebuttons(),
+              SizedBox(height: 20,),
+              CustomSearchField(),
+              homeButtons(),
             ]
           ),
         ),

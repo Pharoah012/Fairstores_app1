@@ -1,20 +1,24 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
-import 'package:fairstores/mainScreens/saveditems.dart';
-import 'package:fairstores/mainScreens/securitymodel.dart';
+import 'package:fairstores/profileScreens/saveditems.dart';
+import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/customErrorWidget.dart';
+import 'package:fairstores/widgets/customLoader.dart';
 import 'package:fairstores/widgets/customSettingsListTile.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'details.dart';
-import 'help.dart';
-import 'notifications.dart';
+import '../profileScreens/details.dart';
+import '../profileScreens/help.dart';
+import '../profileScreens/notifications.dart';
 
 class Profile extends ConsumerStatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -101,12 +105,11 @@ class _ProfileState extends ConsumerState<Profile> {
                 icon: Icons.bookmark,
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SavedItems(
-                            user: ref.read(authProvider).currentUser!.uid,
-                            school: ref.read(userProvider).school!),
-                      ));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SavedItems()
+                    )
+                  );
                 },
               ),
               CustomSettingsListTile(
@@ -132,7 +135,7 @@ class _ProfileState extends ConsumerState<Profile> {
                     context,
                     MaterialPageRoute(
                         builder: ((context) => Details(
-                          details: securityModel.aboutus,
+                          details: securityModel.aboutUs,
                           title: 'About Us',
                         )
                         )
@@ -144,12 +147,12 @@ class _ProfileState extends ConsumerState<Profile> {
                 label: 'Logout',
                 icon: Icons.logout,
                 onTap: () async {
-                  ref.read(authProvider).logout().then((value) => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
+                  ref.read(authProvider).logout().then((value) =>
+                    Navigator.pushAndRemoveUntil(
+                      context, MaterialPageRoute(
                       builder: (context) => const OnboardingScreen(),
-                    )
-                  ));
+                    ), (route) => false)
+                  );
                 },
               ),
             ],
@@ -286,8 +289,39 @@ class _ProfileState extends ConsumerState<Profile> {
                 ),
                 SimpleDialogOption(
                     onPressed: () async  {
-                      await postDetailsToFirestore(
-                          emailcontroller.text, phoneController.text);
+                      showDialog(
+                        context: context,
+                        builder: (context) => CustomLoader()
+                      );
+
+                      try{
+
+                        await postDetailsToFirestore(
+                            emailcontroller.text,
+                            phoneController.text
+                        );
+
+                        // refresh the user provider with the updated info
+                        ref.read(userProvider.notifier).state = await ref.read(authProvider).getUser();
+
+                        //remove the loader
+                        Navigator.of(context).pop();
+
+                        // remove the edit details dialog
+                        Navigator.of(context).pop();
+
+                      }
+                      catch(exception){
+                        log(exception.toString());
+                        showDialog(
+                            context: context,
+                            builder: (context) => CustomError(
+                              errorMessage: "An error occurred while updating your details"
+                            )
+                        );
+
+
+                      }
                     },
                     child: CustomText(
                       text: 'Edit',

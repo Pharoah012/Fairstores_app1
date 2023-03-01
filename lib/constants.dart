@@ -7,6 +7,8 @@ const Color kWhite = Colors.white;
 const Color kBlack = Colors.black;
 const Color kBrownText = Color(0xff180602);
 const Color kDarkGrey = Color(0xff374151);
+const Color kPurple = Color(0xff4B4EFC);
+const Color kGrey = Color(0xff6B7280);
 
 
 // ----------- Button Colors ------------
@@ -23,7 +25,6 @@ final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
 final sideOptions = FirebaseFirestore.instance.collection('FoodSideOptions');
 final adsRef = FirebaseFirestore.instance.collection('Ads');
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
-final eventsRef = FirebaseFirestore.instance.collection('EventsPrograms');
 final eventsContentRef = FirebaseFirestore.instance.collection('EventsContent');
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
 final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
