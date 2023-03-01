@@ -8,6 +8,7 @@ import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/mainScreens/userInfoDetails.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +70,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final _currentScreen = ref.watch(currentScreenProvider);
     final _user = ref.watch(userProvider);
+    final _securityKeysGenerator = ref.watch(securityKeysGeneratorProvider);
+    final _securityKeys = ref.watch(securityKeysProvider);
+
+    _securityKeysGenerator.when(
+      data: (data) => log("loaded security keys"),
+      error: (_, err) => log("Error loading security keys"),
+      loading: () => log("loading security keys")
+    );
+
+
 
     return WillPopScope(
         onWillPop: () async => false,

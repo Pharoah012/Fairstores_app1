@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+final securityRef = FirebaseFirestore.instance.collection('Security');
+
 class SecurityModel {
   final String appVersion;
   final String aboutUs;
@@ -30,4 +32,14 @@ class SecurityModel {
       appVersion: doc.get('Appversion')
     );
   }
+
+  static Future<SecurityModel> getSecurityKeys() async {
+    return SecurityModel.fromDocument(
+        await securityRef.doc('Security_keys').get()
+    );
+  }
+
+
+
+
 }

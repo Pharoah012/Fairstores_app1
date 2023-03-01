@@ -149,6 +149,9 @@ class _MyAppState extends ConsumerState<MyApp> {
     return MaterialApp(
         title: 'FairStores',
         theme: ThemeData(
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.transparent
+          ),
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),

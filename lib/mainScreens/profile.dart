@@ -7,6 +7,7 @@ import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customErrorWidget.dart';
 import 'package:fairstores/widgets/customLoader.dart';
@@ -57,7 +58,7 @@ class _ProfileState extends ConsumerState<Profile> {
                     context: context,
                     builder: (context) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.92,
-                        child: editprofile()),
+                        child: editProfile()),
                     shape: RoundedRectangleBorder(
                       borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(21),
@@ -76,89 +77,76 @@ class _ProfileState extends ConsumerState<Profile> {
   }
 
   profilemenu() {
-    return FutureBuilder<DocumentSnapshot>(
-      future: securityRef.doc('Security_keys').get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox();
-        }
-
-        SecurityModel securityModel = SecurityModel.fromDocument(snapshot.data!);
-        return Padding(
-          padding: const EdgeInsets.only(top: 50.0),
-          child: Column(
-            children: [
-              CustomSettingsListTile(
-                label: 'Notifications',
-                icon: Icons.notifications,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Notifications(),
-                    )
-                  );
-                },
-              ),
-              CustomSettingsListTile(
-                label: 'Saved Items',
-                icon: Icons.bookmark,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
+    return Padding(
+      padding: const EdgeInsets.only(top: 50.0),
+      child: Column(
+        children: [
+          CustomSettingsListTile(
+            label: 'Notifications',
+            icon: Icons.notifications,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Notifications(),
+                  )
+              );
+            },
+          ),
+          CustomSettingsListTile(
+            label: 'Saved Items',
+            icon: Icons.bookmark,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
                       builder: (context) => SavedItems()
-                    )
-                  );
-                },
-              ),
-              CustomSettingsListTile(
-                label: 'Help',
-                icon: Icons.settings,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => Help(
-                          securityModel: securityModel,
-                        )
-                        )
-                    )
-                  );
-                },
-              ),
-              CustomSettingsListTile(
-                label: 'About Us',
-                icon: Icons.info,
-                onTap: () {
-                  Navigator.push(
+                  )
+              );
+            },
+          ),
+          CustomSettingsListTile(
+            label: 'Help',
+            icon: Icons.settings,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Help()
+                )
+              );
+            },
+          ),
+          CustomSettingsListTile(
+              label: 'About Us',
+              icon: Icons.info,
+              onTap: () {
+                Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: ((context) => Details(
-                          details: securityModel.aboutUs,
+                          details: ref.read(securityKeysProvider)!.aboutUs,
                           title: 'About Us',
                         )
                         )
                     )
-                  );
-                }
-              ),
-              CustomSettingsListTile(
-                label: 'Logout',
-                icon: Icons.logout,
-                onTap: () async {
-                  ref.read(authProvider).logout().then((value) =>
-                    Navigator.pushAndRemoveUntil(
-                      context, MaterialPageRoute(
-                      builder: (context) => const OnboardingScreen(),
-                    ), (route) => false)
-                  );
-                },
-              ),
-            ],
+                );
+              }
           ),
-        );
-      }
+          CustomSettingsListTile(
+            label: 'Logout',
+            icon: Icons.logout,
+            onTap: () async {
+              ref.read(authProvider).logout().then((value) =>
+                  Navigator.pushAndRemoveUntil(
+                      context, MaterialPageRoute(
+                    builder: (context) => const OnboardingScreen(),
+                  ), (route) => false)
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -181,9 +169,7 @@ class _ProfileState extends ConsumerState<Profile> {
     );
   }
 
-  editprofile() {
-
-    UserModel user = ref.read(userProvider);
+  editProfile() {
 
     return Column(
       children: [
@@ -205,7 +191,7 @@ class _ProfileState extends ConsumerState<Profile> {
               ),
               GestureDetector(
                 onTap: () {
-                  showeditdetails(context);
+                  showEditDetails(context);
                 },
                 child: CustomText(
                   text: 'Edit',
@@ -217,45 +203,46 @@ class _ProfileState extends ConsumerState<Profile> {
           ),
         ),
         ListTile(
-          title: Text(
-            'Full Name',
-            style: GoogleFonts.manrope(
-                fontWeight: FontWeight.w600, fontSize: 14),
+          title: CustomText(
+          text: "Full name",
+          isMediumWeight: true
           ),
-          trailing: Text(user.username.toString(),
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w600, fontSize: 14)),
+          trailing: CustomText(
+              text:  ref.read(userProvider).username!,
+              isMediumWeight: true
+          )
         ),
         ListTile(
-          title: Text('Email',
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w600, fontSize: 14)),
-          trailing: Text(user.email.toString(),
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w600, fontSize: 14)),
+          title: CustomText(
+            text: 'Email',
+            isMediumWeight: true,
+          ),
+          trailing: CustomText(
+              text:  ref.read(userProvider).email!,
+              isMediumWeight: true
+          ),
         ),
         ListTile(
-          title: Text('Phone Number',
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w600, fontSize: 14)),
-          trailing: Text(user.number.toString(),
-              style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w600, fontSize: 14)),
+          title: CustomText(
+            text: 'Phone Number',
+            isMediumWeight: true
+          ),
+          trailing: CustomText(
+            text: ref.read(userProvider).number!,
+            isMediumWeight: true
+          )
         )
       ],
     );
   }
 
-  postDetailsToFirestore(String email, String phoneNumber) async {
-    await ref.read(userProvider).updateProfileDetails(
-        email: email,
-        phoneNumber: phoneNumber
-    );
-  }
-
-  showeditdetails(context) {
-    TextEditingController emailcontroller = TextEditingController();
+  showEditDetails(context) {
+    TextEditingController emailController = TextEditingController();
     TextEditingController phoneController = TextEditingController();
+
+    // populate the fields with the existing data
+    emailController.text = ref.read(userProvider).email!;
+    phoneController.text = ref.read(userProvider).number!;
 
     return showDialog(
         context: context,
@@ -273,7 +260,7 @@ class _ProfileState extends ConsumerState<Profile> {
               children: [
                 SimpleDialogOption(
                   child: TextField(
-                    controller: emailcontroller,
+                    controller: emailController,
                     decoration: InputDecoration(
                         labelStyle: GoogleFonts.manrope(),
                         label: const Text('email')),
@@ -296,13 +283,16 @@ class _ProfileState extends ConsumerState<Profile> {
 
                       try{
 
-                        await postDetailsToFirestore(
-                            emailcontroller.text,
-                            phoneController.text
+                        await ref.read(userProvider).updateProfileDetails(
+                            email: emailController.text,
+                            phoneNumber: phoneController.text
                         );
 
+                        // get updated info
+                        UserModel userInfo = await ref.read(authProvider).getUser();
+
                         // refresh the user provider with the updated info
-                        ref.read(userProvider.notifier).state = await ref.read(authProvider).getUser();
+                        ref.read(userProvider.notifier).state = userInfo;
 
                         //remove the loader
                         Navigator.of(context).pop();
@@ -344,7 +334,9 @@ class _ProfileState extends ConsumerState<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authProvider);
+    final auth = ref.watch(authProvider);
+    final _securityKeys = ref.watch(securityKeysProvider);
+    final user = ref.watch(userProvider);
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
