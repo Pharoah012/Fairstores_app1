@@ -1,4 +1,5 @@
 import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 
 class CustomFoodTile extends StatelessWidget {
@@ -11,6 +12,11 @@ class CustomFoodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      height: 50,
+      child: Center(
+        child: CustomText(text: food.tilename),
+      ),
+    );
   }
 }
