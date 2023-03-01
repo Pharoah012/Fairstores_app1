@@ -6,6 +6,7 @@ import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customEventTile.dart';
 import 'package:fairstores/widgets/customFoodTile.dart';
+import 'package:fairstores/widgets/customSearchField.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +17,12 @@ final _searchProvider = StateProvider.autoDispose<String>((ref) => "");
 
 class Search extends ConsumerStatefulWidget {
 
-  const Search({Key? key,});
+  final String? searchValue;
+
+  const Search({
+    Key? key,
+    this.searchValue
+  });
 
   @override
   ConsumerState<Search> createState() => _SearchState();
@@ -24,8 +30,14 @@ class Search extends ConsumerStatefulWidget {
 
 class _SearchState extends ConsumerState<Search> {
 
+  TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
+    if (widget.searchValue != null){
+      _searchController.text = widget.searchValue!;
+    }
+
     super.initState();
   }
 
@@ -201,8 +213,8 @@ class _SearchState extends ConsumerState<Search> {
 
   Widget noSearchScreen() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Spacer(),
         Icon(
           Icons.search,
           color: kLabelColor,
@@ -222,6 +234,12 @@ class _SearchState extends ConsumerState<Search> {
     final _currentPage = ref.watch(_currentPageProvider);
     final _searchValue = ref.watch(_searchProvider);
 
+    // Check if the user made a search from another page
+    if (widget.searchValue != null){
+      final foodResults = ref.watch(foodResultsProvider(widget.searchValue!));
+      final eventResults = ref.watch(eventResultsProvider(widget.searchValue!));
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -232,54 +250,32 @@ class _SearchState extends ConsumerState<Search> {
                 child: SizedBox(
                   height: 43,
                   width: 335,
-                  child: TextField(
-                    autofocus: true,
+                  child: CustomSearchField(
+                    controller: _searchController,
                     onSubmitted: (value) {
+                      _searchController.text = value.trim();
                       ref.read(_searchProvider.notifier).state = value.trim();
                     },
-                    cursorColor: kPrimary,
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(100),
-                        borderSide: BorderSide(
-                          color: kPrimary,
-                        )
-                      ),
-                      focusColor: kPrimary,
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: kPrimary,
-                        size: 14,
-                      ),
-                      labelText: 'Search FairStores app',
-                      labelStyle: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                        color: const Color(0xff8B8380)
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Color(0xffE5E5E5),
-                        ),
-                        borderRadius: BorderRadius.circular(100)
-                      )
-                    )
-                  ),
+                    autofocus: widget.searchValue == null
+                      ? true
+                      : false,
+                    iconColor: kPrimary,
+                  )
                 ),
               ),
             ),
             Expanded(
-              child: _searchValue.isEmpty
-                  ? noSearchScreen()
-                  : Column(
-                    children: [
-                      SizedBox(height: 20,),
-                      searchFilter(),
-                      Expanded(
-                        child: pageToggle(_currentPage)
-                      )
-                    ],
-                  ),
+              child: _searchController.text.isEmpty
+                ? noSearchScreen()
+                : Column(
+                  children: [
+                    SizedBox(height: 20,),
+                    searchFilter(),
+                    Expanded(
+                      child: pageToggle(_currentPage)
+                    )
+                  ],
+                ),
             )
         ],
         ),

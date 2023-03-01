@@ -1,62 +1,62 @@
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/mainScreens/search.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomSearchField extends StatefulWidget {
+class CustomSearchField extends StatelessWidget {
+  final void Function(String)? onSubmitted;
+  final bool autofocus;
+  final Color? iconColor;
+  final TextEditingController? controller;
 
   const CustomSearchField({
     Key? key,
+    required this.onSubmitted,
+    this.controller,
+    this.iconColor,
+    this.autofocus = false
   }) : super(key: key);
 
-  @override
-  State<CustomSearchField> createState() => _CustomSearchFieldState();
-}
-
-class _CustomSearchFieldState extends State<CustomSearchField> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 43,
       width: MediaQuery.of(context).size.width * 0.9,
       child: TextField(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Search(),
-                )
-            );
-          },
-          decoration: InputDecoration(
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(100),
-                borderSide: BorderSide(
-                  color: kPrimary,
-                )),
-            focusColor: kPrimary,
-            prefixIcon: const Icon(
-              Icons.search,
-              size: 14,
+        autofocus: autofocus,
+        onSubmitted: onSubmitted,
+        controller: controller,
+        decoration: InputDecoration(
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(100),
+            borderSide: BorderSide(
+              color: kPrimary,
+            )
+          ),
+          focusColor: kPrimary,
+          prefixIcon: Icon(
+            Icons.search,
+            size: 14,
+            color: iconColor,
+          ),
+          labelText: 'Search FairStores app',
+          labelStyle: GoogleFonts.manrope(
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+            color: kLabelColor
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              color: kEnabledBorderColor,
             ),
-            labelText: 'Search FairStores app',
-            labelStyle: GoogleFonts.manrope(
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-                color: const Color(0xff8B8380)),
-            enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Color(0xffE5E5E5),
-                ),
-                borderRadius: BorderRadius.circular(100)
+            borderRadius: BorderRadius.circular(100)
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              color: kEnabledBorderColor,
             ),
-            disabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Color(0xffE5E5E5),
-                ),
-                borderRadius: BorderRadius.circular(100)
-            ),
-          )
+            borderRadius: BorderRadius.circular(100)
+          ),
+        )
       ),
     );
   }

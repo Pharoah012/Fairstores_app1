@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:fairstores/admin/admin.dart';
+import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/profileScreens/notifications.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';
@@ -157,7 +158,17 @@ class _HomeState extends ConsumerState<Home> {
             children: [
               homeHeader(),
               SizedBox(height: 20,),
-              CustomSearchField(),
+              CustomSearchField(
+                onSubmitted: (value){
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Search(
+                        searchValue: value
+                      )
+                    )
+                  );
+                },
+              ),
               homeButtons(),
             ]
           ),

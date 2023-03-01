@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/models/eventModel.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
@@ -76,7 +77,15 @@ class _EventsPageState extends ConsumerState<EventsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
               pageLocationHeader(),
-              CustomSearchField(),
+              CustomSearchField(
+                onSubmitted: (value){
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Search(searchValue: value)
+                    )
+                  );
+                },
+              ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, bottom: 2),
                 child: Text(
