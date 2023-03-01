@@ -38,8 +38,7 @@ class _FoodBagState extends State<FoodBag> {
   }
 
   getservicecharge() async {
-    DocumentSnapshot doc = await securityRef.doc('Security_keys').get();
-    SecurityModel securityModel = SecurityModel.fromDocument(doc);
+    SecurityModel securityModel = await SecurityModel.getSecurityKeys();
     setState(() {
       taxes = securityModel.taxFee.toDouble();
       servicecharge = securityModel.serviceCharge;
