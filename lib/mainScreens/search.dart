@@ -5,9 +5,10 @@ import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customEventTile.dart';
-import 'package:fairstores/widgets/customFoodTile.dart';
 import 'package:fairstores/widgets/customSearchField.dart';
 import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/lockedJointTile.dart';
+import 'package:fairstores/widgets/unlockedJointTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,42 +65,46 @@ class _SearchState extends ConsumerState<Search> {
 
   // show the results respectice to the selected page
   Widget pageToggle(page) {
+
     if (page == 'food') {
-      final foodResults = ref.watch(foodResultsProvider(ref.read(_searchProvider)));
+      final jointResults = ref.watch(foodResultsProvider(ref.read(_searchProvider)));
 
-      return foodResults.when(
-          data: (data){
-            if (data.isEmpty){
-              return Center(
-                child: CustomText(
-                    text: "No results match your query"
-                ),
-              );
-            }
-
-            return ListView.builder(
-                itemCount: data.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index){
-                  return CustomFoodTile(food: data[index]);
-                }
-            );
-          },
-          error: (_, err){
-            log(err.toString());
+      return jointResults.when(
+        data: (data){
+          if (data.isEmpty){
             return Center(
               child: CustomText(
-                  text: "An error occurred while fetching your results"
+                  text: "No results match your query"
               ),
             );
-          },
-          loading: () => Center(
-            child: CircularProgressIndicator(
-              color: kPrimary,
+          }
+
+          return ListView.builder(
+            itemCount: data.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              return data[index].lockshop
+                  ? LockedJointTile(joint: data[index])
+                  : UnlockedJointTile(joint: data[index]);
+            }
+          );
+        },
+        error: (_, err){
+          log(err.toString());
+          return Center(
+            child: CustomText(
+                text: "An error occurred while fetching your results"
             ),
-          )
+          );
+        },
+        loading: () => Center(
+          child: CircularProgressIndicator(
+            color: kPrimary,
+          ),
+        )
       );
-    } else if (page == 'events') {
+    }
+    else if (page == 'events') {
       final eventResults = ref.watch(eventResultsProvider(ref.read(_searchProvider)));
 
       return eventResults.when(

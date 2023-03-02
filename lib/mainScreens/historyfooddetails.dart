@@ -95,20 +95,20 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
             ),
             trailing: IconButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: ((context) => Foodhome(
-                              deliverytime: widget.foodTile.deliveryTime,
-                              rating: widget.foodTile.rating,
-                              jointid: widget.foodTile.jointID,
-                              school: widget.school,
-                              favourites: widget.foodTile.favourites,
-                              user: widget.user,
-                              logo: widget.foodTile.logo,
-                              headerImage: widget.foodTile.headerImage,
-                              jointname: widget.foodTile.name,
-                              location: widget.foodTile.location))));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: ((context) => Foodhome(
+                  //             deliverytime: widget.foodTile.deliveryTime,
+                  //             rating: widget.foodTile.rating,
+                  //             jointid: widget.foodTile.jointID,
+                  //             school: widget.school,
+                  //             favourites: widget.foodTile.favourites,
+                  //             user: widget.user,
+                  //             logo: widget.foodTile.logo,
+                  //             headerImage: widget.foodTile.headerImage,
+                  //             jointname: widget.foodTile.name,
+                  //             location: widget.foodTile.location))));
                 },
                 icon: const Icon(Icons.arrow_forward_ios)),
             title: Text(widget.foodTile.name,

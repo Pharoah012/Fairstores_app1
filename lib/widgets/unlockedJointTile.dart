@@ -37,128 +37,121 @@ class _UnlockedFoodTileState extends ConsumerState<UnlockedJointTile> {
   Widget build(BuildContext context) {
     final isFavorite = ref.watch(_favoriteProvider);
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 19.0),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Foodhome(
+                  joint: widget.joint
+                )
+              )
+            );
+          },
+          child: Stack(
+            alignment: Alignment.topRight,
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Foodhome(
-                        joint: widget.joint
-                      )
+              Container(
+                height: 143,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: CachedNetworkImageProvider(
+                        widget.joint.headerImage
                     )
-                  );
+                  ),
+                  borderRadius: BorderRadius.circular(10)),
+              ),
+              IconButton(
+                onPressed: () async  {
+                  try{
+
+                    // update the favorite status of this item
+                    bool updateFavorite = await widget.joint.updateFavorites();
+
+                    ref.read(_favoriteProvider.notifier).state = updateFavorite;
+                  }
+                  catch(exception){
+                    log(exception.toString());
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "An error occurred while updating this favorite"
+                        )
+                      )
+                    );
+                  }
                 },
-                child: Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    Container(
-                      width: 246,
-                      height: 143,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: CachedNetworkImageProvider(
-                              widget.joint.headerImage
-                          )
-                        ),
-                        borderRadius: BorderRadius.circular(10)),
-                    ),
-                    IconButton(
-                        onPressed: () async  {
-                          try{
-
-                            // update the favorite status of this item
-                            bool updateFavorite = await widget.joint.updateFavorites();
-
-                            ref.read(_favoriteProvider.notifier).state = updateFavorite;
-                          }
-                          catch(exception){
-                            log(exception.toString());
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "An error occurred while updating this favorite"
-                                )
-                              )
-                            );
-                          }
-                        },
-                        icon: Icon(
-                          Icons.favorite_rounded,
-                          color: isFavorite
-                            ? kPrimary
-                              : kWhite,
-                          size: 25,
-                        ))
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.65,
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          text: widget.joint.name,
-                          isMediumWeight: true
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomText(
-                                text: 'GHC ${widget.joint.price}',
-                                isMediumWeight: true,
-                                fontSize: 10,
-                              ),
-                              const SizedBox(
-                                width: 7,
-                              ),
-                              const CircleAvatar(
-                                backgroundColor: Colors.grey,
-                                radius: 2,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              CustomText(
-                                text: widget.joint.deliveryTime,
-                                isMediumWeight: true,
-                                fontSize: 10,
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    Spacer(),
-                    Row(
-                      children: [
-                        Image.asset('images/star.png'),
-                        SizedBox(width: 3,),
-                        CustomText(
-                          text: widget.joint.rating.toString(),
-                          isMediumWeight: true,
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                icon: Icon(
+                  Icons.favorite_outline,
+                  color: isFavorite
+                    ? kPrimary
+                      : kWhite,
+                  size: 25,
+                )
+              )
             ],
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 5,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text: widget.joint.name,
+                  isMediumWeight: true,
+                  color: kBlack,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomText(
+                        text: 'GHC ${widget.joint.price}',
+                        isMediumWeight: true,
+                        fontSize: 10,
+                        color: kBlack,
+                      ),
+                      const SizedBox(
+                        width: 7,
+                      ),
+                      const CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 2,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      CustomText(
+                        text: widget.joint.deliveryTime,
+                        isMediumWeight: true,
+                        fontSize: 10,
+                        color: kBlack,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Image.asset('images/star.png'),
+                SizedBox(width: 3,),
+                CustomText(
+                  text: widget.joint.rating.toString(),
+                  isMediumWeight: true,
+                )
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

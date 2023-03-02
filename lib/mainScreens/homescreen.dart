@@ -1,14 +1,17 @@
 import 'dart:developer';
 
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/foodpage.dart';
 import 'package:fairstores/mainScreens/history.dart';
 import 'package:fairstores/mainScreens/home.dart';
 import 'package:fairstores/mainScreens/profile.dart';
 import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/mainScreens/userInfoDetails.dart';
 import 'package:fairstores/models/userModel.dart';
+import 'package:fairstores/providers/adsProvider.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/categoryProvider.dart';
+import 'package:fairstores/providers/jointProvider.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +41,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     History(),
     Profile(),
   ];
-
 
   @override
   void initState() {
@@ -91,6 +93,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (data) => log("loaded categories"),
       error: (_, err) => log("Error loading categories"),
       loading: () => log("loading categories")
+    );
+
+    // load the ads
+    final ads = ref.watch(adsProvider(_user.school!));
+
+    ads.when(
+        data: (data) => log("loaded ads"),
+        error: (_, err) => log("Error loading ads"),
+        loading: () => log("loading ads")
+    );
+
+    // load the joints
+    final joints = ref.watch(jointProvider(null));
+
+    joints.when(
+        data: (data) => log("loaded joints"),
+        error: (_, err) => log(err.toString()),
+        loading: () => log("loading joints")
     );
 
 

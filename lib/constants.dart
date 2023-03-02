@@ -22,7 +22,6 @@ final schoolRef = FirebaseFirestore.instance.collection('Schools');
 final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
 final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
 final sideOptions = FirebaseFirestore.instance.collection('FoodSideOptions');
-final adsRef = FirebaseFirestore.instance.collection('Ads');
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
 final eventsContentRef = FirebaseFirestore.instance.collection('EventsContent');
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');

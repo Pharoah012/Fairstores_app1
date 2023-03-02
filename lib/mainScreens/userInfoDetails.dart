@@ -1,8 +1,6 @@
 import 'dart:developer';
-
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/mainScreens/homescreen.dart';
-import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';

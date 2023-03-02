@@ -8,12 +8,12 @@ import 'package:fairstores/widgets/customDropdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-final _selectedSchoolProvider = StateProvider<String>((ref) => "-Select School-");
+final selectedSchoolProvider = StateProvider<String>((ref) => "-Select School-");
 final schoolDropdownProvider = StateNotifierProvider<DropdownProvider, CustomDropdown>(
   (ref) => DropdownProvider(
     CustomDropdown(
       items: ["-Select School-"],
-      currentValue: _selectedSchoolProvider,
+      currentValue: selectedSchoolProvider,
     )
 ));
 
@@ -30,11 +30,9 @@ final schoolsProvider = FutureProvider<List<String>>((ref) async {
     schoolList.add(schoolModel.schoolname);
   }
 
-  log(schoolList.toString());
-
   ref.read(schoolDropdownProvider.notifier).load(
     items: schoolList,
-    currentValue: _selectedSchoolProvider
+    currentValue: selectedSchoolProvider
   );
 
   return schoolList;

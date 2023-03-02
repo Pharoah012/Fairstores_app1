@@ -4,11 +4,11 @@ import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 
 class LockedJointTile extends StatelessWidget {
-  final  JointModel food;
+  final JointModel joint;
 
   const LockedJointTile({
     Key? key,
-    required this.food
+    required this.joint
   }) : super(key: key);
 
   @override
@@ -43,7 +43,7 @@ class LockedJointTile extends StatelessWidget {
               ),
               SizedBox(height: 8,),
               CustomText(
-                text: food.name,
+                text: joint.name,
                 isMediumWeight: true,
               ),
               Padding(
@@ -52,7 +52,7 @@ class LockedJointTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CustomText(
-                      text: 'GHC ${food.price}',
+                      text: 'GHC ${joint.price}',
                       fontSize: 10,
                       isMediumWeight: true,
                     ),
@@ -67,7 +67,7 @@ class LockedJointTile extends StatelessWidget {
                       width: 5,
                     ),
                     CustomText(
-                      text: food.deliveryTime,
+                      text: joint.deliveryTime,
                       fontSize: 10,
                       isMediumWeight: true,
                     )

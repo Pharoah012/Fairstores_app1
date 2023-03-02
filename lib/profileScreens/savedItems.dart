@@ -4,8 +4,9 @@ import 'package:fairstores/providers/favoriteFoodsProvider.dart';
 import 'package:fairstores/providers/getFavoriteEvents.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customEventTile.dart';
-import 'package:fairstores/widgets/customFoodTile.dart';
 import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/lockedJointTile.dart';
+import 'package:fairstores/widgets/unlockedJointTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,49 +20,6 @@ class SavedItems extends ConsumerStatefulWidget {
 }
 
 class _SavedItemsState extends ConsumerState<SavedItems> {
-  // String page = 'food';
-  // List<FoodTile> foodlist = [];
-  // List<EventsPageModel> eventlist = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // getfavoritesfood();
-    // geteventsfavorite();
-  }
-
-  // geteventsfavorite() async {
-  //   QuerySnapshot snapshot = await eventsRef
-  //       .doc(widget.school)
-  //       .collection('events')
-  //       .where('favourites_list', arrayContains: widget.user)
-  //       .get();
-  //   List<EventsPageModel> eventlist = [];
-  //
-  //   eventlist = snapshot.docs
-  //       .map((doc) =>
-  //           EventsPageModel.fromDocument(doc, widget.school, widget.user))
-  //       .toList();
-  //   setState(() {
-  //     this.eventlist = eventlist;
-  //   });
-  // }
-  //
-  // getfavoritesfood() async {
-  //   QuerySnapshot snapshot = await jointsRef
-  //       .doc(widget.school)
-  //       .collection('Joints')
-  //       .where('foodjoint_favourites', arrayContains: widget.user)
-  //       .get();
-  //   List<FoodTile> foodlist = [];
-  //
-  //   foodlist = snapshot.docs
-  //       .map((doc) => FoodTile.fromDocument(doc, widget.user, widget.school))
-  //       .toList();
-  //   setState(() {
-  //     this.foodlist = foodlist;
-  //   });
-  // }
 
   Widget pagetoggle(page) {
 
@@ -82,7 +40,9 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
           return ListView.builder(
             itemCount: data.length,
             itemBuilder: (context, index){
-              return CustomFoodTile(food: data[index]);
+              return data[index].lockshop
+                ? LockedJointTile(joint: data[index])
+                : UnlockedJointTile(joint: data[index]);
             }
           );
         },
@@ -146,48 +106,49 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
       appBar: CustomAppBar(
         title: 'Favorites'
       ),
-      body: Column(
-        children: [
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                ref.read(currentPage.notifier).state = "food";
-              },
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.59,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xfff25e37).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Center(
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Container(
-                            height: 33.6,
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            decoration: BoxDecoration(
-                              color:
-                                  _currentPage == 'food' ? kPrimary : Colors.transparent,
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Center(
-                              child: CustomText(
-                                text: 'Food',
-                                color: _currentPage == 'foods'
-                                    ? Colors.white
-                                    : Colors.black,
-                                fontSize: 12,
-                                isMediumWeight: true,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          children: [
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(currentPage.notifier).state = "food";
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.59,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff25e37).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Container(
+                              height: 33.6,
+                              width: MediaQuery.of(context).size.width * 0.25,
+                              decoration: BoxDecoration(
+                                color:
+                                    _currentPage == 'food' ? kPrimary : Colors.transparent,
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Center(
+                                child: CustomText(
+                                  text: 'Food',
+                                  color: _currentPage == 'foods'
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontSize: 12,
+                                  isMediumWeight: true,
+                                )
                               )
-                            )
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 13.0),
-                        child: GestureDetector(
+                        SizedBox(width: 13,),
+                        GestureDetector(
                           onTap: () {
                             ref.read(currentPage.notifier).state = "events";
                           },
@@ -212,17 +173,18 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
                             )
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: pagetoggle(_currentPage)
-          )
-        ],
+            SizedBox(height: 15,),
+            Expanded(
+              child: pagetoggle(_currentPage)
+            )
+          ],
+        ),
       ),
     );
   }

@@ -220,22 +220,22 @@ class _FoodTileState extends State<FoodTile> {
             children: [
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Foodhome(
-                          rating: widget.rating,
-                          deliverytime: widget.tiledistancetime,
-                          jointname: widget.tilename,
-                          location: widget.location,
-                          headerImage: widget.headerimage,
-                          logo: widget.logo,
-                          user: widget.user,
-                          jointid: widget.tileid,
-                          favourites: widget.favourites,
-                          school: widget.school,
-                        ),
-                      ));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => Foodhome(
+                  //         rating: widget.rating,
+                  //         deliverytime: widget.tiledistancetime,
+                  //         jointname: widget.tilename,
+                  //         location: widget.location,
+                  //         headerImage: widget.headerimage,
+                  //         logo: widget.logo,
+                  //         user: widget.user,
+                  //         jointid: widget.tileid,
+                  //         favourites: widget.favourites,
+                  //         school: widget.school,
+                  //       ),
+                  //     ));
                 },
                 child: Stack(
                   alignment: Alignment.topRight,

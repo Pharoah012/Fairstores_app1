@@ -13,7 +13,7 @@ class JointModel{
   final String jointID;
   final String deliveryTime;
   final String category;
-  final List<String> favourites;
+  final List favourites;
   final String logo;
   final bool lockshop;
   final String location;
@@ -72,7 +72,38 @@ class JointModel{
     return model;
   }
 
-  static Future<List<JointModel>> getFavoriteFoods({
+  static Future<List<JointModel>> getJoints({
+    required String school,
+    required String category,
+    required String userID
+  }) async {
+
+    late QuerySnapshot snapshot;
+
+    if (category == "All"){
+      snapshot = await jointsRef
+          .doc(school)
+          .collection('Joints')
+          .orderBy('lockshop', descending: false)
+          .get();
+    }
+    else{
+      snapshot = await jointsRef
+          .doc(school)
+          .collection('Joints')
+          .where('categoryid', isEqualTo: category)
+          .orderBy('lockshop', descending: false)
+          .get();
+    }
+
+    List<JointModel>  jointList = snapshot.docs
+        .map((doc) => JointModel.fromDocument(doc, userID, school))
+        .toList();
+
+    return jointList;
+  }
+
+  static Future<List<JointModel>> getFavoriteJoints({
     required String school,
     required String userID
   }) async {
@@ -83,11 +114,11 @@ class JointModel{
         .where('foodjoint_favourites', arrayContains: userID)
         .get();
 
-    List<JointModel>  foodList = snapshot.docs
+    List<JointModel>  jointList = snapshot.docs
         .map((doc) => JointModel.fromDocument(doc, userID, school))
         .toList();
 
-    return foodList;
+    return jointList;
   }
 
   static Future<List<JointModel>> getSearchResults({
@@ -101,12 +132,12 @@ class JointModel{
         .where('foodjoint_name', isGreaterThanOrEqualTo: searchValue)
         .get();
 
-    List<JointModel> foodList = snapshot.docs
+    List<JointModel> jointList = snapshot.docs
         .map((doc) =>
         JointModel.fromDocument(doc, school, userID))
         .toList();
 
-    return foodList;
+    return jointList;
   }
 
   static Future<JointModel> getDeliveryPrice({

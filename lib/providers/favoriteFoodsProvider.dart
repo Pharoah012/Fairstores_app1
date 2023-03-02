@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final favoriteFoodsProvider = FutureProvider<List<JointModel>>((ref) async {
   UserModel user = ref.read(userProvider);
 
-  return await JointModel.getFavoriteFoods(
+  return await JointModel.getFavoriteJoints(
       school: user.school!,
       userID: user.uid
   );
