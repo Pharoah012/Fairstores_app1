@@ -1,20 +1,15 @@
 import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
-import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/historyProviders.dart';
-import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/activeOrderTile.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
-import 'package:fairstores/widgets/eventHistoryTile.dart';
+import 'package:fairstores/widgets/eventTicketHistoryTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 final _selectedOptionProvider = StateProvider.autoDispose<String>((ref) => "food");
@@ -30,20 +25,7 @@ class History extends ConsumerStatefulWidget {
 }
 
 class _HistoryState extends ConsumerState<History> {
-  // List<bool> isvisible = [true, false];
-  dynamic delivery = 0;
-  String deliverytime = '';
-  double taxes = 0;
-  double servicecharge = 0;
-
   RefreshController _refreshController = RefreshController(initialRefresh: true);
-
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
 
   Widget historyBlank() {
     return Center(
@@ -199,91 +181,94 @@ class _HistoryState extends ConsumerState<History> {
         ),
       );
     } else if (ref.read(_selectedOptionProvider) == 'events') {
+      final pendingEventTickets = ref.watch(pendingEventTicketsProvider);
+      final purchasedEventTickets = ref.watch(purchasedEventTicketsProvider);
+
       return Column(
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Padding(
-          //   padding: const EdgeInsets.only(top: 10.0),
-          //   child: StreamBuilder<QuerySnapshot>(
-          //       stream: eventTicketsPurchaseRef
-          //           .where('userid', isEqualTo: ref.read(authProvider).currentUser!.uid,)
-          //           .snapshots(),
-          //       builder: (context, snapshot) {
-          //         if (!snapshot.hasData) {
-          //           return Text('');
-          //         }
-          //
-          //         List<EventHistoryTile> eventpurchaseslist = [];
-          //
-          //         for (var element in snapshot.data!.docs) {
-          //           eventpurchaseslist
-          //               .add(EventHistoryTile.fromDocument(element));
-          //         }
-          //         return Column(
-          //           children: [
-          //             Padding(
-          //               padding: const EdgeInsets.only(
-          //                   left: 20.0, top: 10, bottom: 7),
-          //               child: Row(
-          //                 children: [
-          //                   eventpurchaseslist.isEmpty
-          //                       ? const SizedBox(
-          //                           height: 0,
-          //                           width: 0,
-          //                         )
-          //                       : Text('Pending Tickets',
-          //                           style: GoogleFonts.manrope(
-          //                               fontWeight: FontWeight.w600,
-          //                               fontSize: 14)),
-          //                 ],
-          //               ),
-          //             ),
-          //             Column(
-          //               children: eventpurchaseslist,
-          //             ),
-          //           ],
-          //         );
-          //       }),
-          // ),
-          StreamBuilder<QuerySnapshot>(
-              stream: eventhistoryRef
-                  .doc(ref.read(authProvider).currentUser!.uid,)
-                  .collection('history')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Text('');
+          CustomText(
+            text: "Pending Tickets"
+          ),
+          SizedBox(height: 15,),
+          pendingEventTickets.when(
+              data: (data){
+                if (data.isEmpty){
+                  return Center(
+                    child: CustomText(
+                        text: "You have no pending tickets"
+                    ),
+                  );
                 }
 
-                List<ListTile> eventpurchaseslist = [];
-                for (var element in snapshot.data!.docs) {
-                  eventpurchaseslist.add(ListTile(
-                    leading: CircleAvatar(
-                      radius: 20,
-                    ),
-                  ));
-                }
-                return eventpurchaseslist.isEmpty
-                    ? historyBlank()
-                    : Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20.0, top: 15),
-                            child: Row(
-                              children: [
-                                Text('Tickets',
-                                    style: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14)),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: eventpurchaseslist,
-                          )
-                        ],
+                return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index){
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: EventTicketHistoryTile(
+                          eventHistoryItem: data[index],
+                        ),
                       );
-              }),
+                    }
+                );
+              },
+              error: (_, err){
+                log(err.toString());
+                return Center(
+                  child: CustomText(
+                      text: "An error occurred while fetching your pending tickets"
+                  ),
+                );
+              },
+              loading: () => Center(
+                child: CustomText(
+                    text: "Fetching your pending tickets"
+                ),
+              )
+          ),
+          SizedBox(height: 20,),
+          CustomText(
+            text: "Tickets"
+          ),
+          SizedBox(height: 15,),
+          purchasedEventTickets.when(
+              data: (data){
+                if (data.isEmpty){
+                  return Center(
+                    child: CustomText(
+                        text: "You have not purchased any tickets"
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index){
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: EventTicketHistoryTile(
+                          eventHistoryItem: data[index],
+                        ),
+                      );
+                    }
+                );
+              },
+              error: (_, err){
+                log(err.toString());
+                return Center(
+                  child: CustomText(
+                      text: "An error occurred while fetching your tickets"
+                  ),
+                );
+              },
+              loading: () => Center(
+                child: CustomText(
+                    text: "Fetching your purchased tickets"
+                ),
+              )
+          ),
         ],
       );
     }
@@ -381,9 +366,13 @@ class _HistoryState extends ConsumerState<History> {
                 onRefresh: (){
                   ref.invalidate(activeOrdersProvider);
                   ref.invalidate(historyProvider);
+                  ref.invalidate(pendingEventTicketsProvider);
+                  ref.invalidate(purchasedEventTicketsProvider);
 
                   ref.read(activeOrdersProvider.future);
                   ref.read(historyProvider.future);
+                  ref.read(pendingEventTicketsProvider.future);
+                  ref.read(purchasedEventTicketsProvider.future);
 
                   _refreshController.refreshCompleted();
                 },

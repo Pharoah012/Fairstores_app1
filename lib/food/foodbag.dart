@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
-import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/models/securityModel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,7 +32,7 @@ class _FoodBagState extends State<FoodBag> {
   @override
   void initState() {
     super.initState();
-    getdeliveryprice();
+    // getdeliveryprice();
     getservicecharge();
   }
 
@@ -45,22 +44,22 @@ class _FoodBagState extends State<FoodBag> {
     });
   }
 
-  getdeliveryprice() async {
-    DocumentSnapshot doc = await jointsRef
-        .doc(widget.schoolname)
-        .collection('Joints')
-        .doc(widget.shopid)
-        .get();
-    FoodTile foodtile =
-        FoodTile.fromDocument(doc, widget.user, widget.schoolname);
-    print(foodtile.pickupavailable);
-    setState(() {
-      delivery = foodtile.tileprice.toDouble();
-      deliverytime = foodtile.tiledistancetime;
-      deliveryavailable = foodtile.deliveryavailable;
-      pickupavailable = foodtile.pickupavailable;
-    });
-  }
+  // getdeliveryprice() async {
+  //   DocumentSnapshot doc = await jointsRef
+  //       .doc(widget.schoolname)
+  //       .collection('Joints')
+  //       .doc(widget.shopid)
+  //       .get();
+  //   FoodTile foodtile =
+  //       FoodTile.fromDocument(doc, widget.user, widget.schoolname);
+  //   print(foodtile.pickupavailable);
+  //   setState(() {
+  //     delivery = foodtile.tileprice.toDouble();
+  //     deliverytime = foodtile.tiledistancetime;
+  //     deliveryavailable = foodtile.deliveryavailable;
+  //     pickupavailable = foodtile.pickupavailable;
+  //   });
+  // }
 
   String page = 'delivery';
   List<bool> visible = [true, false];

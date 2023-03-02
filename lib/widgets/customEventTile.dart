@@ -26,7 +26,7 @@ class _CustomEventTileState extends State<CustomEventTile> {
   void initState() {
     super.initState();
     checkfavorites();
-    geteventgoers();
+    // geteventgoers();
     setState(() {
       favoritecount = widget.event.favouritescount;
     });
@@ -35,16 +35,16 @@ class _CustomEventTileState extends State<CustomEventTile> {
   bool isliked = false;
   int favoritecount = 0;
 
-  geteventgoers() async {
-    QuerySnapshot snapshot = await eventTicketsPurchaseRef
-        .doc(widget.event.eventid)
-        .collection('Purchases')
-        .where('status', isEqualTo: 'Active')
-        .get();
-    for (var element in snapshot.docs) {
-      eventgoers = eventgoers + 1;
-    }
-  }
+  // geteventgoers() async {
+  //   QuerySnapshot snapshot = await eventTicketsPurchaseRef
+  //       .doc(widget.event.eventid)
+  //       .collection('Purchases')
+  //       .where('status', isEqualTo: 'Active')
+  //       .get();
+  //   for (var element in snapshot.docs) {
+  //     eventgoers = eventgoers + 1;
+  //   }
+  // }
 
   updatefavourites() {
     if (isliked == true) {

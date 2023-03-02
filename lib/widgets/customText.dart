@@ -9,6 +9,7 @@ class CustomText extends StatelessWidget {
   final double fontSize;
   final Color? color;
   final bool isCenter;
+  final TextOverflow? overflow;
 
   const CustomText({
     Key? key,
@@ -17,7 +18,8 @@ class CustomText extends StatelessWidget {
     this.fontSize = 14.0,
     this.color = kLabelColor,
     this.isMediumWeight = false,
-    this.isCenter = false
+    this.isCenter = false,
+    this.overflow
   });
 
   @override
@@ -25,6 +27,7 @@ class CustomText extends StatelessWidget {
     return Text(
       text,
       textAlign: isCenter ? TextAlign.center : null,
+      overflow: overflow,
       style: GoogleFonts.manrope(
       fontSize: fontSize,
         fontWeight: isBold

@@ -152,6 +152,7 @@ class _MyAppState extends ConsumerState<MyApp> {
           appBarTheme: AppBarTheme(
             backgroundColor: kWhite
           ),
+          scaffoldBackgroundColor: kWhite,
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),

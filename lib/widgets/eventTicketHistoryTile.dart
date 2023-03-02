@@ -1,24 +1,24 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/events/eventhistory.dart';
+import 'package:fairstores/events/eventHistoryDetails.dart';
 import 'package:fairstores/models/eventHistoryModel.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class EventHistoryTile extends StatefulWidget {
+class EventTicketHistoryTile extends StatefulWidget {
   final EventHistoryModel eventHistoryItem;
 
-  const EventHistoryTile({
+  const EventTicketHistoryTile({
     Key? key,
     required this.eventHistoryItem
   }) : super(key: key);
 
   @override
-  State<EventHistoryTile> createState() => _EventHistoryTileState();
+  State<EventTicketHistoryTile> createState() => _EventTicketHistoryTileState();
 }
 
-class _EventHistoryTileState extends State<EventHistoryTile> {
+class _EventTicketHistoryTileState extends State<EventTicketHistoryTile> {
 
   ticketnumber() {
     if (widget.eventHistoryItem.quantity == 1) {
@@ -35,7 +35,7 @@ class _EventHistoryTileState extends State<EventHistoryTile> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EventHistory(
+            builder: (context) => EventHistoryDetails(
               eventHistoryItem: widget.eventHistoryItem
             )
           )

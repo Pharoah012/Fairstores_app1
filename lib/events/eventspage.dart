@@ -27,19 +27,19 @@ class _EventDetailsState extends State<EventDetails> {
   void initState() {
     super.initState();
     getvideos();
-    geteventgoers();
+    // geteventgoers();
   }
 
-  geteventgoers() async {
-    QuerySnapshot snapshot = await eventTicketsPurchaseRef
-        .doc(widget.event.eventid)
-        .collection('Purchases')
-        .where('status', isEqualTo: 'Active')
-        .get();
-    for (var element in snapshot.docs) {
-      eventgoers = eventgoers + 1;
-    }
-  }
+  // geteventgoers() async {
+  //   QuerySnapshot snapshot = await eventTicketsPurchaseRef
+  //       .doc(widget.event.eventid)
+  //       .collection('Purchases')
+  //       .where('status', isEqualTo: 'Active')
+  //       .get();
+  //   for (var element in snapshot.docs) {
+  //     eventgoers = eventgoers + 1;
+  //   }
+  // }
 
   getvideos() async {
     List<VideoModel> videolist = [];

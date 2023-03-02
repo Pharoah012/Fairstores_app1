@@ -26,5 +26,3 @@ final sideOptions = FirebaseFirestore.instance.collection('FoodSideOptions');
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
 final eventsContentRef = FirebaseFirestore.instance.collection('EventsContent');
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
-final eventhistoryRef = FirebaseFirestore.instance.collection('Eventshistory');
-final eventTicketsPurchaseRef = FirebaseFirestore.instance.collection('EventsTicketPurchases');

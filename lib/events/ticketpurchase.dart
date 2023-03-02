@@ -1,6 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
+import 'package:fairstores/models/eventHistoryModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/payment_api.dart';
@@ -625,21 +626,24 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                   onPressed: () async {
                     if (page == 'fairticket') {
                       for (int i = 0; i < quantity; i++) {
-                        eventTicketsPurchaseRef.doc(orderid).set({
-                          'orderid': orderid,
-                          'eventid': widget.eventid,
-                          'tickettype': page,
-                          'eventimage': widget.eventpic,
-                          'orderdetails': widget.eventname,
-                          'total': widget.price,
-                          'paymentStatus': 'Cash',
-                          'status': 'Pending',
-                          'quantity': 1,
-                          'confirmationid': '',
-                          'deliverylocation': widget.school,
-                          'userid': widget.userid,
-                          'timestamp': DateTime.now()
-                        });
+                        EventHistoryModel event = EventHistoryModel(
+                          eventimage: widget.eventpic,
+                          confirmationid: "",
+                          eventid: widget.eventid,
+                          orderdetails: widget.eventname,
+                          orderid: orderid,
+                          quantity: 1,
+                          total: widget.price,
+                          deliverylocation: widget.school,
+                          paymentStatus: 'Cash',
+                          status: 'Pending',
+                          tickettype: page,
+                          timestamp: Timestamp.fromDate(DateTime.now()),
+                          userID: widget.userid,
+                        );
+
+                        await event.addItemToEventHistory();
+
                         setState(() {
                           orderid = const Uuid().v4();
                         });
