@@ -9,6 +9,7 @@ import 'package:fairstores/widgets/lockedJointTile.dart';
 import 'package:fairstores/widgets/unlockedJointTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 final currentPage = StateProvider<String>((ref) => "food");
 
@@ -20,6 +21,8 @@ class SavedItems extends ConsumerStatefulWidget {
 }
 
 class _SavedItemsState extends ConsumerState<SavedItems> {
+
+  RefreshController _refreshController = RefreshController(initialRefresh: true);
 
   Widget pagetoggle(page) {
 
@@ -181,7 +184,20 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
             ),
             SizedBox(height: 15,),
             Expanded(
-              child: pagetoggle(_currentPage)
+              child: SmartRefresher(
+                header: WaterDropHeader(),
+                onRefresh: (){
+                  ref.invalidate(favoriteFoodsProvider);
+                  ref.invalidate(favoriteEventsProvider);
+
+                  ref.read(favoriteEventsProvider.future);
+                  ref.read(favoriteFoodsProvider.future);
+
+                  _refreshController.refreshCompleted();
+                },
+                controller: _refreshController,
+                child: pagetoggle(_currentPage)
+              )
             )
           ],
         ),

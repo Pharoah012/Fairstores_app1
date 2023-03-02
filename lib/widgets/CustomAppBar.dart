@@ -30,8 +30,11 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final _schoolsProvider = ref.watch(schoolsProvider);
-    final _currentLocationProvider = ref.watch(widget.currentLocationProvider!);
+    if (widget.isDropdown){
+      final _schoolsProvider = ref.watch(schoolsProvider);
+      final _currentLocationProvider = ref.watch(widget.currentLocationProvider!);
+    }
+
 
     return widget.isDropdown
       ? dropdownAppBar()

@@ -86,7 +86,7 @@ class _UnlockedFoodTileState extends ConsumerState<UnlockedJointTile> {
                 },
                 icon: Icon(
                   Icons.favorite_outline,
-                  color: isFavorite
+                  color: widget.joint.isFavorite
                     ? kPrimary
                       : kWhite,
                   size: 25,
