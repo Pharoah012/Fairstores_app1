@@ -1,5 +1,5 @@
 import 'package:fairstores/credentials.dart';
-import 'package:fairstores/profileScreens/customercare.dart';
+import 'package:fairstores/profileScreens/customerCare.dart';
 import 'package:fairstores/profileScreens/details.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/webview.dart';

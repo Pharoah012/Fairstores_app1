@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/authentication/onboardingScreen.dart';
-import 'package:fairstores/profileScreens/saveditems.dart';
+import 'package:fairstores/profileScreens/savedItems.dart';
 import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/constants.dart';

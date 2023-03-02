@@ -8,6 +8,7 @@ import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/mainScreens/userInfoDetails.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
+import 'package:fairstores/providers/categoryProvider.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final _currentScreen = ref.watch(currentScreenProvider);
     final _user = ref.watch(userProvider);
+
+    // load the security information
     final _securityKeysGenerator = ref.watch(securityKeysGeneratorProvider);
     final _securityKeys = ref.watch(securityKeysProvider);
 
@@ -77,6 +80,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (data) => log("loaded security keys"),
       error: (_, err) => log("Error loading security keys"),
       loading: () => log("loading security keys")
+    );
+
+    //load joint categories
+
+    final categories = ref.watch(categoryProvider);
+    final categoriesList = ref.watch(categoryListProvider);
+
+    categories.when(
+      data: (data) => log("loaded categories"),
+      error: (_, err) => log("Error loading categories"),
+      loading: () => log("loading categories")
     );
 
 

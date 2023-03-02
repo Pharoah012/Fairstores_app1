@@ -228,7 +228,7 @@ class _FoodTileState extends State<FoodTile> {
                           deliverytime: widget.tiledistancetime,
                           jointname: widget.tilename,
                           location: widget.location,
-                          headerimage: widget.headerimage,
+                          headerImage: widget.headerimage,
                           logo: widget.logo,
                           user: widget.user,
                           jointid: widget.tileid,

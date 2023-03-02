@@ -27,7 +27,6 @@ final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
 final eventsContentRef = FirebaseFirestore.instance.collection('EventsContent');
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
 final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
-final categoryRef = FirebaseFirestore.instance.collection('Categories');
 final eventhistoryRef = FirebaseFirestore.instance.collection('Eventshistory');
 final historyRef = FirebaseFirestore.instance.collection('History');
 final eventTicketsPurchaseRef = FirebaseFirestore.instance.collection('EventsTicketPurchases');

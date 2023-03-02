@@ -1,25 +1,37 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/ads/adsmodel.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
-import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/mainScreens/search.dart';
-import 'package:fairstores/models/schoolmodel.dart';
+import 'package:fairstores/models/categoryModel.dart';
+import 'package:fairstores/providers/categoryProvider.dart';
+import 'package:fairstores/providers/schoolListProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/categoryItem.dart';
+import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/lockedJointTile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class FoodPage extends StatefulWidget {
+final _selectedSchoolProvider = StateProvider<String>(
+  (ref) => ref.read(userProvider).school!
+);
+
+class FoodPage extends ConsumerStatefulWidget {
 
   const FoodPage({Key? key})
       : super(key: key);
 
   @override
-  State<FoodPage> createState() => _FoodPageState();
+  ConsumerState<FoodPage> createState() => _FoodPageState();
 }
 
-class _FoodPageState extends State<FoodPage> {
+class _FoodPageState extends ConsumerState<FoodPage> {
   List<String> schoollist = [];
   List<AdsModel> adslist = [];
   List<AdsModel> adsgenerallist = [];
@@ -28,6 +40,10 @@ class _FoodPageState extends State<FoodPage> {
   String categorySelection = '01';
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.read(_selectedSchoolProvider.notifier).state = ref.read(userProvider).school!;
+    });
+
     super.initState();
     // schoolList();
     // getads();
@@ -39,73 +55,103 @@ class _FoodPageState extends State<FoodPage> {
     // });
   }
 
-  // getcategories() {
-  //   return StreamBuilder<QuerySnapshot>(
-  //       stream: categoryRef
-  //           .doc('FairFood')
-  //           .collection('categories')
-  //           .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
-  //           .collection('shop_categories')
-  //           .snapshots(),
-  //       builder: (context, snapshot) {
-  //         if (!snapshot.hasData) {
-  //           return const Text('');
-  //         }
-  //         print(selectedSchool);
-  //         List<GestureDetector> foodlist = [];
-  //         for (var doc in snapshot.data!.docs) {
-  //           CategoryTileModel categoryTileModel =
-  //               CategoryTileModel.fromDocument(doc);
-  //           foodlist.add(
-  //             GestureDetector(
-  //               onTap: () {
-  //                 setState(() {
-  //                   categorySelection = categoryTileModel.id;
-  //                 });
-  //               },
-  //               child: Padding(
-  //                 padding: const EdgeInsets.only(left: 6.0),
-  //                 child: Container(
-  //                     decoration: BoxDecoration(
-  //                       border: Border.all(color: Color(0xffEBEAEB)),
-  //                       color: categorySelection == categoryTileModel.id
-  //                           ? kPrimary
-  //                           : Colors.white,
-  //                       borderRadius: BorderRadius.circular(100),
-  //                     ),
-  //                     child: Center(
-  //                         child: Padding(
-  //                       padding: const EdgeInsets.only(
-  //                           left: 19.0, right: 19, top: 8, bottom: 8),
-  //                       child: Text(
-  //                         categoryTileModel.name,
-  //                         style: GoogleFonts.manrope(
-  //                             fontWeight: FontWeight.w600,
-  //                             fontSize: 12,
-  //                             color: categorySelection == categoryTileModel.id
-  //                                 ? Colors.white
-  //                                 : Color(0xff777777)),
-  //                       ),
-  //                     ))),
-  //               ),
-  //             ),
-  //           );
-  //         }
-  //
-  //         return Padding(
-  //           padding: const EdgeInsets.only(
-  //               top: 10, left: 16, right: 20, bottom: 14.5),
-  //           child: SizedBox(
-  //             width: MediaQuery.of(context).size.width,
-  //             height: 33,
-  //             child: ListView(
-  //               scrollDirection: Axis.horizontal,
-  //               children: foodlist,
-  //             ),
-  //           ),
-  //         );
-  //       });
-  // }
+  getCategories() {
+    List<CategoryModel> categories = ref.read(categoryListProvider);
+
+    if (categories.isEmpty){
+      return CustomText(text: "There are no categories");
+    }
+
+    return ListView.builder(
+      itemCount: categories.length,
+      scrollDirection: Axis.horizontal,
+      shrinkWrap: true,
+      itemBuilder: (context, index){
+        return CategoryItem(
+          category: categories[index],
+        );
+      }
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(
+          top: 10, left: 16, right: 20, bottom: 14.5),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: 33,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: foodlist,
+        ),
+      ),
+    );
+
+    return StreamBuilder<QuerySnapshot>(
+        stream: categoryRef
+            .doc('FairFood')
+            .collection('categories')
+            .doc(selectedSchool.isEmpty ? widget.school : selectedSchool)
+            .collection('shop_categories')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Text('');
+          }
+          print(selectedSchool);
+          List<GestureDetector> foodlist = [];
+          for (var doc in snapshot.data!.docs) {
+            CategoryTileModel categoryTileModel =
+                CategoryTileModel.fromDocument(doc);
+            foodlist.add(
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    categorySelection = categoryTileModel.id;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 6.0),
+                  child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xffEBEAEB)),
+                        color: categorySelection == categoryTileModel.id
+                            ? kPrimary
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 19.0, right: 19, top: 8, bottom: 8),
+                        child: Text(
+                          categoryTileModel.name,
+                          style: GoogleFonts.manrope(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: categorySelection == categoryTileModel.id
+                                  ? Colors.white
+                                  : Color(0xff777777)),
+                        ),
+                      ))),
+                ),
+              ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(
+                top: 10, left: 16, right: 20, bottom: 14.5),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 33,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: foodlist,
+              ),
+            ),
+          );
+        });
+  }
   //
   // getads() async {
   //   QuerySnapshot snapshot1 =
@@ -294,19 +340,35 @@ class _FoodPageState extends State<FoodPage> {
                         style: GoogleFonts.manrope(
                             fontWeight: FontWeight.w500, fontSize: 12),
                       ),
-                      items: schoollist
-                          .map(
-                              (e) => DropdownMenuItem(value: e, child: Text(e)))
-                          .toList(),
+                      items: ref.read(schoolsProvider).when(
+                        data: (data) => data.map((element) => DropdownMenuItem(
+                          value: element, child: Text(element)))
+                             .toList(),
+                        error: (_, err){
+                          log(err.toString());
+                          return [
+                            DropdownMenuItem(
+                              child: Text(
+                                  ref.read(userProvider).school!
+                              )
+                            )
+                          ];
+                        },
+                        loading: () => [
+                          DropdownMenuItem(
+                            child: Text(
+                              ref.read(userProvider).school!
+                            )
+                          )
+                        ]
+                      ),
                       isExpanded: true,
                       onChanged: (value) {
-                        setState(() {
-                          selectedSchool = value;
-                        });
+                        ref.read(_selectedSchoolProvider.notifier).state = value;
                       }),
                 ),
                 Text(
-                  selectedSchool,
+                  ref.read(_selectedSchoolProvider),
                   style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w800, fontSize: 12),
                 ),
@@ -417,6 +479,9 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
+    final categories = ref.watch(categoryProvider);
+    final categoriesList = ref.watch(categoryListProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -425,7 +490,7 @@ class _FoodPageState extends State<FoodPage> {
         children: [
           foodPageHeader(),
           search(),
-          // getcategories(),
+          getCategories(),
           // adsection(),
           // Padding(
           //   padding: const EdgeInsets.only(top: 20.0, left: 25, bottom: 0),
@@ -446,330 +511,133 @@ class _FoodPageState extends State<FoodPage> {
     );
   }
 }
-
-class HomeTile extends StatefulWidget {
-  final String user;
-  final String school;
-  final String tilename;
-  final int tileprice;
-  final bool deliveryavailable;
-  final bool pickupavailable;
-  final String tileid;
-  final String tiledistancetime;
-  final String location;
-  final String headerimage;
-  final String logo;
-  final dynamic rating;
-  final bool lockshop;
-  final List favourites;
-
-  const HomeTile(
-      {Key? key,
-      required this.lockshop,
-      required this.deliveryavailable,
-      required this.pickupavailable,
-      required this.logo,
-      required this.rating,
-      required this.location,
-      required this.headerimage,
-      required this.school,
-      required this.user,
-      required this.tilename,
-      required this.tileid,
-      required this.favourites,
-      required this.tiledistancetime,
-      required this.tileprice})
-      : super(key: key);
-
-  factory HomeTile.fromDocument(DocumentSnapshot doc, user, school) {
-    return HomeTile(
-        school: school,
-        user: user,
-        location: doc.get('foodjoint_location'),
-        headerimage: doc.get('foodjoint_header'),
-        deliveryavailable: doc.get('delivery_available'),
-        pickupavailable: doc.get('pickup_available'),
-        logo: doc.get('foodjoint_logo'),
-        rating: doc.get('foodjoint_ratings'),
-        tileid: doc.get('foodjoint_id'),
-        favourites: doc.get('foodjoint_favourites'),
-        tilename: doc.get("foodjoint_name"),
-        lockshop: doc.get('lockshop'),
-        tiledistancetime: doc.get('foodjoint_deliverytime'),
-        tileprice: doc.get('foodjoint_price'));
-  }
-
-  @override
-  State<HomeTile> createState() => _HomeTileState();
-}
-
-class _HomeTileState extends State<HomeTile> {
-  bool isliked = false;
-  @override
-  void initState() {
-    super.initState();
-    checkfavorites();
-  }
-
-  updatefavourites() {
-    if (isliked == true) {
-      widget.favourites.remove(widget.user);
-      setState(() {
-        isliked = !isliked;
-      });
-    } else {
-      widget.favourites.add(widget.user);
-      setState(() {
-        isliked = !isliked;
-      });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Added to Favourites')));
-    }
-
-    jointsRef
-        .doc(widget.school)
-        .collection('Joints')
-        .doc(widget.tileid)
-        .update({'foodjoint_favourites': widget.favourites});
-  }
-
-  checkfavorites() {
-    for (var element in widget.favourites) {
-      if (element == widget.user) {
-        setState(() {
-          isliked = true;
-        });
-      } else {
-        setState(() {
-          isliked = false;
-        });
-      }
-    }
-  }
-
-  showrating() {
-    return Container(
-      child: Row(
-        children: [
-          Image.asset('images/star.png'),
-          Padding(
-            padding: const EdgeInsets.only(left: 3.0),
-            child: Text(
-              widget.rating.toString(),
-              style: GoogleFonts.manrope(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  lockedtile() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 19.0),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Currently Unavailable')));
-                },
-                child: Container(
-                  width: 246,
-                  height: 143,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Center(
-                      child: Text(
-                    'Currently Closed',
-                    style: GoogleFonts.manrope(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
-                  )),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  widget.tilename,
-                  style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('GHC ${widget.tileprice}',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                            color: const Color(0xff8B8380))),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      radius: 2,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Text(widget.tiledistancetime,
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                            color: const Color(0xff8B8380)))
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  homeTile() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 19.0),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Foodhome(
-                          rating: widget.rating,
-                          deliverytime: widget.tiledistancetime,
-                          jointname: widget.tilename,
-                          location: widget.location,
-                          headerimage: widget.headerimage,
-                          logo: widget.logo,
-                          user: widget.user,
-                          jointid: widget.tileid,
-                          favourites: widget.favourites,
-                          school: widget.school,
-                        ),
-                      ));
-                },
-                child: Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    Container(
-                      width: 246,
-                      height: 143,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: CachedNetworkImageProvider(
-                                  widget.headerimage)),
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          updatefavourites();
-                        },
-                        icon: Icon(
-                          Icons.favorite_rounded,
-                          color: isliked == false ? Colors.white : kPrimary,
-                          size: 25,
-                        ))
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.65,
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            widget.tilename,
-                            style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('GHC ${widget.tileprice}',
-                                  overflow: TextOverflow.visible,
-                                  style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 10,
-                                      color: const Color(0xff8B8380))),
-                              const SizedBox(
-                                width: 7,
-                              ),
-                              const CircleAvatar(
-                                backgroundColor: Colors.grey,
-                                radius: 2,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Text(widget.tiledistancetime,
-                                  overflow: TextOverflow.visible,
-                                  style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 10,
-                                      color: const Color(0xff8B8380)))
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    Expanded(child: const SizedBox()),
-                    showrating()
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.lockshop == true ? lockedtile() : homeTile();
-  }
-}
-
-class CategoryTileModel {
-  final String name;
-  final String id;
-
-  CategoryTileModel({
-    required this.id,
-    required this.name,
-  });
-
-  factory CategoryTileModel.fromDocument(DocumentSnapshot doc) {
-    return CategoryTileModel(name: doc.get('name'), id: doc.get('id'));
-  }
-}
+//
+// class HomeTile extends StatefulWidget {
+//   final String user;
+//   final String school;
+//   final String tilename;
+//   final int tileprice;
+//   final bool deliveryavailable;
+//   final bool pickupavailable;
+//   final String tileid;
+//   final String tiledistancetime;
+//   final String location;
+//   final String headerimage;
+//   final String logo;
+//   final dynamic rating;
+//   final bool lockshop;
+//   final List favourites;
+//
+//   const HomeTile({
+//     Key? key,
+//     required this.lockshop,
+//     required this.deliveryavailable,
+//     required this.pickupavailable,
+//     required this.logo,
+//     required this.rating,
+//     required this.location,
+//     required this.headerimage,
+//     required this.school,
+//     required this.user,
+//     required this.tilename,
+//     required this.tileid,
+//     required this.favourites,
+//     required this.tiledistancetime,
+//     required this.tileprice
+//   }) : super(key: key);
+//
+//   factory HomeTile.fromDocument(DocumentSnapshot doc, user, school) {
+//     return HomeTile(
+//         school: school,
+//         user: user,
+//         location: doc.get('foodjoint_location'),
+//         headerimage: doc.get('foodjoint_header'),
+//         deliveryavailable: doc.get('delivery_available'),
+//         pickupavailable: doc.get('pickup_available'),
+//         logo: doc.get('foodjoint_logo'),
+//         rating: doc.get('foodjoint_ratings'),
+//         tileid: doc.get('foodjoint_id'),
+//         favourites: doc.get('foodjoint_favourites'),
+//         tilename: doc.get("foodjoint_name"),
+//         lockshop: doc.get('lockshop'),
+//         tiledistancetime: doc.get('foodjoint_deliverytime'),
+//         tileprice: doc.get('foodjoint_price'));
+//   }
+//
+//   @override
+//   State<HomeTile> createState() => _HomeTileState();
+// }
+//
+// class _HomeTileState extends State<HomeTile> {
+//   bool isliked = false;
+//   @override
+//   void initState() {
+//     super.initState();
+//     checkfavorites();
+//   }
+//
+//   updatefavourites() {
+//     if (isliked == true) {
+//       widget.favourites.remove(widget.user);
+//       setState(() {
+//         isliked = !isliked;
+//       });
+//     } else {
+//       widget.favourites.add(widget.user);
+//       setState(() {
+//         isliked = !isliked;
+//       });
+//       ScaffoldMessenger.of(context)
+//           .showSnackBar(const SnackBar(content: Text('Added to Favourites')));
+//     }
+//
+//     jointsRef
+//         .doc(widget.school)
+//         .collection('Joints')
+//         .doc(widget.tileid)
+//         .update({'foodjoint_favourites': widget.favourites});
+//   }
+//
+//   checkfavorites() {
+//     for (var element in widget.favourites) {
+//       if (element == widget.user) {
+//         setState(() {
+//           isliked = true;
+//         });
+//       } else {
+//         setState(() {
+//           isliked = false;
+//         });
+//       }
+//     }
+//   }
+//
+//   showrating() {
+//     return Container(
+//       child: Row(
+//         children: [
+//           Image.asset('images/star.png'),
+//           Padding(
+//             padding: const EdgeInsets.only(left: 3.0),
+//             child: Text(
+//               widget.rating.toString(),
+//               style: GoogleFonts.manrope(
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 14,
+//               ),
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+//
+//   homeTile() {
+//
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return widget.lockshop == true ? LockedFoodTile(food: joint) : homeTile();
+//   }
+// }

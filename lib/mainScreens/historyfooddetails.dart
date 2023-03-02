@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/whatsappchat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HistoryFoodDetail extends StatefulWidget {
-  final FoodModel foodTile;
+  final JointModel foodTile;
   final String user;
   final String deliverylocation;
   final String school;
@@ -56,15 +56,15 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
   }
 
   getdeliveryprice() async {
-    FoodModel food = await FoodModel.getDeliveryPrice(
+    JointModel food = await JointModel.getDeliveryPrice(
       school: widget.school,
-      foodID: widget.foodTile.tileid,
+      foodID: widget.foodTile.jointID,
       userID: ""
     );
 
     setState(() {
-      delivery = food.tileprice.toDouble();
-      deliverytime = food.tiledistancetime;
+      delivery = food.price.toDouble();
+      deliverytime = food.deliveryTime;
     });
   }
 
@@ -91,7 +91,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
             leading: CircleAvatar(
               backgroundColor: kPrimary,
               radius: 25,
-              backgroundImage: NetworkImage(widget.foodTile.headerimage),
+              backgroundImage: NetworkImage(widget.foodTile.headerImage),
             ),
             trailing: IconButton(
                 onPressed: () {
@@ -99,19 +99,19 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                       context,
                       MaterialPageRoute(
                           builder: ((context) => Foodhome(
-                              deliverytime: widget.foodTile.tiledistancetime,
+                              deliverytime: widget.foodTile.deliveryTime,
                               rating: widget.foodTile.rating,
-                              jointid: widget.foodTile.tileid,
+                              jointid: widget.foodTile.jointID,
                               school: widget.school,
                               favourites: widget.foodTile.favourites,
                               user: widget.user,
                               logo: widget.foodTile.logo,
-                              headerimage: widget.foodTile.headerimage,
-                              jointname: widget.foodTile.tilename,
+                              headerImage: widget.foodTile.headerImage,
+                              jointname: widget.foodTile.name,
                               location: widget.foodTile.location))));
                 },
                 icon: const Icon(Icons.arrow_forward_ios)),
-            title: Text(widget.foodTile.tilename,
+            title: Text(widget.foodTile.name,
                 style: GoogleFonts.manrope(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,

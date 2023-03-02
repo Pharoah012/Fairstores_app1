@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/eventModel.dart';
-import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customEventTile.dart';
@@ -41,10 +41,10 @@ class _SearchState extends ConsumerState<Search> {
     super.initState();
   }
 
-  final foodResultsProvider = FutureProvider.family.autoDispose<List<FoodModel>, String>(
+  final foodResultsProvider = FutureProvider.family.autoDispose<List<JointModel>, String>(
           (ref, searchValue) async {
         UserModel user = ref.read(userProvider);
-        return await FoodModel.getSearchResults(
+        return await JointModel.getSearchResults(
             school: user.school!,
             searchValue: searchValue,
             userID: user.uid

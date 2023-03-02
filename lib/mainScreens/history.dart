@@ -5,7 +5,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventshome.dart';
 import 'package:fairstores/food/foodpage.dart';
 import 'package:fairstores/food/foodtile.dart';
-import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/eventHistoryTile.dart';
@@ -458,7 +458,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
   //     tiledistancetime: '',
   //     tileprice: 0);
   //
-  late FoodModel foodtile;
+  late JointModel foodtile;
   @override
   void initState() {
     super.initState();
@@ -466,7 +466,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
   }
 
   getshop() async {
-    FoodModel food = await FoodModel.getShop(
+    JointModel food = await JointModel.getShop(
         school: widget.school,
         shopID: widget.shopid,
         userID: ""
@@ -499,7 +499,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                     image: DecorationImage(
                         fit: BoxFit.cover,
                         image: CachedNetworkImageProvider(
-                          foodtile.headerimage,
+                          foodtile.headerImage,
                         )),
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -512,7 +512,7 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    foodtile.tilename,
+                    foodtile.name,
                     style: GoogleFonts.manrope(
                         fontWeight: FontWeight.w700, fontSize: 16),
                   ),
@@ -619,11 +619,11 @@ class _HistoryTileState extends State<HistoryTile> {
     getshop();
   }
 
-  late FoodModel foodtile;
+  late JointModel foodtile;
 
   getshop() async {
 
-    FoodModel food = await FoodModel.getShop(
+    JointModel food = await JointModel.getShop(
         school: widget.school,
         shopID: widget.shopid,
         userID: ""
@@ -664,7 +664,7 @@ class _HistoryTileState extends State<HistoryTile> {
                     image: DecorationImage(
                         fit: BoxFit.cover,
                         image: CachedNetworkImageProvider(
-                          foodtile.headerimage.toString(),
+                          foodtile.headerImage.toString(),
                         )),
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -674,7 +674,7 @@ class _HistoryTileState extends State<HistoryTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      foodtile.tilename,
+                      foodtile.name,
                       style: GoogleFonts.manrope(
                           fontWeight: FontWeight.w700, fontSize: 16),
                     ),

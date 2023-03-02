@@ -1,9 +1,9 @@
-import 'package:fairstores/models/foodModel.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 
 class CustomFoodTile extends StatelessWidget {
-  final FoodModel food;
+  final JointModel food;
 
   const CustomFoodTile({
     Key? key,
@@ -15,7 +15,7 @@ class CustomFoodTile extends StatelessWidget {
     return Container(
       height: 50,
       child: Center(
-        child: CustomText(text: food.tilename),
+        child: CustomText(text: food.name),
       ),
     );
   }

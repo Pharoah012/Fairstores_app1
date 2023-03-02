@@ -1,42 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodsideoptions.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:uuid/uuid.dart';
 
 class Foodhome extends StatefulWidget {
-  final String jointname;
-  final String headerimage;
-  final String logo;
-  final List favourites;
-  final String user;
-  final dynamic rating;
-  final String location;
-  final String school;
-  final String jointid;
-  final String deliverytime;
-  const Foodhome(
-      {Key? key,
-      required this.deliverytime,
-      required this.rating,
-      required this.jointid,
-      required this.school,
-      required this.favourites,
-      required this.user,
-      required this.logo,
-      required this.headerimage,
-      required this.jointname,
-      required this.location})
-      : super(key: key);
+  final JointModel joint;
+
+  const Foodhome({
+    Key? key,
+    required this.joint,
+  }) : super(key: key);
 
   @override
   State<Foodhome> createState() => _FoodhomeState();
@@ -48,54 +28,6 @@ class _FoodhomeState extends State<Foodhome> {
   String optionpage = '01';
   JointMenuOption jointmenuoption = const JointMenuOption(id: '00', name: '00');
 
-  @override
-  void initState() {
-    super.initState();
-    checkfavorites();
-  }
-
-  updatefavourites() {
-    if (isliked == true) {
-      widget.favourites.remove(widget.user);
-      setState(() {
-        isliked = !isliked;
-        favoriteCount -= 1;
-      });
-    } else {
-      widget.favourites.add(widget.user);
-      setState(() {
-        isliked = !isliked;
-        favoriteCount += 1;
-      });
-    }
-
-    jointsRef
-        .doc(widget.school)
-        .collection('Joints')
-        .doc(widget.jointid)
-        .update({
-      'foodjoint_favourites': widget.favourites,
-      'foodjoint_favourite_count': favoriteCount
-    });
-  }
-
-  checkfavorites() {
-    for (var element in widget.favourites) {
-      if (element == widget.user) {
-        setState(() {
-          isliked = true;
-        });
-      } else {
-        setState(() {
-          isliked = false;
-        });
-      }
-      setState(() {
-        favoriteCount += 1;
-      });
-    }
-  }
-
   int count = 1;
   jointLogo() {
     return Container(
@@ -103,7 +35,7 @@ class _FoodhomeState extends State<Foodhome> {
           image: DecorationImage(
               fit: BoxFit.cover,
               image: CachedNetworkImageProvider(
-                widget.headerimage,
+                widget.joint.headerImage,
               ))),
       width: MediaQuery.of(context).size.width,
       height: 200,
@@ -121,7 +53,7 @@ class _FoodhomeState extends State<Foodhome> {
             Padding(
               padding: const EdgeInsets.only(left: 5.0),
               child: Text(
-                widget.location,
+                widget.joint.location,
                 style: GoogleFonts.manrope(
                     fontWeight: FontWeight.w600, fontSize: 12),
               ),
@@ -131,9 +63,9 @@ class _FoodhomeState extends State<Foodhome> {
         leading: CircleAvatar(
           backgroundColor: kPrimary,
           radius: 25,
-          backgroundImage: NetworkImage(widget.logo),
+          backgroundImage: NetworkImage(widget.joint.logo),
         ),
-        title: Text(widget.jointname,
+        title: Text(widget.joint.name,
             style: GoogleFonts.manrope(
               fontWeight: FontWeight.w700,
               fontSize: 18,
@@ -165,7 +97,7 @@ class _FoodhomeState extends State<Foodhome> {
                       Padding(
                         padding: const EdgeInsets.only(left: 10.0),
                         child: Text(
-                          'Rating ${widget.rating.toDouble()}',
+                          'Rating ${widget.joint.rating}',
                           style: GoogleFonts.manrope(
                               fontWeight: FontWeight.w600, fontSize: 12),
                         ),
@@ -199,7 +131,7 @@ class _FoodhomeState extends State<Foodhome> {
                       Padding(
                         padding: const EdgeInsets.only(left: 10.0),
                         child: Text(
-                          'Delivery in ${widget.deliverytime}',
+                          'Delivery in ${widget.joint.deliveryTime}',
                           style: GoogleFonts.manrope(
                               fontWeight: FontWeight.w600, fontSize: 12),
                         ),
@@ -216,7 +148,7 @@ class _FoodhomeState extends State<Foodhome> {
   jointMenuOptionTile() {
     return StreamBuilder<QuerySnapshot>(
         stream:
-            menuRef.doc(widget.jointid).collection('categories').snapshots(),
+            menuRef.doc(widget.joint.jointID).collection('categories').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const SizedBox();
@@ -278,7 +210,7 @@ class _FoodhomeState extends State<Foodhome> {
   jointMenu() {
     return StreamBuilder<QuerySnapshot>(
         stream: menuRef
-            .doc(widget.jointid)
+            .doc(widget.joint.jointID)
             .collection('categories')
             .doc(optionpage)
             .collection('options')
@@ -290,8 +222,8 @@ class _FoodhomeState extends State<Foodhome> {
 
           List<OptionsTile> optionslist = [];
           for (var doc in snapshot.data!.docs) {
-            optionslist.add(OptionsTile.fromDocument(doc, widget.school,
-                widget.jointid, optionpage, widget.user, jointmenuoption.name));
+            optionslist.add(OptionsTile.fromDocument(doc, widget.joint.school,
+                widget.joint.jointID, optionpage, widget.joint.user, jointmenuoption.name));
           }
           return Column(
             children: optionslist,
@@ -302,9 +234,9 @@ class _FoodhomeState extends State<Foodhome> {
   itemInCart() {
     return StreamBuilder<QuerySnapshot>(
         stream: foodCartRef
-            .doc(widget.user)
+            .doc(widget.joint.user)
             .collection('Orders')
-            .where('shopid', isEqualTo: widget.jointid)
+            .where('shopid', isEqualTo: widget.joint.jointID)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -355,9 +287,9 @@ class _FoodhomeState extends State<Foodhome> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => FoodBag(
-                                shopid: widget.jointid,
-                                user: widget.user,
-                                schoolname: widget.school,
+                                shopid: widget.joint.jointID,
+                                user: widget.joint.user,
+                                schoolname: widget.joint.school,
                               ),
                             ));
                       }),
@@ -378,7 +310,7 @@ class _FoodhomeState extends State<Foodhome> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 4.0),
-                                child: Text(widget.jointname,
+                                child: Text(widget.joint.name,
                                     style: GoogleFonts.manrope(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
@@ -411,7 +343,9 @@ class _FoodhomeState extends State<Foodhome> {
         elevation: 0,
         actions: [
           IconButton(
-              onPressed: updatefavourites,
+              onPressed: (){
+
+              },
               icon: Icon(
                 Icons.favorite_outline,
                 color: isliked == true ? kPrimary : Colors.black,

@@ -1,17 +1,13 @@
 import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/events/eventshome.dart';
-import 'package:fairstores/food/foodtile.dart';
 import 'package:fairstores/providers/favoriteFoodsProvider.dart';
 import 'package:fairstores/providers/getFavoriteEvents.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customEventTile.dart';
 import 'package:fairstores/widgets/customFoodTile.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 final currentPage = StateProvider<String>((ref) => "food");
 
@@ -147,28 +143,10 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black,
-            size: 16,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: CustomText(
-          text: 'Favorites',
-          fontSize: 16,
-          color: Colors.black,
-          isMediumWeight: true,
-        )
+      appBar: CustomAppBar(
+        title: 'Favorites'
       ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: Column(
         children: [
           Center(
             child: GestureDetector(
@@ -241,9 +219,11 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
               ),
             ),
           ),
-          pagetoggle(_currentPage)
+          Expanded(
+            child: pagetoggle(_currentPage)
+          )
         ],
-      )),
+      ),
     );
   }
 }
