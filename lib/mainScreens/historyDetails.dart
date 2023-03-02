@@ -1,38 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodhome.dart';
-import 'package:fairstores/food/foodtile.dart';
+import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/whatsappchat.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class HistoryFoodDetail extends StatefulWidget {
-  final JointModel foodTile;
-  final String user;
-  final String deliverylocation;
-  final String school;
-  final dynamic ordertotal;
-  final List orderdetails;
-  final String status;
+class HistoryDetails extends StatefulWidget {
+  final HistoryModel history;
 
-  const HistoryFoodDetail(
-      {Key? key,
-      required this.orderdetails,
-      required this.deliverylocation,
-      required this.status,
-      required this.foodTile,
-      required this.ordertotal,
-      required this.school,
-      required this.user})
-      : super(key: key);
+  const HistoryDetails({
+    Key? key,
+    required this.history,
+  }) : super(key: key);
 
   @override
-  State<HistoryFoodDetail> createState() => _HistoryFoodDetailState();
+  State<HistoryDetails> createState() => _HistoryDetailsState();
 }
 
-class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
+class _HistoryDetailsState extends State<HistoryDetails> {
   dynamic delivery = 0;
   String deliverytime = '';
   double taxes = 0;
@@ -57,8 +44,8 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
 
   getdeliveryprice() async {
     JointModel food = await JointModel.getDeliveryPrice(
-      school: widget.school,
-      foodID: widget.foodTile.jointID,
+      school: widget.history.school,
+      foodID: widget.history.joint!.jointID,
       userID: ""
     );
 
@@ -70,57 +57,56 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
 
   orderheader() {
     return Padding(
-        padding: const EdgeInsets.only(top: 24.0, left: 20),
-        child: ListTile(
-            subtitle: Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 12,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Text(
-                    widget.foodTile.location,
-                    style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w600, fontSize: 12),
-                  ),
-                ),
-              ],
+      padding: const EdgeInsets.only(top: 24.0, left: 20),
+      child: ListTile(
+        subtitle: Row(
+          children: [
+            const Icon(
+              Icons.location_on_outlined,
+              size: 12,
             ),
-            leading: CircleAvatar(
-              backgroundColor: kPrimary,
-              radius: 25,
-              backgroundImage: NetworkImage(widget.foodTile.headerImage),
-            ),
-            trailing: IconButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: ((context) => Foodhome(
-                  //             deliverytime: widget.foodTile.deliveryTime,
-                  //             rating: widget.foodTile.rating,
-                  //             jointid: widget.foodTile.jointID,
-                  //             school: widget.school,
-                  //             favourites: widget.foodTile.favourites,
-                  //             user: widget.user,
-                  //             logo: widget.foodTile.logo,
-                  //             headerImage: widget.foodTile.headerImage,
-                  //             jointname: widget.foodTile.name,
-                  //             location: widget.foodTile.location))));
-                },
-                icon: const Icon(Icons.arrow_forward_ios)),
-            title: Text(widget.foodTile.name,
-                style: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                ))));
+            SizedBox(width: 5.0,),
+            CustomText(
+              text: widget.history.joint!.location,
+              fontSize: 12,
+              isMediumWeight: true,
+            )
+          ],
+        ),
+        leading: CircleAvatar(
+          backgroundColor: kPrimary,
+          radius: 25,
+          backgroundImage: NetworkImage(
+            widget.history.joint!.headerImage
+          ),
+        ),
+        trailing: IconButton(
+          onPressed: () {
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => Foodhome(
+            //         joint: widget.history.joint
+            //     )
+            //   )
+            // );
+          },
+          icon: const Icon(
+            Icons.arrow_forward_ios
+          )
+        ),
+        title: CustomText(
+          text: widget.history.joint!.name,
+          fontSize: 18,
+          isBold: true
+        )
+      )
+    );
   }
 
   orderdetails() {
     List<Row> receipt = [];
-    for (var element in widget.orderdetails) {
+    for (var element in widget.history.orderDetails) {
       receipt.add(Row(
         children: [
           Flexible(
@@ -183,7 +169,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                   Center(
                       child: Padding(
                     padding: const EdgeInsets.only(left: 20.0),
-                    child: Text('Order Cost: GHS ${widget.ordertotal}',
+                    child: Text('Order Cost: GHS ${widget.history.total}',
                         style: GoogleFonts.manrope(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -195,7 +181,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 20.0, top: 8),
-            child: Text('Order Status: ${widget.status}',
+            child: Text('Order Status: ${widget.history.status}',
                 style: GoogleFonts.manrope(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -221,7 +207,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                     color: Colors.black,
                   ),
                 ),
-                Text(widget.deliverylocation,
+                Text(widget.history.deliveryLocation,
                     style: GoogleFonts.manrope(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -286,7 +272,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                       fontSize: 16,
                     )),
                 Expanded(child: const SizedBox()),
-                Text('GHS ${servicecharge * widget.ordertotal}',
+                Text('GHS ${servicecharge * widget.history.total}',
                     style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
@@ -304,7 +290,7 @@ class _HistoryFoodDetailState extends State<HistoryFoodDetail> {
                       fontSize: 18,
                     )),
                 Expanded(child: SizedBox()),
-                Text('GHS ${widget.ordertotal}',
+                Text('GHS ${widget.history.total}',
                     style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w700,
                       fontSize: 18,

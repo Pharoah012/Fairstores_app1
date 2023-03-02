@@ -1,38 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/main.dart';
+import 'package:fairstores/models/eventHistoryModel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EventHistory extends StatefulWidget {
-  final String orderid;
-  final String orderdetails;
-  final int quantity;
-  final dynamic total;
-  final Timestamp timestamp;
-  final String deliverylocation;
-  final String confirmationid;
-  final String paymentStatus;
-  final String eventimage;
-  final String status;
-  final String tickettype;
-  final String eventid;
+  final EventHistoryModel eventHistoryItem;
 
-  const EventHistory(
-      {Key? key,
-      required this.eventimage,
-      required this.confirmationid,
-      required this.eventid,
-      required this.orderdetails,
-      required this.orderid,
-      required this.quantity,
-      required this.total,
-      required this.deliverylocation,
-      required this.paymentStatus,
-      required this.status,
-      required this.tickettype,
-      required this.timestamp})
-      : super(key: key);
+  const EventHistory({
+    Key? key,
+    required this.eventHistoryItem
+  }) : super(key: key);
 
   @override
   _EventHistoryState createState() => _EventHistoryState();
@@ -49,7 +28,7 @@ class _EventHistoryState extends State<EventHistory> {
               child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: CachedNetworkImage(
-              imageUrl: widget.eventimage,
+              imageUrl: widget.eventHistoryItem.eventimage,
               height: 131,
               width: MediaQuery.of(context).size.width * 0.9,
               fit: BoxFit.cover,
@@ -59,7 +38,7 @@ class _EventHistoryState extends State<EventHistory> {
         Padding(
           padding: const EdgeInsets.only(left: 10.0, right: 10, top: 12),
           child: Text(
-            widget.orderdetails,
+            widget.eventHistoryItem.orderdetails,
             style:
                 GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700),
             overflow: TextOverflow.ellipsis,
@@ -98,7 +77,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    widget.deliverylocation,
+                    widget.eventHistoryItem.deliverylocation,
                     style: GoogleFonts.manrope(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -120,7 +99,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    '${widget.timestamp.toDate().day}-${widget.timestamp.toDate().month}-${widget.timestamp.toDate().year}',
+                    '${widget.eventHistoryItem.timestamp.toDate().day}-${widget.eventHistoryItem.timestamp.toDate().month}-${widget.eventHistoryItem.timestamp.toDate().year}',
                     style: GoogleFonts.manrope(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -138,7 +117,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    '${widget.timestamp.toDate().hour}:${widget.timestamp.toDate().minute}',
+                    '${widget.eventHistoryItem.timestamp.toDate().hour}:${widget.eventHistoryItem.timestamp.toDate().minute}',
                     style: GoogleFonts.manrope(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -160,7 +139,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    widget.quantity.toString(),
+                    widget.eventHistoryItem.quantity.toString(),
                     style: GoogleFonts.manrope(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -178,7 +157,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    widget.status,
+                    widget.eventHistoryItem.status,
                     style: GoogleFonts.manrope(
                         color: const Color(0xff1F8B24),
                         fontSize: 14,
@@ -202,7 +181,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    'GHS ${widget.total.toString()}',
+                    'GHS ${widget.eventHistoryItem.total.toString()}',
                     style: GoogleFonts.manrope(
                         fontSize: 14, fontWeight: FontWeight.w600),
                   ),
@@ -220,7 +199,7 @@ class _EventHistoryState extends State<EventHistory> {
                         fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   Text(
-                    widget.confirmationid,
+                    widget.eventHistoryItem.confirmationid,
                     style: GoogleFonts.manrope(
                         color: const Color(0xff1F8B24),
                         fontSize: 14,
@@ -319,7 +298,7 @@ class _EventHistoryState extends State<EventHistory> {
                     padding: const EdgeInsets.only(top: 20.0, left: 20),
                     child: Row(
                       children: [
-                        Text('Ticket ID:${widget.orderid.substring(1, 12)}'),
+                        Text('Ticket ID:${widget.eventHistoryItem.orderid.substring(1, 12)}'),
                       ],
                     ),
                   ),

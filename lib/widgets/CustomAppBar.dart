@@ -10,11 +10,13 @@ class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget
   final String? title;
   final bool isDropdown;
   final StateProvider<String>? currentLocationProvider;
+  final bool isCenter;
 
   const CustomAppBar({
     Key? key,
     this.title,
     this.isDropdown = false,
+    this.isCenter = true,
     this.currentLocationProvider
   }) : super(key: key);
 
@@ -38,7 +40,9 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
 
     return widget.isDropdown
       ? dropdownAppBar()
-      : standardAppBar();
+      : !widget.isCenter
+        ? leftSidedHeader()
+        : standardAppBar();
   }
 
   Widget dropdownAppBar(){
@@ -152,6 +156,20 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
         isMediumWeight: true,
       ),
       centerTitle: true,
+    );
+  }
+
+  Widget leftSidedHeader(){
+    return AppBar(
+      automaticallyImplyLeading: false,
+      elevation: 0,
+      title: CustomText(
+        text: widget.title!,
+        color: kBlack,
+        fontSize: 22,
+        isMediumWeight: true,
+      ),
+      centerTitle: false,
     );
   }
 }

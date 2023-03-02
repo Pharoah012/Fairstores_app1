@@ -1,28 +1,17 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
+import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/sendnotification.dart';
 import 'package:fairstores/backend/tokenmodel.dart';
-import 'package:fairstores/events/ticketsuccessful.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/vieworder.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/payment_api.dart';
 import 'package:fairstores/models/schoolmodel.dart';
-import 'package:fairstores/main.dart';
 import 'package:fairstores/splashscreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -72,8 +61,8 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   TextEditingController instructioncontroller = TextEditingController();
   late UserModel userModel;
   String network = '';
-  List<String> orderdetails = [];
-  String orderid = const Uuid().v4();
+  List<String> orderDetails = [];
+  String orderID = const Uuid().v4();
   List<String> tokens = [];
 
   @override
@@ -168,7 +157,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
             ));
           }
 
-          this.orderdetails = orderdetails;
+          this.orderDetails = orderdetails;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -666,20 +655,19 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     e.reference.delete();
                   }
 
-                  transactionsRef.doc(orderid).set({
-                    'orderid': orderid,
-                    'shopid': widget.shopid,
-                    'school': widget.school,
-                    'orderdetails': orderdetails,
-                    'total': widget.total,
-                    'paymentStatus': 'Pending',
-                    'paymentStatusDetails': paybox.transaction,
-                    'status': 'active',
-                    'deliverylocation': widget.school,
-                    'instructions': instructioncontroller.text,
-                    'userid': widget.userid,
-                    'timestamp': DateTime.now()
-                  });
+                  HistoryModel history = HistoryModel(
+                    deliveryLocation: widget.school,
+                    orderID: orderID,
+                    orderDetails: orderDetails,
+                    user: widget.userid,
+                    school: widget.school,
+                    status: 'active',
+                    shopID: widget.shopid,
+                    total: widget.total,
+                    timestamp: Timestamp.fromDate(DateTime.now())
+                  );
+
+                  await history.addItemToHistory();
 
                   Navigator.push(
                       context,
@@ -687,7 +675,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                         builder: (context) => ViewOrder(
                           userid: widget.userid,
                           total: widget.total,
-                          orderid: orderid,
+                          orderid: orderID,
                           taxes: widget.taxes,
                           deliveryfee: widget.deliveryfee,
                           servicecharge: widget.servicecharge,
@@ -708,7 +696,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   }
 
   upload(parentcontext) {
-    print(orderdetails);
+    print(orderDetails);
     showDialog(
         context: parentcontext,
         builder: (context) {
@@ -726,11 +714,11 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                         style: GoogleFonts.manrope())),
                 SimpleDialogOption(
                   onPressed: () async {
-                    transactionsRef.doc(orderid).set({
-                      'orderid': orderid,
+                    transactionsRef.doc(orderID).set({
+                      'orderid': orderID,
                       'shopid': widget.shopid,
                       'school': widget.school,
-                      'orderdetails': orderdetails,
+                      'orderdetails': orderDetails,
                       'total': widget.total,
                       'paymentStatus': 'Cash',
                       'status': 'active',
@@ -748,7 +736,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                         MaterialPageRoute(
                           builder: (context) => ViewOrder(
                             userid: widget.userid,
-                            orderid: orderid,
+                            orderid: orderID,
                             total: widget.total,
                             taxes: widget.taxes,
                             deliveryfee: widget.deliveryfee,
@@ -857,11 +845,11 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     content: Text(
                         'Pop Up not initialized. Please Wait or Try again')));
               } else if (confirm.status == 'Success') {
-                transactionsRef.doc(orderid).set({
-                  'orderid': orderid,
+                transactionsRef.doc(orderID).set({
+                  'orderid': orderID,
                   'shopid': widget.shopid,
                   'school': widget.school,
-                  'orderdetails': orderdetails,
+                  'orderdetails': orderDetails,
                   'total': widget.total,
                   'paymentStatus': confirm.status,
                   'status': 'active',
@@ -880,7 +868,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
                     MaterialPageRoute(
                       builder: (context) => ViewOrder(
                         userid: widget.userid,
-                        orderid: orderid,
+                        orderid: orderID,
                         total: widget.total,
                         taxes: widget.taxes,
                         deliveryfee: widget.deliveryfee,

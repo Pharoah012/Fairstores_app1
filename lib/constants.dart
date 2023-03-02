@@ -18,6 +18,7 @@ const Color kDisabledBorderColor = Color(0xffD1D5DB);
 
 
 // ------------- Firestore References ----------------
+final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
 final schoolRef = FirebaseFirestore.instance.collection('Schools');
 final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
 final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
@@ -25,7 +26,5 @@ final sideOptions = FirebaseFirestore.instance.collection('FoodSideOptions');
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
 final eventsContentRef = FirebaseFirestore.instance.collection('EventsContent');
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
-final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
 final eventhistoryRef = FirebaseFirestore.instance.collection('Eventshistory');
-final historyRef = FirebaseFirestore.instance.collection('History');
 final eventTicketsPurchaseRef = FirebaseFirestore.instance.collection('EventsTicketPurchases');
