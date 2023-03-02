@@ -5,8 +5,6 @@ final eventsRef = FirebaseFirestore.instance.collection('EventsPrograms');
 
 class EventModel{
   final String eventname;
-  final String user;
-  final String school;
   final String eventmonth;
   final String eventdescription;
   final String eventheaderimage;
@@ -37,8 +35,6 @@ class EventModel{
     required this.eventdateday,
     required this.issellingtickets,
     required this.eventheaderimage,
-    required this.user,
-    required this.school,
     required this.lockevent,
     required this.eventprice,
     required this.eventdate,
@@ -56,10 +52,8 @@ class EventModel{
     required this.timeend
   });
 
-  factory EventModel.fromDocument(DocumentSnapshot doc, school, user) {
+  factory EventModel.fromDocument(DocumentSnapshot doc) {
     return EventModel(
-      user: user,
-      school: school,
       issellingtickets: doc.get('issellingticket'),
       physicalticket: doc.get('physicalticket_available'),
       eticket: doc.get('eticket_available'),
@@ -96,7 +90,7 @@ class EventModel{
 
     List<EventModel> eventList = snapshot.docs
         .map((doc) =>
-        EventModel.fromDocument(doc, school, userID))
+        EventModel.fromDocument(doc))
         .toList();
 
     return eventList;
@@ -117,7 +111,7 @@ class EventModel{
 
     List<EventModel> eventList = snapshot.docs
         .map((doc) =>
-        EventModel.fromDocument(doc, school, userID))
+        EventModel.fromDocument(doc))
         .toList();
 
     return eventList;

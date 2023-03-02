@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/models/schoolmodel.dart';
+import 'package:fairstores/models/schoolModel.dart';
 import 'package:fairstores/providers/dropdown_provider.dart';
 import 'package:fairstores/widgets/customDropdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

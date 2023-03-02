@@ -5,8 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
 
 class JointModel{
-  final String user;
-  final String school;
   final String name;
   final int price;
   final double rating;
@@ -32,9 +30,7 @@ class JointModel{
     required this.location,
     required this.lockshop,
     required this.favouritescount,
-    required this.school,
     required this.category,
-    required this.user,
     required this.name,
     required this.jointID,
     required this.favourites,
@@ -45,8 +41,6 @@ class JointModel{
 
   factory JointModel.fromDocument(DocumentSnapshot doc, user, school) {
     JointModel model = JointModel(
-        school: school,
-        user: user,
         deliveryAvailable: doc.get('delivery_available'),
         pickupAvailable: doc.get('pickup_available'),
         rating: doc.get('foodjoint_ratings'),
@@ -208,21 +202,24 @@ class JointModel{
     return JointModel.fromDocument(doc, userID, school);
   }
 
-  Future<bool> updateFavorites() async{
+  Future<bool> updateFavorites({
+    required String userID,
+    required String school
+  }) async{
 
     // check if the user has favorited the food
     // and remove them from list of favorites
     if (this.isFavorite){
-      this.favourites.remove(user);
+      this.favourites.remove(userID);
     }
     else{
       // add the user to the favorites
-      this.favourites.add(user);
+      this.favourites.add(userID);
     }
 
     // update the favorites list in firestore
     await jointsRef
-      .doc(this.school)
+      .doc(school)
       .collection('Joints')
       .doc(this.jointID)
       .update({'foodjoint_favourites': this.favourites});

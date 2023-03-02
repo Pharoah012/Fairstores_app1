@@ -14,7 +14,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketsuccessful.dart';
-import 'package:fairstores/models/schoolmodel.dart';
+import 'package:fairstores/models/schoolModel.dart';
 import 'package:fairstores/main.dart';
 import 'package:fairstores/splashscreen.dart';
 import 'package:flutter/material.dart';
@@ -31,16 +31,12 @@ class TicketPurchase extends StatefulWidget {
   final String eventid;
   final String eventpic;
   final String eventname;
-  final String school;
-  final String userid;
 
   const TicketPurchase(
       {Key? key,
       required this.eventpic,
       required this.price,
-      required this.school,
       required this.eventname,
-      required this.userid,
       required this.eventid,
       required this.eticketavailable,
       required this.physicalticketavailable})

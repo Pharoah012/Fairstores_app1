@@ -300,8 +300,6 @@ class _EventDetailsState extends State<EventDetails> {
                       physicalticketavailable: widget.event.physicalticket,
                       price: widget.event.eventprice,
                       eventid: widget.event.eventid,
-                      userid: "widget.event.userid",
-                      school: widget.event.school,
                     ),
                   ));
             },

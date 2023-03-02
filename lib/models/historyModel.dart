@@ -30,10 +30,10 @@ class HistoryModel{
 
   });
 
-  factory HistoryModel.fromDocument(DocumentSnapshot doc, user, school) {
+  factory HistoryModel.fromDocument(DocumentSnapshot doc) {
     HistoryModel history = HistoryModel(
-        user: user,
-        school: school,
+        user: doc.get("userid"),
+        school: doc.get("school"),
         shopID: doc.get('shopid'),
         deliveryLocation: doc.get('deliverylocation'),
         orderDetails: doc.get('orderdetails'),
@@ -45,9 +45,9 @@ class HistoryModel{
 
     // get the joint of the history object
     JointModel.getShop(
-      school: school,
+      school: history.school,
       shopID: history.shopID,
-      userID: user
+      userID: history.user
     ).then((value) {
       history.joint = value;
     });
@@ -59,13 +59,13 @@ class HistoryModel{
 
   Map<String, dynamic> toJson() {
     return {
-      "deliveryLocation": this.deliveryLocation,
-      "orderID": this.orderID,
-      "orderDetails": this.orderDetails,
-      "user": this.user,
+      "deliverylocation": this.deliveryLocation,
+      "orderid": this.orderID,
+      "orderDdtails": this.orderDetails,
+      "userid": this.user,
       "school": this.school,
       "status": this.status,
-      "shopID": this.shopID,
+      "shopid": this.shopID,
       "total": this.total,
       "timestamp": this.timestamp,
     };
@@ -84,7 +84,7 @@ class HistoryModel{
         .get();
 
     List<HistoryModel> activeOrders = snapshot.docs
-        .map((doc) => HistoryModel.fromDocument(doc, userID, school))
+        .map((doc) => HistoryModel.fromDocument(doc))
         .toList();
 
     return activeOrders;
@@ -100,7 +100,7 @@ class HistoryModel{
         .get();
 
     List<HistoryModel> activeOrders = snapshot.docs
-        .map((doc) => HistoryModel.fromDocument(doc, userID, school))
+        .map((doc) => HistoryModel.fromDocument(doc))
         .toList();
 
     return activeOrders;

@@ -11,7 +11,7 @@ import 'package:fairstores/food/vieworder.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/payment_api.dart';
-import 'package:fairstores/models/schoolmodel.dart';
+import 'package:fairstores/models/schoolModel.dart';
 import 'package:fairstores/splashscreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

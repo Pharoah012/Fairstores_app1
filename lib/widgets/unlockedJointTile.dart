@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodhome.dart';
 import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,7 @@ class _UnlockedFoodTileState extends ConsumerState<UnlockedJointTile> {
   @override
   Widget build(BuildContext context) {
     final isFavorite = ref.watch(_favoriteProvider);
+    final user = ref.watch(userProvider);
 
     return Column(
       children: [
@@ -69,7 +71,10 @@ class _UnlockedFoodTileState extends ConsumerState<UnlockedJointTile> {
                   try{
 
                     // update the favorite status of this item
-                    bool updateFavorite = await widget.joint.updateFavorites();
+                    bool updateFavorite = await widget.joint.updateFavorites(
+                      userID: user.uid,
+                      school: user.school!
+                    );
 
                     ref.read(_favoriteProvider.notifier).state = updateFavorite;
                   }

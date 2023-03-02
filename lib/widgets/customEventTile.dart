@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/eventspage.dart';
 import 'package:fairstores/models/eventModel.dart';
