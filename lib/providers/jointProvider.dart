@@ -1,8 +1,9 @@
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tuple/tuple.dart';
 
-final jointProvider = FutureProvider.family<List<JointModel>, Map<String, String>?>(
+final jointProvider = FutureProvider.autoDispose.family<List<JointModel>, Tuple2?>(
   (ref, jointFilter) async {
 
     if (jointFilter == null){
@@ -14,14 +15,14 @@ final jointProvider = FutureProvider.family<List<JointModel>, Map<String, String
     }
 
     return await JointModel.getJoints(
-        school: jointFilter['school']!,
-        category: jointFilter['category']!,
+        school: jointFilter.item1,
+        category: jointFilter.item2,
         userID: ref.read(userProvider).uid
     );
   }
 );
 
-final bestSellersProvider = FutureProvider.family<List<JointModel>, Map<String, String>?>(
+final bestSellersProvider = FutureProvider.autoDispose.family<List<JointModel>, Map<String, String>?>(
         (ref, jointFilter) async {
 
       if (jointFilter == null){

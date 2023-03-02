@@ -42,32 +42,36 @@ class _SearchState extends ConsumerState<Search> {
     super.initState();
   }
 
-  final foodResultsProvider = FutureProvider.family.autoDispose<List<JointModel>, String>(
-          (ref, searchValue) async {
-        UserModel user = ref.read(userProvider);
-        return await JointModel.getSearchResults(
-            school: user.school!,
-            searchValue: searchValue,
-            userID: user.uid
-        );
-      });
+  final foodResultsProvider = FutureProvider.autoDispose.family<List<JointModel>, String>(
+    (ref, searchValue) async {
+      UserModel user = ref.read(userProvider);
+      return await JointModel.getSearchResults(
+          school: user.school!,
+          searchValue: searchValue,
+          userID: user.uid
+      );
+  });
 
-  final eventResultsProvider = FutureProvider.family.autoDispose<List<EventModel>, String>(
-          (ref, searchValue) async {
-        UserModel user = ref.read(userProvider);
-        return await EventModel.getSearchResults(
-            school: user.school!,
-            searchValue: searchValue,
-            userID: user.uid
-        );
-      });
+  final eventResultsProvider = FutureProvider.autoDispose.family<List<EventModel>, String>(
+    (ref, searchValue) async {
+      UserModel user = ref.read(userProvider);
+      return await EventModel.getSearchResults(
+          school: user.school!,
+          searchValue: searchValue,
+          userID: user.uid
+      );
+  });
 
 
   // show the results respectice to the selected page
   Widget pageToggle(page) {
 
     if (page == 'food') {
-      final jointResults = ref.watch(foodResultsProvider(ref.read(_searchProvider)));
+      final jointResults = ref.watch(
+        foodResultsProvider(
+          ref.read(_searchProvider)
+        )
+      );
 
       return jointResults.when(
         data: (data){
@@ -83,9 +87,12 @@ class _SearchState extends ConsumerState<Search> {
             itemCount: data.length,
             shrinkWrap: true,
             itemBuilder: (context, index){
-              return data[index].lockshop
-                  ? LockedJointTile(joint: data[index])
-                  : UnlockedJointTile(joint: data[index]);
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: data[index].lockshop
+                    ? LockedJointTile(joint: data[index])
+                    : UnlockedJointTile(joint: data[index]),
+              );
             }
           );
         },
@@ -250,23 +257,17 @@ class _SearchState extends ConsumerState<Search> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Center(
-                child: SizedBox(
-                  height: 43,
-                  width: 335,
-                  child: CustomSearchField(
-                    controller: _searchController,
-                    onSubmitted: (value) {
-                      _searchController.text = value.trim();
-                      ref.read(_searchProvider.notifier).state = value.trim();
-                    },
-                    autofocus: widget.searchValue == null
-                      ? true
-                      : false,
-                    iconColor: kPrimary,
-                  )
-                ),
+              padding: const EdgeInsets.all(20.0),
+              child: CustomSearchField(
+                controller: _searchController,
+                onSubmitted: (value) {
+                  _searchController.text = value.trim();
+                  ref.read(_searchProvider.notifier).state = value.trim();
+                },
+                autofocus: widget.searchValue == null
+                  ? true
+                  : false,
+                iconColor: kPrimary,
               ),
             ),
             Expanded(

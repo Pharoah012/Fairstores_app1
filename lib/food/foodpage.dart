@@ -6,7 +6,6 @@ import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/adsProvider.dart';
 import 'package:fairstores/providers/categoryProvider.dart';
 import 'package:fairstores/providers/jointProvider.dart';
-import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/adTile.dart';
@@ -17,7 +16,7 @@ import 'package:fairstores/widgets/lockedJointTile.dart';
 import 'package:fairstores/widgets/unlockedJointTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:tuple/tuple.dart';
 
 final _selectedSchoolProvider = StateProvider<String>(
   (ref) => ref.read(userProvider).school!
@@ -44,8 +43,6 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     });
 
     super.initState();
-    // //getbestsellers();
-    // // getjoints();
   }
 
   Widget getCategories() {
@@ -121,10 +118,11 @@ class _FoodPageState extends ConsumerState<FoodPage> {
       joints = ref.watch(jointProvider(null));
     }
     else{
-      joints = ref.watch(jointProvider({
-        "school": ref.read(_selectedSchoolProvider),
-        "category": ref.read(_selectedCategoryProvider)
-      }));
+      Tuple2 filter = Tuple2<String, String>(
+          ref.read(_selectedSchoolProvider),
+          ref.read(_selectedCategoryProvider)
+      );
+      joints = ref.watch(jointProvider(filter));
     }
 
     return joints.when(
@@ -173,16 +171,17 @@ class _FoodPageState extends ConsumerState<FoodPage> {
       joints = ref.watch(bestSellersProvider(null));
     }
     else{
-      joints = ref.watch(bestSellersProvider({
-        "school": ref.read(_selectedSchoolProvider),
-        "category": ref.read(_selectedCategoryProvider)
-      }));
+
+      Tuple2 filter = Tuple2<String, String>(
+          ref.read(_selectedSchoolProvider),
+          ref.read(_selectedCategoryProvider)
+      );
+
+      joints = ref.watch(jointProvider(filter));
     }
 
     return joints.when(
         data: (data){
-
-          log(data.length.toString());
 
           if (data.isEmpty){
             return SizedBox.shrink();

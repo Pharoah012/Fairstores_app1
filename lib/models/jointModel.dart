@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
@@ -111,6 +113,8 @@ class JointModel{
 
     late QuerySnapshot snapshot;
 
+    // log(category);
+
     if (category == "All"){
       snapshot = await jointsRef
         .doc(school)
@@ -159,10 +163,13 @@ class JointModel{
     required String searchValue,
     required String userID
   }) async {
+
     QuerySnapshot snapshot = await jointsRef
         .doc(school)
         .collection('Joints')
-        .where('foodjoint_name', isGreaterThanOrEqualTo: searchValue)
+        .orderBy("foodjoint_name")
+        .startAt([searchValue])
+        .endAt([searchValue + '\uf8ff'])
         .get();
 
     List<JointModel> jointList = snapshot.docs

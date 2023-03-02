@@ -110,7 +110,9 @@ class EventModel{
     QuerySnapshot snapshot = await eventsRef
         .doc(school)
         .collection('events')
-        .where('eventname', isGreaterThanOrEqualTo: searchValue)
+        .orderBy("eventname")
+        .startAt([searchValue])
+        .endAt([searchValue + '\uf8ff'])
         .get();
 
     List<EventModel> eventList = snapshot.docs
