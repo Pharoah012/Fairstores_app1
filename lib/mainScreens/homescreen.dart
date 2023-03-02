@@ -113,6 +113,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         loading: () => log("loading joints")
     );
 
+    // load the joints
+    final bestSellers = ref.watch(bestSellersProvider(null));
+
+    bestSellers.when(
+        data: (data) => log("loaded joints"),
+        error: (_, err) => log(err.toString()),
+        loading: () => log("loading joints")
+    );
+
 
 
     return WillPopScope(

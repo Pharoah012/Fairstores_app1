@@ -103,6 +103,39 @@ class JointModel{
     return jointList;
   }
 
+  static Future<List<JointModel>> getBestSellers({
+    required String school,
+    required String category,
+    required String userID
+  }) async {
+
+    late QuerySnapshot snapshot;
+
+    if (category == "All"){
+      snapshot = await jointsRef
+        .doc(school)
+        .collection('Joints')
+        .orderBy('foodjoint_favourite_count', descending: true)
+        .limit(4)
+        .get();
+    }
+    else{
+      snapshot = await jointsRef
+        .doc(school)
+        .collection('Joints')
+        .where('categoryid', isEqualTo: category)
+        .orderBy('foodjoint_favourite_count', descending: true)
+        .limit(4)
+        .get();
+    }
+
+    List<JointModel>  jointList = snapshot.docs
+        .map((doc) => JointModel.fromDocument(doc, userID, school))
+        .toList();
+
+    return jointList;
+  }
+
   static Future<List<JointModel>> getFavoriteJoints({
     required String school,
     required String userID
