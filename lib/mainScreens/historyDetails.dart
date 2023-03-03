@@ -1,5 +1,5 @@
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodhome.dart';
+import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/whatsappchat.dart';
@@ -52,7 +52,7 @@ class _HistoryDetailsState extends ConsumerState<HistoryDetails> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Foodhome(
+              builder: (context) => FoodDetails(
                 joint: widget.history.joint!
               )
             )

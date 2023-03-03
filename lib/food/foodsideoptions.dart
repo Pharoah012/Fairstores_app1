@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 
+final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
+
 class FoodOptions extends StatefulWidget {
   final String mealheader;
   final String mealname;

@@ -1,3 +1,4 @@
+import 'package:fairstores/models/JointMenuOption.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

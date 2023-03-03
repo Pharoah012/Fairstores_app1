@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodhome.dart';
+import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -46,7 +46,7 @@ class _UnlockedFoodTileState extends ConsumerState<UnlockedJointTile> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => Foodhome(
+                builder: (context) => FoodDetails(
                   joint: widget.joint
                 )
               )

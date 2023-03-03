@@ -1,7 +1,12 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/models/JointMenuOption.dart';
+import 'package:fairstores/models/jointMenuItemModel.dart';
+import 'package:fairstores/models/jointMenuItemModel.dart';
+import 'package:fairstores/models/jointMenuItemModel.dart';
 
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
+final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
 
 class JointModel{
   final String name;
@@ -35,25 +40,25 @@ class JointModel{
     required this.favourites,
     required this.deliveryTime,
     required this.price,
-    this.isFavorite = false
+    this.isFavorite = false,
   });
 
   factory JointModel.fromDocument(DocumentSnapshot doc, String userID) {
     JointModel model = JointModel(
-        deliveryAvailable: doc.get('delivery_available'),
-        pickupAvailable: doc.get('pickup_available'),
-        rating: doc.get('foodjoint_ratings'),
-        logo: doc.get('foodjoint_logo'),
-        headerImage: doc.get('foodjoint_header'),
-        location: doc.get('foodjoint_location'),
-        lockshop: doc.get('lockshop'),
-        favouritescount: doc.get('foodjoint_favourite_count'),
-        category: doc.get('categoryid'),
-        jointID: doc.get('foodjoint_id'),
-        favourites: doc.get('foodjoint_favourites'),
-        name: doc.get("foodjoint_name"),
-        deliveryTime: doc.get('foodjoint_deliverytime'),
-        price: doc.get('foodjoint_price')
+      deliveryAvailable: doc.get('delivery_available'),
+      pickupAvailable: doc.get('pickup_available'),
+      rating: doc.get('foodjoint_ratings'),
+      logo: doc.get('foodjoint_logo'),
+      headerImage: doc.get('foodjoint_header'),
+      location: doc.get('foodjoint_location'),
+      lockshop: doc.get('lockshop'),
+      favouritescount: doc.get('foodjoint_favourite_count'),
+      category: doc.get('categoryid'),
+      jointID: doc.get('foodjoint_id'),
+      favourites: doc.get('foodjoint_favourites'),
+      name: doc.get("foodjoint_name"),
+      deliveryTime: doc.get('foodjoint_deliverytime'),
+      price: doc.get('foodjoint_price'),
     );
 
     // check if the user has favorited this item
@@ -173,6 +178,52 @@ class JointModel{
     return jointList;
   }
 
+  // Get the Joint's menu
+  Future<List<JointMenuOptionModel>> getMenuOptions() async {
+
+    QuerySnapshot snapshot = await menuRef
+      .doc(this.jointID)
+      .collection('categories')
+      .get();
+
+    List<JointMenuOptionModel> menu = snapshot.docs
+      .map(
+      (doc) => JointMenuOptionModel.fromDocument(doc)).toList();
+
+    return menu;
+  }
+
+  // Get the Joint's menu
+  Future<List<JointMenuItemModel>> getMenuOptionItems({
+    required String menuOption
+  }) async {
+
+    log(menuOption);
+
+    if (menuOption.isNotEmpty){
+
+      QuerySnapshot snapshot = await menuRef
+          .doc(this.jointID)
+          .collection('categories')
+          .doc(menuOption)
+          .collection('options')
+          .get();
+
+      List<JointMenuItemModel> menuItems = snapshot.docs
+          .map(
+              (doc) => JointMenuItemModel.fromDocument(doc)).toList();
+
+      return menuItems;
+
+    }
+
+    return [];
+
+
+  }
+
+
+
   static Future<JointModel> getDeliveryPrice({
     required String school,
     required String foodID,
@@ -216,6 +267,8 @@ class JointModel{
       this.favourites.add(userID);
     }
 
+    //TODO: REMOVE THE FAVORITES COUNT
+
     // update the favorites list in firestore
     await jointsRef
       .doc(school)
@@ -228,5 +281,7 @@ class JointModel{
 
     return this.isFavorite;
   }
+
+
 
 }
