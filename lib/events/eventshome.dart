@@ -3,6 +3,7 @@ import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/models/eventModel.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customDropdown.dart';
 import 'package:fairstores/widgets/customSearchField.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -20,40 +21,6 @@ class EventsPage extends ConsumerStatefulWidget {
 
 class _EventsPageState extends ConsumerState<EventsPage> {
 
-  pageLocationHeader() {
-    CustomDropdown schoolsDropdown = ref.read(schoolDropdownProvider);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 45.0, bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          IconButton(
-              padding: const EdgeInsets.only(top: 8),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.close)
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                schoolsDropdown,
-                CustomText(
-                  text: ref.read(schoolsDropdown.currentValue),
-                  fontSize: 12,
-                  isBold: true,
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
 
   Future<QuerySnapshot> customFuture() async {
     var alldocs = await eventsRef.doc('All').collection('events').get().then(
@@ -69,14 +36,13 @@ class _EventsPageState extends ConsumerState<EventsPage> {
     final user = ref.watch(userProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xffF8F8FA),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            pageLocationHeader(),
-            CustomSearchField(
+      appBar: CustomAppBar(isDropdown: true,),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: CustomSearchField(
               onSubmitted: (value){
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -85,58 +51,63 @@ class _EventsPageState extends ConsumerState<EventsPage> {
                 );
               },
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, bottom: 2),
-              child: Text(
-                'Upcoming Events',
-                style: GoogleFonts.manrope(
-                    fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          SizedBox(height: 20,),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0, bottom: 2),
+                child: Text(
+                  'Upcoming Events',
+                  style: GoogleFonts.manrope(
+                      fontSize: 14, fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-            // StreamBuilder<QuerySnapshot>(
-            //     stream: eventsRef.doc('All').collection('events').snapshots(),
-            //     builder: (context, snapshot) {
-            //       if (!snapshot.hasData) {
-            //         print('object');
-            //         return const SizedBox();
-            //       }
-            //
-            //       List<EventModel> eventlist = [];
-            //       for (var doc in snapshot.data!.docs) {
-            //         eventlist.add(EventModel.fromDocument(
-            //             doc, ref.read(schoolsDropdown.currentValue), user.uid));
-            //       }
-            //       return Center(
-            //           child: Column(
-            //         children: eventlist,
-            //       ));
-            //     }),
-            // StreamBuilder<QuerySnapshot>(
-            //     stream: eventsRef
-            //         .doc(ref.read(schoolsDropdown.currentValue))
-            //         .collection('events')
-            //         .snapshots(),
-            //     builder: (context, snapshot) {
-            //       if (!snapshot.hasData) {
-            //         print('object');
-            //         return const SizedBox();
-            //       }
-            //
-            //       List<EventModel> eventlist = [];
-            //       for (var doc in snapshot.data!.docs) {
-            //         eventlist.add(EventModel.fromDocument(
-            //             doc,
-            //             ref.read(schoolsDropdown.currentValue),
-            //             user.uid
-            //         ));
-            //       }
-            //       return Center(
-            //           child: Column(
-            //         children: eventlist,
-            //       ));
-            //     })
-          ]
-        )
+              // StreamBuilder<QuerySnapshot>(
+              //     stream: eventsRef.doc('All').collection('events').snapshots(),
+              //     builder: (context, snapshot) {
+              //       if (!snapshot.hasData) {
+              //         print('object');
+              //         return const SizedBox();
+              //       }
+              //
+              //       List<EventModel> eventlist = [];
+              //       for (var doc in snapshot.data!.docs) {
+              //         eventlist.add(EventModel.fromDocument(
+              //             doc, ref.read(schoolsDropdown.currentValue), user.uid));
+              //       }
+              //       return Center(
+              //           child: Column(
+              //         children: eventlist,
+              //       ));
+              //     }),
+              // StreamBuilder<QuerySnapshot>(
+              //     stream: eventsRef
+              //         .doc(ref.read(schoolsDropdown.currentValue))
+              //         .collection('events')
+              //         .snapshots(),
+              //     builder: (context, snapshot) {
+              //       if (!snapshot.hasData) {
+              //         print('object');
+              //         return const SizedBox();
+              //       }
+              //
+              //       List<EventModel> eventlist = [];
+              //       for (var doc in snapshot.data!.docs) {
+              //         eventlist.add(EventModel.fromDocument(
+              //             doc,
+              //             ref.read(schoolsDropdown.currentValue),
+              //             user.uid
+              //         ));
+              //       }
+              //       return Center(
+              //           child: Column(
+              //         children: eventlist,
+              //       ));
+              //     }),
+            )
+          ),
+        ]
       )
     );
   }

@@ -219,6 +219,7 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     final categories = ref.watch(categoryProvider);
     final categoriesList = ref.watch(categoryListProvider);
     final currentCategory = ref.watch(_selectedCategoryProvider);
+    final currentLocation = ref.watch(selectedSchoolProvider);
 
     return Scaffold(
       appBar: CustomAppBar(
