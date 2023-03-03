@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/models/videoModel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 final eventsRef = FirebaseFirestore.instance.collection('EventsPrograms');
@@ -90,6 +92,21 @@ class EventModel{
       }
     }
 
+    final eventTicketsPurchaseRef = FirebaseFirestore
+        .instance
+        .collection('EventsTicketPurchases');
+
+    eventTicketsPurchaseRef
+      .doc(event.eventid)
+      .collection('Purchases')
+      .where('status', isEqualTo: 'Active')
+      .get().then(
+        (value) => event.attendeeNumber = value.size.toString()
+    );
+
+
+
+
     return event;
   }
 
@@ -131,21 +148,6 @@ class EventModel{
 
     return eventList;
   }
-
-  Future<String> getAttendeeNumber() async {
-    final eventTicketsPurchaseRef = FirebaseFirestore
-      .instance
-      .collection('EventsTicketPurchases');
-
-    QuerySnapshot snapshot = await eventTicketsPurchaseRef
-      .doc(this.eventid)
-      .collection('Purchases')
-      .where('status', isEqualTo: 'Active')
-      .get();
-
-    return snapshot.size.toString();
-  }
-
 
   Future<bool> updateFavorites({
     required String userID,
@@ -193,5 +195,19 @@ class EventModel{
     this.isFavorite = !isFavorite;
 
     return this.isFavorite;
+  }
+
+  Future<List<VideoModel>> getVideos() async{
+
+    QuerySnapshot snapshot = await transactionsRef
+        .doc(this.eventid)
+        .collection('videos')
+        .get();
+
+    List<VideoModel>  videoList = snapshot.docs
+        .map((doc) => VideoModel.fromDocument(doc))
+        .toList();
+
+    return videoList;
   }
 }

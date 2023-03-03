@@ -56,7 +56,7 @@ class _HistoryDetailsState extends State<HistoryDetails> {
     });
   }
 
-  orderheader() {
+  orderHeader() {
     return Padding(
       padding: const EdgeInsets.only(top: 24.0, left: 20),
       child: ListTile(
@@ -137,7 +137,7 @@ class _HistoryDetailsState extends State<HistoryDetails> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          orderheader(),
+          orderHeader(),
           Padding(
             padding: const EdgeInsets.only(left: 20.0, right: 20),
             child: Container(

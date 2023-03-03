@@ -9,13 +9,15 @@ class CustomButton extends StatelessWidget {
   final String text;
   final bool isOrange;
   final double? width;
+  final Color textColor;
 
   const CustomButton({
     Key? key,
     required this.onPressed,
     required this.text,
     this.isOrange = false,
-    this.width
+    this.width,
+    this.textColor = kDarkGrey
   }) : super(key: key);
 
   @override
@@ -42,7 +44,7 @@ class CustomButton extends StatelessWidget {
           child: CustomText(
             text: text,
             isMediumWeight: true,
-            color: isOrange ? kWhite : kDarkGrey,
+            color: isOrange ? kWhite : textColor,
           )
         ),
       ),

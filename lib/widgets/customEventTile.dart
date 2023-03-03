@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/events/eventspage.dart';
+import 'package:fairstores/events/eventDetails.dart';
 import 'package:fairstores/models/eventModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -33,10 +33,6 @@ class _CustomEventTileState extends ConsumerState<CustomEventTile> {
 
     super.initState();
   }
-
-  final eventAttendeeProvider = FutureProvider.family<String, EventModel>((ref, event) async {
-    return await event.getAttendeeNumber();
-  });
 
   eventModelImage() {
     return ClipRRect(
@@ -126,7 +122,6 @@ class _CustomEventTileState extends ConsumerState<CustomEventTile> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
-    final attendeeNumber = ref.watch(eventAttendeeProvider(widget.event));
 
     return widget.event.lockevent
     ? SizedBox.shrink()
@@ -137,7 +132,7 @@ class _CustomEventTileState extends ConsumerState<CustomEventTile> {
           MaterialPageRoute(
             builder: (context) =>
               EventDetails(
-                event: widget.event
+                event: widget.event,
               ),
           )
         );
@@ -215,27 +210,10 @@ class _CustomEventTileState extends ConsumerState<CustomEventTile> {
                     ],
                   ),
                   SizedBox(width: 5,),
-                  attendeeNumber.when(
-                    data: (data){
-                      return CustomText(
-                        text:  '$data+ going',
-                        fontSize: 12,
-                        color: kPurple,
-                      );
-                    },
-                    error: (_, err){
-                      log(err.toString());
-                      return CustomText(
-                        text:  '0 going',
-                        fontSize: 12,
-                        color: kPurple,
-                      );
-                    },
-                    loading: () => CustomText(
-                      text:  'loading...',
-                      fontSize: 12,
-                      color: kPurple,
-                    )
+                  CustomText(
+                    text:  '${widget.event.attendeeNumber}+ going',
+                    fontSize: 12,
+                    color: kPurple,
                   )
                 ],
               ),

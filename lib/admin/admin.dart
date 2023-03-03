@@ -42,6 +42,7 @@ class _AdminState extends State<Admin> {
 
   @override
   Widget build(BuildContext context) {
+    final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: kPrimary,

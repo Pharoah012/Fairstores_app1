@@ -10,6 +10,7 @@ class CustomText extends StatelessWidget {
   final Color? color;
   final bool isCenter;
   final TextOverflow? overflow;
+  final double? lineHeight;
 
   const CustomText({
     Key? key,
@@ -19,7 +20,8 @@ class CustomText extends StatelessWidget {
     this.color = kLabelColor,
     this.isMediumWeight = false,
     this.isCenter = false,
-    this.overflow
+    this.overflow,
+    this.lineHeight
   });
 
   @override
@@ -36,6 +38,7 @@ class CustomText extends StatelessWidget {
             ? FontWeight.w600
             : FontWeight.w400,
         color: color,
+        height: lineHeight
       )
     );
   }

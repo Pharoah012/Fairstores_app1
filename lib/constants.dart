@@ -8,6 +8,7 @@ const Color kBlack = Colors.black;
 const Color kBrownText = Color(0xff180602);
 const Color kDarkGrey = Color(0xff374151);
 const Color kPurple = Color(0xff4B4EFC);
+const Color kBlue = Color(0xff048EBF);
 const Color kGrey = Color(0xff6B7280);
 const Color kScaffoldColor = Color(0xFFE5E5E5);
 
@@ -19,7 +20,6 @@ const Color kDisabledBorderColor = Color(0xffD1D5DB);
 
 
 // ------------- Firestore References ----------------
-final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
 final schoolRef = FirebaseFirestore.instance.collection('Schools');
 final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
 final menuRef = FirebaseFirestore.instance.collection('FoodMenu');

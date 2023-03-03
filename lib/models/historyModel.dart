@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/jointModel.dart';
 
 final historyRef = FirebaseFirestore.instance.collection('History');
+final transactionsRef = FirebaseFirestore.instance.collection('ActiveOrders');
 
 class HistoryModel{
   final String deliveryLocation;
