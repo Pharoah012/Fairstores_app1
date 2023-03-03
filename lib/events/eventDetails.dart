@@ -225,12 +225,7 @@ class _EventDetailsState extends ConsumerState<EventDetails> {
             context,
             MaterialPageRoute(
               builder: (context) => TicketPurchase(
-                eventpic: widget.event.eventheaderimage,
-                eventname: widget.event.eventname,
-                eticketavailable: widget.event.eticket,
-                physicalticketavailable: widget.event.physicalticket,
-                price: widget.event.eventprice,
-                eventid: widget.event.eventid,
+                event: widget.event
               ),
             )
         );

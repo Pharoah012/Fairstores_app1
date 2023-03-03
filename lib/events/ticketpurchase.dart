@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
 import 'package:fairstores/models/eventHistoryModel.dart';
+import 'package:fairstores/models/eventModel.dart';
 import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/payment_api.dart';
@@ -20,22 +21,12 @@ import 'package:number_inc_dec/number_inc_dec.dart';
 import 'package:uuid/uuid.dart';
 
 class TicketPurchase extends ConsumerStatefulWidget {
-  final bool eticketavailable;
-  final bool physicalticketavailable;
-  final int price;
-  final String eventid;
-  final String eventpic;
-  final String eventname;
+  final EventModel event;
 
-  const TicketPurchase(
-      {Key? key,
-      required this.eventpic,
-      required this.price,
-      required this.eventname,
-      required this.eventid,
-      required this.eticketavailable,
-      required this.physicalticketavailable})
-      : super(key: key);
+  const TicketPurchase({
+    Key? key,
+    required this.event
+  }) : super(key: key);
 
   @override
   ConsumerState<TicketPurchase> createState() => _TicketPurchaseState();
@@ -685,7 +676,7 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
         });
   }
 
-  purchasebutton() {
+  purchaseButton() {
     return Padding(
       padding:
           const EdgeInsets.only(left: 20.0, right: 20, bottom: 30, top: 20),
@@ -748,7 +739,7 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
     );
   }
 
-  confirmationbutton() {
+  confirmationButton() {
     return Padding(
       padding:
           const EdgeInsets.only(left: 20.0, right: 20, bottom: 30, top: 20),
@@ -901,7 +892,7 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
     );
   }
 
-  loadingpayment() {
+  loadingPayment() {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -950,7 +941,7 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
               style: GoogleFonts.manrope(),
             ),
             Expanded(child: SizedBox()),
-            confirmationbutton(),
+            confirmationButton(),
             Padding(
               padding: const EdgeInsets.only(bottom: 30),
               child: TextButton(
@@ -973,12 +964,12 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
   setpage() {
     if (page == 'fairticket' && widget.eticketavailable == true) {
       return Column(
-        children: [ticketpage(page), receipt(), purchasebutton()],
+        children: [ticketpage(page), receipt(), purchaseButton()],
       );
     } else if (page == 'physicalticket' &&
         widget.physicalticketavailable == true) {
       return Column(
-        children: [ticketpage(page), receipt(), purchasebutton()],
+        children: [ticketpage(page), receipt(), purchaseButton()],
       );
     } else {
       return Column(
@@ -995,11 +986,11 @@ class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
   @override
   Widget build(BuildContext context) {
     return pay == 'payment'
-        ? loadingpayment()
+        ? loadingPayment()
         : Scaffold(
             appBar: CustomAppBar(title: "Purchase Ticket",),
             body: SingleChildScrollView(
-                child: Column(
+              child: Column(
               children: [ticketoption(), setpage()],
             )));
   }

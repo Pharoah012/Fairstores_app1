@@ -6,10 +6,13 @@ import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final selectedSchoolProvider = StateProvider<String>(
+        (ref) => ref.read(userProvider).school!
+);
+
 class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
   final String? title;
   final bool isDropdown;
-  final StateProvider<String>? currentLocationProvider;
   final bool isCenter;
 
   const CustomAppBar({
@@ -17,7 +20,6 @@ class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget
     this.title,
     this.isDropdown = false,
     this.isCenter = true,
-    this.currentLocationProvider
   }) : super(key: key);
 
   @override
@@ -32,11 +34,8 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isDropdown){
-      final _schoolsProvider = ref.watch(schoolsProvider);
-      final _currentLocationProvider = ref.watch(widget.currentLocationProvider!);
-    }
-
+    final currentLocation = ref.watch(selectedSchoolProvider);
+    final _schoolsProvider = ref.watch(schoolsProvider);
 
     return widget.isDropdown
       ? dropdownAppBar()
@@ -107,12 +106,12 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
                     ),
                     isExpanded: true,
                     onChanged: (value) {
-                      ref.read(widget.currentLocationProvider!.notifier).state = value;
+                      ref.read(selectedSchoolProvider.notifier).state = value;
                     }
                 ),
               ),
               CustomText(
-                text: ref.read(widget.currentLocationProvider!),
+                text: ref.read(selectedSchoolProvider),
                 fontSize: 12,
                 isBold: true,
                 color: kBlack,

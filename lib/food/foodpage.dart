@@ -18,10 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tuple/tuple.dart';
 
-final _selectedSchoolProvider = StateProvider<String>(
-  (ref) => ref.read(userProvider).school!
-);
-
 final _selectedCategoryProvider = StateProvider<String>((ref) => "All");
 
 
@@ -39,7 +35,7 @@ class _FoodPageState extends ConsumerState<FoodPage> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(_selectedSchoolProvider.notifier).state = ref.read(userProvider).school!;
+      ref.read(selectedSchoolProvider.notifier).state = ref.read(userProvider).school!;
     });
 
     super.initState();
@@ -74,7 +70,7 @@ class _FoodPageState extends ConsumerState<FoodPage> {
   }
 
   Widget adSection() {
-    final ads = ref.watch(adsProvider(ref.read(_selectedSchoolProvider)));
+    final ads = ref.watch(adsProvider(ref.read(selectedSchoolProvider)));
 
     return ads.when(
         data: (data){
@@ -119,7 +115,7 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     }
     else{
       Tuple2 filter = Tuple2<String, String>(
-          ref.read(_selectedSchoolProvider),
+          ref.read(selectedSchoolProvider),
           ref.read(_selectedCategoryProvider)
       );
       joints = ref.watch(jointProvider(filter));
@@ -173,7 +169,7 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     else{
 
       Tuple2 filter = Tuple2<String, String>(
-          ref.read(_selectedSchoolProvider),
+          ref.read(selectedSchoolProvider),
           ref.read(_selectedCategoryProvider)
       );
 
@@ -223,12 +219,10 @@ class _FoodPageState extends ConsumerState<FoodPage> {
     final categories = ref.watch(categoryProvider);
     final categoriesList = ref.watch(categoryListProvider);
     final currentCategory = ref.watch(_selectedCategoryProvider);
-    final currentLocation = ref.watch(_selectedSchoolProvider);
 
     return Scaffold(
       appBar: CustomAppBar(
         isDropdown: true,
-        currentLocationProvider: _selectedSchoolProvider,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

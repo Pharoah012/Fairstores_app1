@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/mainScreens/search.dart';
 import 'package:fairstores/models/eventModel.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
@@ -70,72 +69,75 @@ class _EventsPageState extends ConsumerState<EventsPage> {
     final user = ref.watch(userProvider);
 
     return Scaffold(
-        backgroundColor: const Color(0xffF8F8FA),
-        body: SingleChildScrollView(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              pageLocationHeader(),
-              CustomSearchField(
-                onSubmitted: (value){
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Search(searchValue: value)
-                    )
-                  );
-                },
+      backgroundColor: const Color(0xffF8F8FA),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            pageLocationHeader(),
+            CustomSearchField(
+              onSubmitted: (value){
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => Search(searchValue: value)
+                  )
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20.0, bottom: 2),
+              child: Text(
+                'Upcoming Events',
+                style: GoogleFonts.manrope(
+                    fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, bottom: 2),
-                child: Text(
-                  'Upcoming Events',
-                  style: GoogleFonts.manrope(
-                      fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-              // StreamBuilder<QuerySnapshot>(
-              //     stream: eventsRef.doc('All').collection('events').snapshots(),
-              //     builder: (context, snapshot) {
-              //       if (!snapshot.hasData) {
-              //         print('object');
-              //         return const SizedBox();
-              //       }
-              //
-              //       List<EventModel> eventlist = [];
-              //       for (var doc in snapshot.data!.docs) {
-              //         eventlist.add(EventModel.fromDocument(
-              //             doc, ref.read(schoolsDropdown.currentValue), user.uid));
-              //       }
-              //       return Center(
-              //           child: Column(
-              //         children: eventlist,
-              //       ));
-              //     }),
-              // StreamBuilder<QuerySnapshot>(
-              //     stream: eventsRef
-              //         .doc(ref.read(schoolsDropdown.currentValue))
-              //         .collection('events')
-              //         .snapshots(),
-              //     builder: (context, snapshot) {
-              //       if (!snapshot.hasData) {
-              //         print('object');
-              //         return const SizedBox();
-              //       }
-              //
-              //       List<EventModel> eventlist = [];
-              //       for (var doc in snapshot.data!.docs) {
-              //         eventlist.add(EventModel.fromDocument(
-              //             doc,
-              //             ref.read(schoolsDropdown.currentValue),
-              //             user.uid
-              //         ));
-              //       }
-              //       return Center(
-              //           child: Column(
-              //         children: eventlist,
-              //       ));
-              //     })
-            ])));
+            ),
+            // StreamBuilder<QuerySnapshot>(
+            //     stream: eventsRef.doc('All').collection('events').snapshots(),
+            //     builder: (context, snapshot) {
+            //       if (!snapshot.hasData) {
+            //         print('object');
+            //         return const SizedBox();
+            //       }
+            //
+            //       List<EventModel> eventlist = [];
+            //       for (var doc in snapshot.data!.docs) {
+            //         eventlist.add(EventModel.fromDocument(
+            //             doc, ref.read(schoolsDropdown.currentValue), user.uid));
+            //       }
+            //       return Center(
+            //           child: Column(
+            //         children: eventlist,
+            //       ));
+            //     }),
+            // StreamBuilder<QuerySnapshot>(
+            //     stream: eventsRef
+            //         .doc(ref.read(schoolsDropdown.currentValue))
+            //         .collection('events')
+            //         .snapshots(),
+            //     builder: (context, snapshot) {
+            //       if (!snapshot.hasData) {
+            //         print('object');
+            //         return const SizedBox();
+            //       }
+            //
+            //       List<EventModel> eventlist = [];
+            //       for (var doc in snapshot.data!.docs) {
+            //         eventlist.add(EventModel.fromDocument(
+            //             doc,
+            //             ref.read(schoolsDropdown.currentValue),
+            //             user.uid
+            //         ));
+            //       }
+            //       return Center(
+            //           child: Column(
+            //         children: eventlist,
+            //       ));
+            //     })
+          ]
+        )
+      )
+    );
   }
 }

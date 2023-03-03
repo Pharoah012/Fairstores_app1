@@ -104,9 +104,6 @@ class EventModel{
         (value) => event.attendeeNumber = value.size.toString()
     );
 
-
-
-
     return event;
   }
 
