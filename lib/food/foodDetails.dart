@@ -1,13 +1,13 @@
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/models/JointMenuOption.dart';
+import 'package:fairstores/models/foodCartModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/cartCard.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/jointMenuItemTile.dart';
 import 'package:fairstores/widgets/jointMenuOption.dart';
@@ -17,31 +17,57 @@ import 'package:google_fonts/google_fonts.dart';
 
 final selectedMenuOptionProvider = StateProvider<String>((ref) => "");
 final menuItemsListProvider = StateProvider<List<JointMenuItemModel>>((ref) => []);
+final foodCartListProvider = StateProvider((ref) => []);
+final _favoriteProvider = StateProvider<bool>((ref) => false);
 
 final jointMenuItemsProvider = FutureProvider.autoDispose.family<List<JointMenuItemModel>, JointModel>(
-        (ref, joint) async {
-      List<JointMenuItemModel> menuOptions = await joint.getMenuOptionItems(
-          menuOption: ref.read(selectedMenuOptionProvider)
-      );
+  (ref, joint) async {
 
-      ref.read(menuItemsListProvider.notifier).state = menuOptions;
+    // get the menu items for the selected menu category
+    List<JointMenuItemModel> menuOptions = await joint.getMenuOptionItems(
+      menuOption: ref.read(selectedMenuOptionProvider)
+    );
 
-      return menuOptions;
-    }
+    // assign the list of the list of menu items to the menu item provider
+    ref.read(menuItemsListProvider.notifier).state = menuOptions;
+
+    return menuOptions;
+  }
 );
 
 final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>, JointModel>(
   (ref, joint) async {
+    // get the menu options
     List<JointMenuOptionModel> menuOptions = await joint.getMenuOptions();
 
+    // set the first option as the active one
     if (menuOptions.isNotEmpty){
       ref.read(selectedMenuOptionProvider.notifier).state = menuOptions.first.id;
     }
 
+    // refresh the menu items list
     ref.invalidate(jointMenuItemsProvider(joint));
 
     return menuOptions;
   }
+);
+
+final cartListProvider = StateProvider<List<FoodOrdersModel>>((ref) => []);
+
+final cartProvider = FutureProvider.family<List<FoodOrdersModel>, JointModel>(
+        (ref, joint) async {
+
+      // get the cart items
+      List<FoodOrdersModel> orders = await FoodOrdersModel.getJointOrders(
+        jointID: joint.jointID,
+        userID: ref.read(userProvider).uid
+      );
+
+      // load the orders into the cart list provider
+      ref.read(cartListProvider.notifier).state = orders;
+
+      return orders;
+    }
 );
 
 class FoodDetails extends ConsumerStatefulWidget {
@@ -57,11 +83,6 @@ class FoodDetails extends ConsumerStatefulWidget {
 }
 
 class _FoodhomeState extends ConsumerState<FoodDetails> {
-  bool isliked = false;
-  int favoriteCount = 0;
-  String optionpage = '01';
-
-  int count = 1;
 
   Widget jointLogo() {
     return Container(
@@ -263,8 +284,12 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, index){
-                return JointMenuItemTile(
-                    menuOption: menuList[index],
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 23.0),
+                  child: JointMenuItemTile(
+                    menuItem: menuList[index],
+                    categoryID: ref.read(selectedMenuOptionProvider),
+                  ),
                 );
               }
           );
@@ -283,152 +308,174 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
           ),
         )
     );
+  }
+
+  Widget itemInCart() {
+    final cart = ref.watch(cartProvider(widget.joint));
+
+    return cart.when(
+      data: (data){
+        List<FoodOrdersModel> cart = ref.read(cartListProvider);
+
+        return CartCard(
+          joint: widget.joint,
+          itemCount: cart.length
+        );
+      },
+      error: (_, err) {
+        log("Cart Error: ${err.toString()}");
+        return SizedBox.shrink();
+
+      } ,
+      loading: () {
+        log("loading Cart");
+        return SizedBox.shrink();
+      });
 
     // return StreamBuilder<QuerySnapshot>(
-    //     stream: menuRef
-    //         .doc(widget.joint.jointID)
-    //         .collection('categories')
-    //         .doc(optionpage)
-    //         .collection('options')
+    //     stream: foodCartRef
+    //         .doc(ref.read(userProvider).uid)
+    //         .collection('Orders')
+    //         .where('shopid', isEqualTo: widget.joint.jointID)
     //         .snapshots(),
     //     builder: (context, snapshot) {
     //       if (!snapshot.hasData) {
     //         return const SizedBox();
     //       }
     //
-    //       List<JointMenuItemTile> optionslist = [];
-    //       for (var doc in snapshot.data!.docs) {
-    //         optionslist.add(JointMenuItemTile.fromDocument(doc, ref.read(userProvider).school!,
-    //             widget.joint.jointID, optionpage, ref.read(userProvider).uid, jointmenuoption.name));
+    //       List<Text> foodcartlist = [];
+    //       itemplural() {
+    //         String plural = 'Item';
+    //         if (foodcartlist.length == 1) {
+    //           plural = 'Item';
+    //           return 'Item';
+    //         } else if (foodcartlist.isEmpty) {
+    //           return 0;
+    //         } else {
+    //           plural = 'Items';
+    //           return plural;
+    //         }
     //       }
-    //       return Column(
-    //         children: optionslist,
-    //       );
+    //
+    //       for (var doc in snapshot.data!.docs) {
+    //         foodcartlist.add(const Text('available'));
+    //       }
+    //       return foodcartlist.isEmpty
+    //           ? const SizedBox()
+    //           : Padding(
+    //               padding:
+    //                   const EdgeInsets.only(left: 20.0, right: 18, bottom: 27),
+    //               child: Container(
+    //                 decoration: BoxDecoration(
+    //                   borderRadius: BorderRadius.circular(12),
+    //                   boxShadow: [
+    //                     BoxShadow(
+    //                       color: const Color(0xff010F07).withOpacity(0.12),
+    //                       spreadRadius: 5,
+    //                       blurRadius: 7,
+    //                       offset:
+    //                           const Offset(0, 20), // changes position of shadow
+    //                     ),
+    //                   ],
+    //                   color: kPrimary,
+    //                 ),
+    //                 width: MediaQuery.of(context).size.width,
+    //                 height: 70,
+    //                 child: MaterialButton(
+    //                   onPressed: (() {
+    //                     Navigator.push(
+    //                         context,
+    //                         MaterialPageRoute(
+    //                           builder: (context) => FoodBag(
+    //                             shopid: widget.joint.jointID,
+    //                             user: ref.read(userProvider).uid,
+    //                             schoolname: ref.read(userProvider).school!,
+    //                           ),
+    //                         ));
+    //                   }),
+    //                   child: Row(children: [
+    //                     Image.asset('images/shoppingcart.png'),
+    //                     Padding(
+    //                       padding: const EdgeInsets.only(left: 15.0),
+    //                       child: Column(
+    //                         mainAxisAlignment: MainAxisAlignment.center,
+    //                         crossAxisAlignment: CrossAxisAlignment.start,
+    //                         children: [
+    //                           Text(
+    //                             'View Cart',
+    //                             style: GoogleFonts.manrope(
+    //                                 fontWeight: FontWeight.w500,
+    //                                 fontSize: 12,
+    //                                 color: Colors.white.withOpacity(0.64)),
+    //                           ),
+    //                           Padding(
+    //                             padding: const EdgeInsets.only(top: 4.0),
+    //                             child: Text(widget.joint.name,
+    //                                 style: GoogleFonts.manrope(
+    //                                     fontWeight: FontWeight.w600,
+    //                                     fontSize: 16,
+    //                                     color: Colors.white)),
+    //                           )
+    //                         ],
+    //                       ),
+    //                     ),
+    //                     Expanded(child: const SizedBox()),
+    //                     Text(
+    //                       '${foodcartlist.length} ${itemplural()}',
+    //                       style: GoogleFonts.manrope(
+    //                           fontSize: 14,
+    //                           fontWeight: FontWeight.w600,
+    //                           color: Colors.white),
+    //                     )
+    //                   ]),
+    //                 ),
+    //               ),
+    //             );
     //     });
-  }
-
-  itemInCart() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: foodCartRef
-            .doc(ref.read(userProvider).uid)
-            .collection('Orders')
-            .where('shopid', isEqualTo: widget.joint.jointID)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const SizedBox();
-          }
-
-          List<Text> foodcartlist = [];
-          itemplural() {
-            String plural = 'Item';
-            if (foodcartlist.length == 1) {
-              plural = 'Item';
-              return 'Item';
-            } else if (foodcartlist.isEmpty) {
-              return 0;
-            } else {
-              plural = 'Items';
-              return plural;
-            }
-          }
-
-          for (var doc in snapshot.data!.docs) {
-            foodcartlist.add(const Text('available'));
-          }
-          return foodcartlist.isEmpty
-              ? const SizedBox()
-              : Padding(
-                  padding:
-                      const EdgeInsets.only(left: 20.0, right: 18, bottom: 27),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xff010F07).withOpacity(0.12),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset:
-                              const Offset(0, 20), // changes position of shadow
-                        ),
-                      ],
-                      color: kPrimary,
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    height: 70,
-                    child: MaterialButton(
-                      onPressed: (() {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FoodBag(
-                                shopid: widget.joint.jointID,
-                                user: ref.read(userProvider).uid,
-                                schoolname: ref.read(userProvider).school!,
-                              ),
-                            ));
-                      }),
-                      child: Row(children: [
-                        Image.asset('images/shoppingcart.png'),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'View Cart',
-                                style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12,
-                                    color: Colors.white.withOpacity(0.64)),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Text(widget.joint.name,
-                                    style: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        color: Colors.white)),
-                              )
-                            ],
-                          ),
-                        ),
-                        Expanded(child: const SizedBox()),
-                        Text(
-                          '${foodcartlist.length} ${itemplural()}',
-                          style: GoogleFonts.manrope(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                        )
-                      ]),
-                    ),
-                  ),
-                );
-        });
   }
 
   @override
   Widget build(BuildContext context) {
     final selectedOption = ref.watch(selectedMenuOptionProvider);
     final menuListItems = ref.watch(menuItemsListProvider);
+    final cartList = ref.watch(cartListProvider);
+    final cart = ref.watch(cartProvider(widget.joint));
+    final isFavorite = ref.watch(_favoriteProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           IconButton(
-              onPressed: (){
+            onPressed: () async {
+              try{
+                // update the favorite status of this item
+                bool updateFavorite = await widget.joint.updateFavorites(
+                  userID: ref.read(userProvider).uid,
+                  school: ref.read(selectedSchoolProvider)
+                );
 
-              },
-              icon: Icon(
-                Icons.favorite_outline,
-                color: isliked == true ? kPrimary : Colors.black,
-              ))
+                ref.read(_favoriteProvider.notifier).state = updateFavorite;
+              }
+              catch(exception){
+                log(exception.toString());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "An error occurred while updating this favorite"
+                    )
+                  )
+                );
+              }
+            },
+            icon: Icon(
+              Icons.favorite_outline,
+              color: widget.joint.isFavorite == true
+                ? kPrimary
+                : kBlack,
+            )
+          )
         ],
         leading: GestureDetector(
           onTap: () {
@@ -456,20 +503,32 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
         ),
       ),
       body: Stack(
-        alignment: Alignment.bottomCenter,
         children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                jointLogo(),
-                jointHeader(),
-                jointInfo(),
-                jointMenuOptionTile(),
-                jointMenuItems()
-              ]
+          Container(
+            height: MediaQuery.of(context).size.height,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  jointLogo(),
+                  jointHeader(),
+                  jointInfo(),
+                  jointMenuOptionTile(),
+                  SizedBox(height: 8,),
+                  jointMenuItems(),
+                  SizedBox(height: 80,)
+                ]
+              ),
             ),
           ),
-          itemInCart()
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: itemInCart(),
+            ),
+          )
         ],
       ),
     );

@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
-import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class FoodBag extends StatefulWidget {
+class FoodBag extends ConsumerStatefulWidget {
   final String shopid;
   final String user;
   final String schoolname;
@@ -20,10 +20,10 @@ class FoodBag extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<FoodBag> createState() => _FoodBagState();
+  ConsumerState<FoodBag> createState() => _FoodBagState();
 }
 
-class _FoodBagState extends State<FoodBag> {
+class _FoodBagState extends ConsumerState<FoodBag> {
   dynamic delivery = 0;
   String deliverytime = '';
   bool deliveryavailable = false;
@@ -34,16 +34,16 @@ class _FoodBagState extends State<FoodBag> {
   void initState() {
     super.initState();
     // getdeliveryprice();
-    getservicecharge();
+    // getservicecharge();
   }
 
-  getservicecharge() async {
-    SecurityModel securityModel = await SecurityModel.getSecurityKeys();
-    setState(() {
-      taxes = securityModel.taxFee.toDouble();
-      servicecharge = securityModel.serviceCharge;
-    });
-  }
+  // getservicecharge() async {
+  //   SecurityModel securityModel = await SecurityModel.getSecurityKeys();
+  //   setState(() {
+  //     taxes = securityModel.taxFee.toDouble();
+  //     servicecharge = securityModel.serviceCharge;
+  //   });
+  // }
 
   // getdeliveryprice() async {
   //   DocumentSnapshot doc = await jointsRef

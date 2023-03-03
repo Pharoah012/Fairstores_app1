@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class SideMenuCategoryOptionModel {
+class SideMenuOptionModel {
   final String? id;
   final String? name;
 
-  const SideMenuCategoryOptionModel({
+  const SideMenuOptionModel({
     this.id,
     this.name
   });
 
-  factory SideMenuCategoryOptionModel.fromDocument(DocumentSnapshot doc) {
-    return SideMenuCategoryOptionModel(
+  factory SideMenuOptionModel.fromDocument(DocumentSnapshot doc) {
+    return SideMenuOptionModel(
       id: doc.get('id'),
       name: doc.get('name')
     );

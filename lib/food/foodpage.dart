@@ -6,6 +6,7 @@ import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/adsProvider.dart';
 import 'package:fairstores/providers/categoryProvider.dart';
 import 'package:fairstores/providers/jointProvider.dart';
+import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/adTile.dart';
@@ -132,18 +133,18 @@ class _FoodPageState extends ConsumerState<FoodPage> {
           return SizedBox(
             height: 190,
             child: ListView.builder(
-                itemCount: data.length,
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index){
-                  return Container(
-                    width: 260,
-                    padding: EdgeInsets.only(left: 20),
-                    child: data[index].lockshop
-                      ? LockedJointTile(joint: data[index])
-                      : UnlockedJointTile(joint: data[index]),
-                  );
-                }
+              itemCount: data.length,
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index){
+                return Container(
+                  width: 260,
+                  padding: EdgeInsets.only(left: 20),
+                  child: data[index].lockshop
+                    ? LockedJointTile(joint: data[index])
+                    : UnlockedJointTile(joint: data[index]),
+                );
+              }
             ),
           );
 
@@ -153,8 +154,12 @@ class _FoodPageState extends ConsumerState<FoodPage> {
           return SizedBox.shrink();
         },
         loading: () => Container(
-          color: kGrey,
           height: 157,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: kPrimary,
+            ),
+          ),
         )
     );
   }
@@ -208,8 +213,12 @@ class _FoodPageState extends ConsumerState<FoodPage> {
           return SizedBox.shrink();
         },
         loading: () => Container(
-          color: kGrey,
           height: 157,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: kPrimary,
+            ),
+          ),
         )
     );
   }

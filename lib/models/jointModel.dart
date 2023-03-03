@@ -1,8 +1,5 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/models/JointMenuOption.dart';
-import 'package:fairstores/models/jointMenuItemModel.dart';
-import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
@@ -198,8 +195,6 @@ class JointModel{
     required String menuOption
   }) async {
 
-    log(menuOption);
-
     if (menuOption.isNotEmpty){
 
       QuerySnapshot snapshot = await menuRef
@@ -218,11 +213,7 @@ class JointModel{
     }
 
     return [];
-
-
   }
-
-
 
   static Future<JointModel> getDeliveryPrice({
     required String school,

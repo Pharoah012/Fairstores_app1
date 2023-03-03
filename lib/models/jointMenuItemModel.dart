@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/models/sideMenuOptionModel.dart';
+
+final menuRef = FirebaseFirestore.instance.collection('FoodMenu');
 
 class JointMenuItemModel {
   final String id;
@@ -26,5 +29,28 @@ class JointMenuItemModel {
         price: doc.get('price'),
         id: doc.get('id'),
         name: doc.get('name'));
+  }
+
+  // Get the side options of a menu item
+  Future<List<SideMenuOptionModel>> getSideMenuOptions({
+    required String jointID,
+    required String categoryID
+  }) async {
+
+    QuerySnapshot snapshot = await menuRef
+      .doc(jointID)
+      .collection('categories')
+      .doc(categoryID)
+      .collection('options')
+      .doc(this.id)
+      .collection('sideoptions')
+      // .doc("01")
+      .get();
+
+    List<SideMenuOptionModel> sides = snapshot.docs
+      .map(
+          (doc) => SideMenuOptionModel.fromDocument(doc)).toList();
+
+    return sides;
   }
 }

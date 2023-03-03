@@ -19,6 +19,7 @@ class JointMenuOption extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
+            width: 2,
             color: isActive ? kPrimary : Colors.transparent
           )
         )

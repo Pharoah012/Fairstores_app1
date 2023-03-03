@@ -1,21 +1,43 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
-import 'package:fairstores/models/optionModel.dart';
+import 'package:fairstores/models/sideMenuOptionModel.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tuple/tuple.dart';
 
-class JointMenuItemTile extends StatefulWidget {
-  final JointMenuItemModel menuOption;
+final sideOptionsListProvider = StateProvider<List<SideMenuOptionModel>>(
+  (ref) => []
+);
+
+final sideOptionProvider = FutureProvider.family<List<SideMenuOptionModel>, Tuple2>(
+  (ref, menuItemInfo) async {
+  List<SideMenuOptionModel> sides = await menuItemInfo.item1.getSideMenuOptions(
+    jointID: menuItemInfo.item1.jointID,
+    categoryID: menuItemInfo.item2
+  );
+
+  ref.read(sideOptionsListProvider.notifier).state = sides;
+
+  return sides;
+});
+
+class JointMenuItemTile extends ConsumerStatefulWidget {
+  final JointMenuItemModel menuItem;
+  final String categoryID;
 
   const JointMenuItemTile({
-    required this.menuOption
+    required this.menuItem,
+    required this.categoryID
   });
 
   @override
-  State<JointMenuItemTile> createState() => _JointMenuItemTileState();
+  ConsumerState<JointMenuItemTile> createState() => _JointMenuItemTileState();
 }
 
-class _JointMenuItemTileState extends State<JointMenuItemTile> {
+class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
   // int count = 1;
   // SideMenuCategoryOption sideoptions = const SideMenuCategoryOption();
   // String orderid = const Uuid().v4();
@@ -115,12 +137,12 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   // }
   //
   // orderfood() {
-  //   if (widget.hassides == false) {
+  //   if (widget.menuItem.hassides == false) {
   //     checkcartavailability();
-  //     foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).set({
+  //     foodCartRef.doc(widget.userid).collection('Orders').doc(orderID).set({
   //       'cartid': 'cart${widget.userid}',
-  //       'orderid': orderid,
-  //       'shopid': widget.shopid,
+  //       'orderid': orderID,
+  //       'shopid': widget.jointID,
   //       'sides': [],
   //       'ordername': widget.name,
   //       'isrequired': false,
@@ -225,7 +247,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   //                               stream: foodCartRef
   //                                   .doc(widget.userid)
   //                                   .collection('Orders')
-  //                                   .doc(orderid)
+  //                                   .doc(orderID)
   //                                   .snapshots(),
   //                               builder: (context, snapshot) {
   //                                 if (!snapshot.hasData) {
@@ -289,7 +311,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   //                                                   foodCartRef
   //                                                       .doc(widget.userid)
   //                                                       .collection('Orders')
-  //                                                       .doc(orderid)
+  //                                                       .doc(orderID)
   //                                                       .update({
   //                                                     'quantity': count
   //                                                   });
@@ -317,7 +339,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   //                                               foodCartRef
   //                                                   .doc(widget.userid)
   //                                                   .collection('Orders')
-  //                                                   .doc(orderid)
+  //                                                   .doc(orderID)
   //                                                   .update(
   //                                                   {'quantity': count});
   //                                             },
@@ -346,14 +368,14 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   //                             foodCartRef
   //                                 .doc(widget.userid)
   //                                 .collection('Orders')
-  //                                 .doc(orderid)
+  //                                 .doc(orderID)
   //                                 .update({'status': 'pending'});
   //                             Navigator.pop(context);
   //                             Navigator.push(
   //                                 context,
   //                                 MaterialPageRoute(
   //                                   builder: (context) => FoodBag(
-  //                                     shopid: widget.shopid,
+  //                                     jointID: widget.jointID,
   //                                     user: widget.userid,
   //                                     schoolname: widget.school,
   //                                   ),
@@ -407,7 +429,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
   //             mealid: widget.id,
   //             mealprice: widget.price,
   //             school: widget.school,
-  //             shopid: widget.shopid,
+  //             jointID: widget.jointID,
   //             categoryid: widget.categoryid,
   //           )),
   //     );
@@ -416,6 +438,22 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
 
   @override
   Widget build(BuildContext context) {
+    Tuple2<JointMenuItemModel, String> menuItemInfo = Tuple2(
+      widget.menuItem,
+      widget.categoryID
+    );
+
+    // watch the sides
+    final sides = ref.watch(sideOptionProvider(menuItemInfo));
+    final sidesList = ref.watch(sideOptionsListProvider);
+
+    //load the sides
+    sides.when(
+      data: (data) => log("loaded the sides"),
+      error: (_, err) => log("Sides Error: ${err.toString()}"),
+      loading: () => log("loading sides")
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: GestureDetector(
@@ -429,7 +467,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
-                  widget.menuOption.tileimage,
+                  widget.menuItem.tileimage,
                   fit: BoxFit.cover,
                   width: 76,
                   height: 76,
@@ -442,7 +480,7 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CustomText(
-                      text: widget.menuOption.name,
+                      text: widget.menuItem.name,
                       fontSize: 14,
                       isMediumWeight: true,
                       color: kBlack,
@@ -451,14 +489,14 @@ class _JointMenuItemTileState extends State<JointMenuItemTile> {
                       height: 2,
                     ),
                     CustomText(
-                      text: widget.menuOption.description,
+                      text: widget.menuItem.description,
                       fontSize: 10,
                     ),
                     const SizedBox(
                       height: 2,
                     ),
                     CustomText(
-                      text: "GHC ${widget.menuOption.price.toDouble()}",
+                      text: "GHC ${widget.menuItem.price.toDouble()}",
                       isMediumWeight: true,
                       fontSize: 10,
                       color: kBlack,

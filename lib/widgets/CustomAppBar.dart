@@ -6,10 +6,6 @@ import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final selectedSchoolProvider = StateProvider<String>(
-        (ref) => ref.read(userProvider).school!
-);
-
 class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
   final String? title;
   final bool isDropdown;
