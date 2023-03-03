@@ -130,7 +130,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           body: mainScreens[_currentScreen],
           bottomNavigationBar: BottomNavigationBar(
             elevation: 0,
-            backgroundColor: Colors.white,
+            backgroundColor: kScaffoldColor,
             type: BottomNavigationBarType.fixed,
             showUnselectedLabels: true,
             selectedItemColor: kPrimary,

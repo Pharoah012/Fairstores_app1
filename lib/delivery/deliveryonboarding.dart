@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -94,41 +95,7 @@ class _DeliveryOnboardingState extends State<DeliveryOnboarding> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(
-            'Delivery',
-            style: GoogleFonts.manrope(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 10.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.black,
-                    size: 12,
-                  ),
-                ),
-                Text(
-                  'Back',
-                  style: GoogleFonts.manrope(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                )
-              ],
-            ),
-          ),
-        ),
+        appBar: CustomAppBar(title: "Delivery"),
         body: Column(children: [
           Image.asset(
             'images/deliveryimage1.png',

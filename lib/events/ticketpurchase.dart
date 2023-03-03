@@ -6,25 +6,20 @@ import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/payment_api.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
-import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketsuccessful.dart';
 import 'package:fairstores/models/schoolModel.dart';
-import 'package:fairstores/main.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/splashscreen.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:number_inc_dec/number_inc_dec.dart';
 import 'package:uuid/uuid.dart';
 
-class TicketPurchase extends StatefulWidget {
+class TicketPurchase extends ConsumerStatefulWidget {
   final bool eticketavailable;
   final bool physicalticketavailable;
   final int price;
@@ -43,10 +38,10 @@ class TicketPurchase extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<TicketPurchase> createState() => _TicketPurchaseState();
+  ConsumerState<TicketPurchase> createState() => _TicketPurchaseState();
 }
 
-class _TicketPurchaseState extends State<TicketPurchase> {
+class _TicketPurchaseState extends ConsumerState<TicketPurchase> {
   String page = 'fairticket';
   String pay = '';
   List<bool> visible = [true, false];
@@ -79,7 +74,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
   }
 
   getuserinfo() async {
-    DocumentSnapshot doc = await userRef.doc(widget.userid).get();
+    DocumentSnapshot doc = await userRef.doc(ref.read(userProvider).uid).get();
     UserModel userModel = UserModel.fromDocument(doc);
     setState(() {
       this.userModel = userModel;
@@ -239,7 +234,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
             Padding(
               padding: const EdgeInsets.only(left: 20.0),
               child: Text(
-                widget.school,
+                ref.read(userProvider).school!,
                 style: GoogleFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -591,7 +586,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
           '${widget.price * quantity}',
           phonecontroller.text,
           userModel.email.toString(),
-          widget.userid,
+          ref.read(userProvider).uid,
           userModel.username.toString()))!;
 
       setState(() {
@@ -630,12 +625,12 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                           orderid: orderid,
                           quantity: 1,
                           total: widget.price,
-                          deliverylocation: widget.school,
+                          deliverylocation: ref.read(userProvider).school!,
                           paymentStatus: 'Cash',
                           status: 'Pending',
                           tickettype: page,
                           timestamp: Timestamp.fromDate(DateTime.now()),
-                          userID: widget.userid,
+                          userID: ref.read(userProvider).uid,
                         );
 
                         await event.addItemToEventHistory();
@@ -655,8 +650,8 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                         'confirmationid': '',
                         'paymentStatus': 'Cash',
                         'status': 'Pending',
-                        'deliverylocation': widget.school,
-                        'userid': widget.userid,
+                        'deliverylocation': ref.read(userProvider).school!,
+                        'userid': ref.read(userProvider).uid,
                         'quantity': quantity,
                         'timestamp': DateTime.now()
                       });
@@ -774,7 +769,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Payment Failed, Try again')));
               } else if (confirm.status == 'Success') {
-                print(widget.userid);
+                print(ref.read(userProvider).uid);
                 if (page == 'fairticket') {
                   for (int i = 0; i < quantity; i++) {
                     eventTicketsPurchaseRef.doc(orderid).set({
@@ -788,8 +783,8 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                       'status': 'Pending',
                       'quantity': 1,
                       'confirmationid': '',
-                      'deliverylocation': widget.school,
-                      'userid': widget.userid,
+                      'deliverylocation': ref.read(userProvider).school!,
+                      'userid': ref.read(userProvider).uid,
                       'timestamp': DateTime.now()
                     });
                     setState(() {
@@ -807,8 +802,8 @@ class _TicketPurchaseState extends State<TicketPurchase> {
                     'confirmationid': '',
                     'paymentStatus': confirm.status,
                     'status': 'Pending',
-                    'deliverylocation': widget.school,
-                    'userid': widget.userid,
+                    'deliverylocation': ref.read(userProvider).school!,
+                    'userid': ref.read(userProvider).uid,
                     'quantity': quantity,
                     'timestamp': DateTime.now()
                   });
@@ -1002,27 +997,7 @@ class _TicketPurchaseState extends State<TicketPurchase> {
     return pay == 'payment'
         ? loadingpayment()
         : Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              leading: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_sharp,
-                    color: Colors.black,
-                  )),
-              elevation: 0,
-              backgroundColor: Colors.white,
-              title: Text(
-                'Puchase Ticket',
-                style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.black),
-              ),
-              centerTitle: true,
-            ),
+            appBar: CustomAppBar(title: "Purchase Ticket",),
             body: SingleChildScrollView(
                 child: Column(
               children: [ticketoption(), setpage()],

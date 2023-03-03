@@ -5,12 +5,14 @@ import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodsideoptions.dart';
 import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:uuid/uuid.dart';
 
-class Foodhome extends StatefulWidget {
+class Foodhome extends ConsumerStatefulWidget {
   final JointModel joint;
 
   const Foodhome({
@@ -19,10 +21,10 @@ class Foodhome extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<Foodhome> createState() => _FoodhomeState();
+  ConsumerState<Foodhome> createState() => _FoodhomeState();
 }
 
-class _FoodhomeState extends State<Foodhome> {
+class _FoodhomeState extends ConsumerState<Foodhome> {
   bool isliked = false;
   int favoriteCount = 0;
   String optionpage = '01';
@@ -222,8 +224,8 @@ class _FoodhomeState extends State<Foodhome> {
 
           List<OptionsTile> optionslist = [];
           for (var doc in snapshot.data!.docs) {
-            optionslist.add(OptionsTile.fromDocument(doc, widget.joint.school,
-                widget.joint.jointID, optionpage, widget.joint.user, jointmenuoption.name));
+            optionslist.add(OptionsTile.fromDocument(doc, ref.read(userProvider).school!,
+                widget.joint.jointID, optionpage, ref.read(userProvider).uid, jointmenuoption.name));
           }
           return Column(
             children: optionslist,
@@ -234,7 +236,7 @@ class _FoodhomeState extends State<Foodhome> {
   itemInCart() {
     return StreamBuilder<QuerySnapshot>(
         stream: foodCartRef
-            .doc(widget.joint.user)
+            .doc(ref.read(userProvider).uid)
             .collection('Orders')
             .where('shopid', isEqualTo: widget.joint.jointID)
             .snapshots(),
@@ -288,8 +290,8 @@ class _FoodhomeState extends State<Foodhome> {
                             MaterialPageRoute(
                               builder: (context) => FoodBag(
                                 shopid: widget.joint.jointID,
-                                user: widget.joint.user,
-                                schoolname: widget.joint.school,
+                                user: ref.read(userProvider).uid,
+                                schoolname: ref.read(userProvider).school!,
                               ),
                             ));
                       }),

@@ -340,7 +340,6 @@ class _ProfileState extends ConsumerState<Profile> {
 
     return Scaffold(
         resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.white,
         body: Column(
           children: [
             profileheader(),

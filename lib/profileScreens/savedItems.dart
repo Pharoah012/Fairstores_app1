@@ -105,7 +105,6 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
     final _currentPage = ref.watch(currentPage);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: CustomAppBar(
         title: 'Favorites'
       ),

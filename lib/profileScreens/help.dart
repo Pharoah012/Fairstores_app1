@@ -16,7 +16,6 @@ class Help extends ConsumerWidget {
     final securityKeys = ref.watch(securityKeysProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: CustomAppBar(title: "Help"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),

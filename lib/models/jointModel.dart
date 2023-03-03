@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final jointsRef = FirebaseFirestore.instance.collection('foodJoints');
@@ -39,7 +38,7 @@ class JointModel{
     this.isFavorite = false
   });
 
-  factory JointModel.fromDocument(DocumentSnapshot doc, user, school) {
+  factory JointModel.fromDocument(DocumentSnapshot doc, String userID) {
     JointModel model = JointModel(
         deliveryAvailable: doc.get('delivery_available'),
         pickupAvailable: doc.get('pickup_available'),
@@ -60,7 +59,7 @@ class JointModel{
     // check if the user has favorited this item
     // and update the isFavorite variable
     for (String element in model.favourites) {
-      if (element == user) {
+      if (element == userID) {
         model.isFavorite = true;
       }
     }
@@ -93,7 +92,7 @@ class JointModel{
     }
 
     List<JointModel>  jointList = snapshot.docs
-        .map((doc) => JointModel.fromDocument(doc, userID, school))
+        .map((doc) => JointModel.fromDocument(doc, userID))
         .toList();
 
     return jointList;
@@ -128,7 +127,7 @@ class JointModel{
     }
 
     List<JointModel>  jointList = snapshot.docs
-        .map((doc) => JointModel.fromDocument(doc, userID, school))
+        .map((doc) => JointModel.fromDocument(doc, userID))
         .toList();
 
     return jointList;
@@ -146,7 +145,7 @@ class JointModel{
         .get();
 
     List<JointModel>  jointList = snapshot.docs
-        .map((doc) => JointModel.fromDocument(doc, userID, school))
+        .map((doc) => JointModel.fromDocument(doc, userID))
         .toList();
 
     return jointList;
@@ -168,7 +167,7 @@ class JointModel{
 
     List<JointModel> jointList = snapshot.docs
         .map((doc) =>
-        JointModel.fromDocument(doc, school, userID))
+        JointModel.fromDocument(doc, school))
         .toList();
 
     return jointList;
@@ -185,7 +184,7 @@ class JointModel{
         .doc(foodID)
         .get();
 
-    return JointModel.fromDocument(doc, userID, school);
+    return JointModel.fromDocument(doc, userID);
   }
 
   static Future<JointModel> getShop({
@@ -199,7 +198,7 @@ class JointModel{
         .doc(shopID)
         .get();
 
-    return JointModel.fromDocument(doc, userID, school);
+    return JointModel.fromDocument(doc, userID);
   }
 
   Future<bool> updateFavorites({

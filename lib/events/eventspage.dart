@@ -4,6 +4,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/events/ticketpurchase.dart';
 import 'package:fairstores/events/videoplayer.dart';
 import 'package:fairstores/models/eventModel.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -332,25 +333,7 @@ class _EventDetailsState extends State<EventDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new_sharp,
-              color: Colors.black,
-            )),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: Text(
-          'Event Details',
-          style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
-        ),
-        centerTitle: true,
-      ),
+      appBar: CustomAppBar(title: "Event Details",),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [

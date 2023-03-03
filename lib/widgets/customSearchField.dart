@@ -46,13 +46,13 @@ class CustomSearchField extends StatelessWidget {
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(
-              color: kEnabledBorderColor,
+              color: kLabelColor,
             ),
             borderRadius: BorderRadius.circular(100)
           ),
           disabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(
-              color: kEnabledBorderColor,
+              color: kLabelColor,
             ),
             borderRadius: BorderRadius.circular(100)
           ),

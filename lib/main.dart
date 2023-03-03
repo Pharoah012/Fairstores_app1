@@ -150,9 +150,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         title: 'FairStores',
         theme: ThemeData(
           appBarTheme: AppBarTheme(
-            backgroundColor: kWhite
+            backgroundColor: kScaffoldColor
           ),
-          scaffoldBackgroundColor: kWhite,
+          scaffoldBackgroundColor: kScaffoldColor,
           focusColor: kPrimary,
           primaryColor: kPrimary
         ),

@@ -143,7 +143,6 @@ class _HomeState extends ConsumerState<Home> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: (
           _user.email != null
           && _user.username != null

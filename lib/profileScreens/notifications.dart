@@ -5,6 +5,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/notificationModel.dart';
 import 'package:fairstores/providers/notificationProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customLoader.dart';
 import 'package:fairstores/widgets/customNotificationItem.dart';
@@ -31,27 +32,7 @@ class _NotificationsState extends ConsumerState<Notifications> {
     final notifications = ref.watch(notificationProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: (() {
-              Navigator.pop(context);
-            }),
-            icon: const Icon(
-              Icons.arrow_back,
-              size: 15,
-              color: Colors.black,
-            )),
-        centerTitle: true,
-        title: CustomText(
-          text: 'Notifications',
-          fontSize: 16,
-          color: kBlack,
-          isMediumWeight: true,
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar(title: "Notifications"),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Stack(

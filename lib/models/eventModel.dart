@@ -28,7 +28,10 @@ class EventModel{
   final bool physicalticket;
   final bool issellingtickets;
 
-  const EventModel({
+  bool isFavorite;
+  String? attendeeNumber;
+
+  EventModel({
     required this.eventmonth,
     required this.eticket,
     required this.physicalticket,
@@ -49,11 +52,13 @@ class EventModel{
     required this.organizername,
     required this.organizerimage,
     required this.timebegin,
-    required this.timeend
+    required this.timeend,
+    this.isFavorite = false,
+    this.attendeeNumber
   });
 
-  factory EventModel.fromDocument(DocumentSnapshot doc) {
-    return EventModel(
+  factory EventModel.fromDocument(DocumentSnapshot doc, String userID) {
+    EventModel event = EventModel(
       issellingtickets: doc.get('issellingticket'),
       physicalticket: doc.get('physicalticket_available'),
       eticket: doc.get('eticket_available'),
@@ -76,6 +81,16 @@ class EventModel{
       timebegin: doc.get('time_begin'),
       timeend: doc.get('time_end')
     );
+
+    // check if the user has favorited this item
+    // and update the isFavorite variable
+    for (String element in event.favouriteslist) {
+      if (element == userID) {
+        event.isFavorite = true;
+      }
+    }
+
+    return event;
   }
 
   static Future<List<EventModel>> getFavoriteEvents({
@@ -90,7 +105,7 @@ class EventModel{
 
     List<EventModel> eventList = snapshot.docs
         .map((doc) =>
-        EventModel.fromDocument(doc))
+        EventModel.fromDocument(doc, userID))
         .toList();
 
     return eventList;
@@ -111,9 +126,72 @@ class EventModel{
 
     List<EventModel> eventList = snapshot.docs
         .map((doc) =>
-        EventModel.fromDocument(doc))
+        EventModel.fromDocument(doc, userID))
         .toList();
 
     return eventList;
+  }
+
+  Future<String> getAttendeeNumber() async {
+    final eventTicketsPurchaseRef = FirebaseFirestore
+      .instance
+      .collection('EventsTicketPurchases');
+
+    QuerySnapshot snapshot = await eventTicketsPurchaseRef
+      .doc(this.eventid)
+      .collection('Purchases')
+      .where('status', isEqualTo: 'Active')
+      .get();
+
+    return snapshot.size.toString();
+  }
+
+
+  Future<bool> updateFavorites({
+    required String userID,
+    required String school
+  }) async{
+
+    // check if the user has favorited the food
+    // and remove them from list of favorites
+    if (this.isFavorite){
+      this.favouriteslist.remove(userID);
+    }
+    else{
+      // add the user to the favorites
+      this.favouriteslist.add(userID);
+    }
+
+    // update the favorites list in the all category firestore
+    await eventsRef
+      .doc('All')
+      .collection('events')
+      .doc(this.eventid)
+      .update({'favourites_list': this.favouriteslist});
+
+    // update the favorites in the selected school favorites
+    await eventsRef
+        .doc(school)
+        .collection('events')
+        .doc(this.eventid)
+        .update({'favourites_list': this.favouriteslist});
+
+    //TODO: REMOVE THE FAVORITES COUNT
+    await eventsRef
+        .doc(school)
+        .collection('events')
+        .doc(this.eventid)
+        .update({'favourite_count': this.favouriteslist.length});
+
+    await eventsRef
+        .doc('All')
+        .collection('events')
+        .doc(this.eventid)
+        .update({'favourite_count': this.favouriteslist.length});
+
+    // update the isFavorite variable
+    this.isFavorite = !isFavorite;
+
+    return this.isFavorite;
   }
 }

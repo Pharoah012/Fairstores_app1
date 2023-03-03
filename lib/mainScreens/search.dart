@@ -128,7 +128,11 @@ class _SearchState extends ConsumerState<Search> {
             itemCount: data.length,
             shrinkWrap: true,
             itemBuilder: (context, index){
-              return CustomEventTile(event: data[index]);
+              if (!data[index].lockevent){
+                return CustomEventTile(event: data[index]);
+              }
+
+              return SizedBox.shrink();
             }
           );
         },

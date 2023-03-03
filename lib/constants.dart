@@ -9,6 +9,7 @@ const Color kBrownText = Color(0xff180602);
 const Color kDarkGrey = Color(0xff374151);
 const Color kPurple = Color(0xff4B4EFC);
 const Color kGrey = Color(0xff6B7280);
+const Color kScaffoldColor = Color(0xFFE5E5E5);
 
 
 // ----------- Button Colors ------------

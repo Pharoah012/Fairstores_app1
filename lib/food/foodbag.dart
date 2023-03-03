@@ -3,6 +3,7 @@ import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
 import 'package:fairstores/models/securityModel.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -260,41 +261,7 @@ class _FoodBagState extends State<FoodBag> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(
-            'Your bag',
-            style: GoogleFonts.manrope(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 10.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.black,
-                    size: 12,
-                  ),
-                ),
-                Text(
-                  'Back',
-                  style: GoogleFonts.manrope(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                )
-              ],
-            ),
-          ),
-        ),
+        appBar: CustomAppBar(title: "Your bag",),
         body: Stack(
           children: [
             SingleChildScrollView(

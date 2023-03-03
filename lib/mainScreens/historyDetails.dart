@@ -3,6 +3,7 @@ import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/securityModel.dart';
 import 'package:fairstores/whatsappchat.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -132,25 +133,7 @@ class _HistoryDetailsState extends State<HistoryDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new_sharp,
-              color: Colors.black,
-            )),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: Text(
-          'Order Details',
-          style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
-        ),
-        centerTitle: true,
-      ),
+      appBar: CustomAppBar(title: 'Order Details'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

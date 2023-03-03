@@ -8,6 +8,7 @@ import 'package:fairstores/backend/sendnotification.dart';
 import 'package:fairstores/backend/tokenmodel.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/vieworder.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/payment_api.dart';
@@ -969,27 +970,7 @@ class _FoodCheckoutState extends State<FoodCheckout> {
   Widget build(BuildContext context) {
     return page == 'checkout'
         ? Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              leading: IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_sharp,
-                    color: Colors.black,
-                  )),
-              elevation: 0,
-              backgroundColor: Colors.white,
-              title: Text(
-                'Checkout',
-                style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.black),
-              ),
-              centerTitle: true,
-            ),
+            appBar: CustomAppBar(title: "Checkout"),
             body: Stack(
               alignment: Alignment.bottomCenter,
               children: [

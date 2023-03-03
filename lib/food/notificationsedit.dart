@@ -1,5 +1,6 @@
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/main.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,26 +16,7 @@ class _NotificationEditState extends State<NotificationEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: (() {
-              Navigator.pop(context);
-            }),
-            icon: const Icon(
-              Icons.arrow_back,
-              size: 15,
-              color: Colors.black,
-            )),
-        centerTitle: true,
-        title: Text(
-          'Notifications',
-          style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar(title: "Notifications",),
       body: SwitchListTile(
         value: isSwitched,
         activeColor: kPrimary,
