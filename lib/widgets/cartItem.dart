@@ -1,8 +1,6 @@
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/quantityButton.dart';
@@ -11,17 +9,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CartItem extends ConsumerWidget {
   final FoodOrdersModel order;
+  final AutoDisposeStateProvider<int> quantityProvider;
 
   const CartItem({
     Key? key,
-    required this.order
+    required this.order,
+    required this.quantityProvider
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _cartInfo = ref.watch(cartInfoProvider);
-
-    log("body");
+    final quantity = ref.watch(quantityProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -71,6 +69,7 @@ class CartItem extends ConsumerWidget {
           QuantityButton(
             inCart: true,
             orderID: order.orderID,
+            quantityProvider: quantityProvider,
           )
         ],
       ),

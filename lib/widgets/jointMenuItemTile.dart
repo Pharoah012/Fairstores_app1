@@ -32,8 +32,6 @@ final sideOptionProvider = FutureProvider.family<List<SideMenuOptionModel>, Tupl
   return sides;
 });
 
-final _quantityProvider = StateProvider<int>((ref) => 1);
-
 class JointMenuItemTile extends ConsumerStatefulWidget {
   final JointMenuItemModel menuItem;
   final JointModel joint;
@@ -58,48 +56,72 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
   //   getoptions();
   // }
   //
-  // cartavailabiltypopup(parentcontext) {
-  //   showDialog(
-  //       barrierDismissible: false,
-  //       context: parentcontext,
-  //       builder: (context) {
-  //         return AlertDialog(
-  //             title: Center(
-  //                 child: Text(
-  //                   'Cart',
-  //                   style: GoogleFonts.montserrat(
-  //                       color: kPrimary, fontWeight: FontWeight.bold),
-  //                 )),
-  //             actions: [
-  //               Text(
-  //                 'Your cart is currently being used by another joint. Do you want to clear it?',
-  //                 textAlign: TextAlign.center,
-  //               ),
-  //               TextButton(
-  //                 onPressed: () async {
-  //                   QuerySnapshot snapshot = await foodCartRef
-  //                       .doc(widget.userid)
-  //                       .collection('Orders')
-  //                       .get();
-  //                   for (var e in snapshot.docs) {
-  //                     e.reference.delete();
-  //                   }
-  //                   Navigator.pop(context);
-  //                   Navigator.pop(context);
-  //                 },
-  //                 child: Center(
-  //                     child: Text(
-  //                       'Clear Cart',
-  //                       style: TextStyle(color: kPrimary),
-  //                     )),
-  //               )
-  //             ]);
-  //       });
-  // }
+  cartAvailabilityPopup({required String jointID}) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Center(
+            child: CustomText(
+              text: "Cart",
+              color: kPrimary,
+              isBold: true
+            )
+          ),
+          actions: [
+            CustomText(
+              text: 'Your cart is currently being used by another joint. '
+                  'Do you want to clear it?',
+              isCenter: true,
+            ),
+            TextButton(
+              onPressed: () async {
+
+                try {
+                  await FoodOrdersModel.clearCart(
+                    userID: ref.read(userProvider).uid,
+                    jointID: jointID
+                  );
+
+                  Navigator.of(context).pop();
+                }
+                catch(exception){
+                  log(exception.toString());
+                  ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          'An error occurred while clearing the other cart.'
+                      )
+                    )
+                  );
+                }
+                // QuerySnapshot snapshot = await foodCartRef
+                //     .doc(widget.userid)
+                //     .collection('Orders')
+                //     .get();
+                // for (var e in snapshot.docs) {
+                //   e.reference.delete();
+                // }
+                // Navigator.pop(context);
+                // Navigator.pop(context);
+              },
+              child: Center(
+                child: CustomText(
+                  text: "Clear Cart",
+                  color: kPrimary,
+                )
+              )
+            )
+          ]
+        );
+      }
+    );
+  }
 
   // Check if the cart can be used,
   // meaning that it not occupied by another joint
-  Future<bool> checkCartAvailability() async {
+  Future<String?> checkCartAvailability() async {
     return await FoodOrdersModel.isCartAvailable(
       userID: ref.read(userProvider).uid,
       jointID: widget.joint.jointID
@@ -163,6 +185,9 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         context: context,
         builder: (context){
+          final _quantityProvider = StateProvider.autoDispose<int>((ref) => 1);
+          final quantity = ref.watch(_quantityProvider);
+
           return SizedBox(
             height: 436,
             child: Padding(
@@ -181,7 +206,7 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
                             child: CachedNetworkImage(
                               imageUrl: widget.menuItem.tileimage,
                               fit: BoxFit.cover,
-                              // width: MediaQuery.of(context).size.width ,
+                              width: MediaQuery.of(context).size.width ,
                               height: 200,
                             ),
                           ),
@@ -240,7 +265,8 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         QuantityButton(
-                          quantityProvider: _quantityProvider),
+                          quantityProvider: _quantityProvider
+                        ),
                         SizedBox(
                           width: 10,
                         ),
@@ -250,32 +276,36 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
                             onPressed: () async {
 
                               FoodOrdersModel foodOrder = FoodOrdersModel(
-                                  cartID: "cart${ref.read(userProvider).uid}",
-                                  sides: [],
-                                  jointID: widget.joint.jointID,
-                                  orderID: orderID,
-                                  price: widget.menuItem.price * ref.read(_quantityProvider),
-                                  image: widget.menuItem.tileimage,
-                                  foodName: widget.menuItem.name,
-                                  quantity:
-                                  ref.read(_quantityProvider),
-                                  status: "pending"
+                                cartID: "cart${ref.read(userProvider).uid}",
+                                sides: [],
+                                jointID: widget.joint.jointID,
+                                orderID: orderID,
+                                price: widget.menuItem.price,
+                                image: widget.menuItem.tileimage,
+                                foodName: widget.menuItem.name,
+                                quantity:
+                                ref.read(_quantityProvider),
+                                status: "pending"
                               );
 
-                              // check if the cart is available
-                              bool isCartAvailable = await checkCartAvailability();
+                              // // check if the cart is available
+                              // String? isCartAvailable = await checkCartAvailability();
+                              //
+                              // if (isCartAvailable == null) {
+                              //
+                              //
+                              // }
+                              // else{
+                              //   // Navigator.of(context).pop();
+                              //
+                              //   cartAvailabilityPopup(
+                              //     jointID: isCartAvailable
+                              //   );
+                              // }
 
-                              if (isCartAvailable) {
-
-                                // add the order to the user's bag
-                                await addToBag(foodOrder);
-                                Navigator.pop(context);
-                              }
-                              else{
-
-                              }
-
-
+                              // add the order to the user's bag
+                              await addToBag(foodOrder);
+                              Navigator.pop(context);
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -342,7 +372,7 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
       widget.menuItem,
       widget.joint
     );
-    final quantity = ref.watch(_quantityProvider);
+
 
     // watch the sides
     final sides = ref.watch(sideOptionProvider(menuItemInfo));

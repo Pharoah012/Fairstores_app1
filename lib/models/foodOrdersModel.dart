@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
@@ -119,7 +121,8 @@ class FoodOrdersModel{
   }
 
   // check if the user has an order from another joint
-  static Future<bool> isCartAvailable({
+  // Return the jointID if it is not available and null if it is
+  static Future<String?> isCartAvailable({
     required String userID,
     required String jointID
   }) async {
@@ -129,7 +132,25 @@ class FoodOrdersModel{
       .where('shopid', isNotEqualTo: jointID)
       .get();
 
-    return snapshot.size >= 1;
+    if (snapshot.docs.isEmpty){
+      return null;
+    }
+
+    return FoodOrdersModel.fromDocument(snapshot.docs.first).jointID;
+  }
+
+  // clear a joint's cart
+  static Future<bool> clearCart({
+    required String userID,
+    required String jointID
+  }) async {
+    QuerySnapshot snapshot = await foodCartRef
+        .doc(userID)
+        .collection('Orders')
+        .where('shopid', isNotEqualTo: jointID)
+        .get();
+
+    return snapshot.docs.isEmpty;
   }
 
   // update the existing card with the items in the given list

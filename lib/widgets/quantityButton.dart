@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -7,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class QuantityButton extends ConsumerStatefulWidget {
-  final StateProvider<int>? quantityProvider;
+  final AutoDisposeStateProvider<int> quantityProvider;
   final bool inCart;
   final String? orderID;
 
   const QuantityButton({
     Key? key,
-    this.quantityProvider,
+    required this.quantityProvider,
     this.inCart = false,
     this.orderID
 
@@ -26,13 +24,15 @@ class QuantityButton extends ConsumerStatefulWidget {
 class _QuantityButtonState extends ConsumerState<QuantityButton> {
   @override
   Widget build(BuildContext context) {
+    final _cartList = ref.watch(cartInfoProvider);
+    final _count = ref.watch(widget.quantityProvider);
 
     if (widget.inCart){
-      final _cartList = ref.watch(cartInfoProvider);
+
       return cartQuantityButton();
     }
 
-    final _count = ref.watch(widget.quantityProvider!);
+
 
     return ElevatedButton(
       onPressed: () {},
@@ -43,7 +43,7 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
           IconButton(
             onPressed: (){
               if (_count > 1){
-                ref.read(widget.quantityProvider!.notifier).state = _count - 1;
+                ref.read(widget.quantityProvider.notifier).state = _count - 1;
               }
             },
             icon: Icon(
@@ -59,7 +59,7 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
           ),
           IconButton(
               onPressed: (){
-                ref.read(widget.quantityProvider!.notifier).state = _count + 1;
+                ref.read(widget.quantityProvider.notifier).state = _count + 1;
               },
               icon: Icon(
                 Icons.add,
@@ -102,13 +102,20 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: (){
+                  // decrease the quantity when this button is closed
                   if (_cartList[widget.orderID]!.quantity > 0){
                     _cartList[widget.orderID]!.quantity
                     = _cartList[widget.orderID]!.quantity - 1;
 
+                    // update the quantity of the current order
+                    ref.read(widget.quantityProvider.notifier).state
+                    = _cartList[widget.orderID]!.quantity - 1;
+
+                    // update the cart items with the updated order
                     ref.read(cartInfoProvider.notifier).state = _cartList;
 
-                    log(ref.read(cartInfoProvider)[widget.orderID]!.quantity.toString());
+                    // refresh the subtotal
+                    ref.invalidate(subTotalProvider);
                   }
                 },
                 icon: Icon(
@@ -121,7 +128,7 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
           ),
           SizedBox(width: 5,),
           CustomText(
-            text: _cartList[widget.orderID]!.quantity.toString(),
+            text: ref.read(widget.quantityProvider).toString(), // _cartList[widget.orderID]!.quantity.toString(),
             color: kBlack,
             fontSize: 20,
           ),
@@ -132,12 +139,21 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: (){
+
+                // increase the quantity when this button is closed
                 _cartList[widget.orderID]!.quantity
                 = _cartList[widget.orderID]!.quantity + 1;
 
+                // update the quantity of the current order
+                ref.read(widget.quantityProvider.notifier).state
+                = _cartList[widget.orderID]!.quantity + 1;
+
+                // update the cart items with the updated order
                 ref.read(cartInfoProvider.notifier).state = _cartList;
 
-                log(ref.read(cartInfoProvider)[widget.orderID]!.quantity.toString());
+                // refresh the subtotal
+                ref.invalidate(subTotalProvider);
+
               },
               icon: Icon(
                 Icons.add,

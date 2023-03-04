@@ -54,7 +54,7 @@ final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>
   }
 );
 
-final cartProvider = FutureProvider.family<Map<String, FoodOrdersModel>, JointModel>(
+final cartProvider = FutureProvider.family.autoDispose<Map<String, FoodOrdersModel>, JointModel>(
   (ref, joint) async {
 
       // get the cart items
@@ -440,7 +440,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
   Widget build(BuildContext context) {
     final selectedOption = ref.watch(selectedMenuOptionProvider);
     final menuListItems = ref.watch(menuItemsListProvider);
-    final cartList = ref.watch(cartInfoProvider);
+    final cartInfo = ref.watch(cartInfoProvider);
     final cart = ref.watch(cartProvider(widget.joint));
     final isFavorite = ref.watch(_favoriteProvider);
 

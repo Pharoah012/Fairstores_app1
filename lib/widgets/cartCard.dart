@@ -1,7 +1,11 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -22,6 +26,7 @@ class CartCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider);
     final selectedSchool = ref.watch(selectedSchoolProvider);
+    final cartInfo = ref.watch(cartInfoProvider);
 
     return GestureDetector(
       onTap: (){
@@ -34,7 +39,31 @@ class CartCard extends ConsumerWidget {
                 joint: joint,
               ),
             )
-          );
+          ).then((value){
+            try{
+              FoodOrdersModel.updateCart(
+                  cartList: cartInfo.values.toList(),
+                  userID: ref.read(userProvider).uid
+              ).then((value) {
+                log("cart updated");
+
+                // refresh the cart
+                ref.invalidate(cartProvider);
+              });
+            }
+            catch(exception){
+              log(exception.toString());
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'An error occurred while updating your cart'
+                      )
+                  )
+              );
+
+            }
+          });
         }
       },
       child: Container(

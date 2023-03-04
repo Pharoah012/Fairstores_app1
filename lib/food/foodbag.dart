@@ -1,10 +1,11 @@
 import 'dart:developer';
 
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/cartItem.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -27,14 +28,6 @@ class FoodBag extends ConsumerStatefulWidget {
 }
 
 class _FoodBagState extends ConsumerState<FoodBag> {
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      getSubtotal();
-    });
-    super.initState();
-  }
 
   bagHeader() {
     return Container(
@@ -139,15 +132,16 @@ class _FoodBagState extends ConsumerState<FoodBag> {
     );
   }
 
-  void getSubtotal(){
-    double subTotal = 0;
+  // void getSubtotal(){
+  //   double subTotal = 0;
+  //
+  //   for (FoodOrdersModel order in ref.read(cartInfoProvider).values){
+  //     subTotal += order.price * order.quantity;
+  //   }
+  //
+  //   ref.read(subTotalProvider.notifier).state = subTotal;
+  // }
 
-    for (FoodOrdersModel order in ref.read(cartInfoProvider).values){
-      subTotal += order.price * order.quantity;
-    }
-
-    ref.read(subTotalProvider.notifier).state = subTotal;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,8 +149,6 @@ class _FoodBagState extends ConsumerState<FoodBag> {
     final securityInfo = ref.watch(securityKeysProvider);
     final cartInfo = ref.watch(cartInfoProvider);
     final subTotal = ref.watch(subTotalProvider);
-
-    log("message");
 
     return Scaffold(
         appBar: CustomAppBar(title: "Your Bag",),
@@ -173,6 +165,11 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                       itemCount: cartInfo.length,
                       shrinkWrap: true,
                       itemBuilder: (context, index){
+                        final _quantityProvider = StateProvider.autoDispose<int>(
+                          (ref) => cartInfo.values.elementAt(index).quantity
+                        );
+
+                        final quantity = ref.watch(_quantityProvider);
                         return Container(
                           decoration: BoxDecoration(
                               border: index != cartInfo.length -1
@@ -184,6 +181,7 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                           ),
                           child: CartItem(
                             order: cartInfo.values.elementAt(index),
+                            quantityProvider: _quantityProvider
                           ),
                         );
                       }
@@ -352,10 +350,12 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                                   ),
                                 ),
                                 Text('Checkout',
-                                    style: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16,
-                                        color: Colors.white)),
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 16,
+                                    color: Colors.white
+                                  )
+                                ),
                               ],
                             ),
                           ),
@@ -375,33 +375,6 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                   )
               ),
             )
-
-            // StreamBuilder<QuerySnapshot>(
-            //     stream: foodCartRef
-            //         .doc(widget.user)
-            //         .collection('Orders')
-            //         .where('status', isEqualTo: 'pending')
-            //         .snapshots(),
-            //     builder: (context, snapshot) {
-            //       if (!snapshot.hasData) {
-            //         return const SizedBox();
-            //       }
-            //
-            //       List<FoodCartModel> foodcartlist = [];
-            //       dynamic subtotal = 0;
-            //       dynamic total = 0;
-            //       for (var doc in snapshot.data!.docs) {
-            //         FoodCartModel foodCartModel =
-            //             FoodCartModel.fromDocument(doc, widget.user);
-            //         subtotal = subtotal +
-            //             (foodCartModel.price * foodCartModel.quantity);
-            //         total = subtotal + delivery;
-            //         foodcartlist
-            //             .add(FoodCartModel.fromDocument(doc, widget.user));
-            //       }
-            //       return ;
-            //     }
-            //     )
           ],
         ));
   }
