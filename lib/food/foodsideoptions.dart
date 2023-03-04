@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodbag.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
-import 'package:fairstores/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
@@ -293,14 +292,12 @@ class _FoodOptionsState extends State<FoodOptions> {
         'instructions': instructioncontroller.text,
       });
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => FoodBag(
-                shopid: widget.shopid,
-                user: widget.userid,
-                schoolname: widget.school),
-          ));
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => FoodBag(
+      //           joint: null,),
+      //     ));
       setState(() {
         orderid = const Uuid().v4();
       });

@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/JointMenuOption.dart';
+import 'package:fairstores/models/cartListProvider.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
@@ -52,8 +53,6 @@ final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>
     return menuOptions;
   }
 );
-
-final cartListProvider = StateProvider<List<FoodOrdersModel>>((ref) => []);
 
 final cartProvider = FutureProvider.family<List<FoodOrdersModel>, JointModel>(
         (ref, joint) async {
@@ -320,11 +319,9 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
       data: (data){
         List<FoodOrdersModel> cart = ref.read(cartListProvider);
 
-        log(ref.read(cartListProvider).toString());
-
         return CartCard(
           joint: widget.joint,
-          itemCount: cart.length
+          cartItems: cart
         );
       },
       error: (_, err) {

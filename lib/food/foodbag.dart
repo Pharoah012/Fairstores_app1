@@ -2,40 +2,53 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/foodcheckout.dart';
+import 'package:fairstores/models/cartListProvider.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
+import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/providers/securityKeysProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
+import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class FoodBag extends ConsumerStatefulWidget {
-  final String shopid;
-  final String user;
-  final String schoolname;
+final currentTabProvider = StateProvider<String>((ref) => "delivery");
+final subTotalProvider = StateProvider<double>((ref) => 0);
 
-  const FoodBag(
-      {Key? key,
-      required this.shopid,
-      required this.schoolname,
-      required this.user})
-      : super(key: key);
+class FoodBag extends ConsumerStatefulWidget {
+  final JointModel joint;
+
+  const FoodBag({
+    Key? key,
+    required this.joint,
+  }) : super(key: key);
 
   @override
   ConsumerState<FoodBag> createState() => _FoodBagState();
 }
 
 class _FoodBagState extends ConsumerState<FoodBag> {
-  dynamic delivery = 0;
-  String deliverytime = '';
-  bool deliveryavailable = false;
-  bool pickupavailable = false;
-  double taxes = 0;
-  double servicecharge = 0;
+
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getSubtotal();
+    });
     super.initState();
-    // getdeliveryprice();
-    // getservicecharge();
   }
+  // dynamic delivery = 0;
+  // String deliverytime = '';
+  // bool deliveryavailable = false;
+  // bool pickupavailable = false;
+  // double taxes = 0;
+  // double servicecharge = 0;
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // getdeliveryprice();
+  //   // getservicecharge();
+  // }
 
   // getservicecharge() async {
   //   SecurityModel securityModel = await SecurityModel.getSecurityKeys();
@@ -62,424 +75,393 @@ class _FoodBagState extends ConsumerState<FoodBag> {
   //   });
   // }
 
-  String page = 'delivery';
-  List<bool> visible = [true, false];
-  int count = 0;
+  // String page = 'Delivery';
+  // // List<bool> visible = [true, false];
+  // int count = 0;
 
-  setpage() {
-    if (page == 'delivery') {
-      if (deliveryavailable == true) {
-        return getcartitems();
-      } else {
-        return Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.15,
-            ),
-            const Text('Delivery Unavailable'),
-          ],
-        ));
-      }
-    } else if (page == 'pickup') {
-      if (pickupavailable == true) {
-        return getcartitems();
-      } else {
-        return Center(
-            child: Column(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.15,
-            ),
-            const Text('PickUp Unavailable'),
-          ],
-        ));
-      }
+  Widget setPage() {
+    if (ref.read(currentTabProvider) == 'Delivery' && widget.joint.deliveryAvailable) {
+      return getCartItems();
+
+    } else if (ref.read(currentTabProvider) == 'Pickup' && widget.joint.pickupAvailable) {
+      return getCartItems();
+    }
+    else{
+      return Column(
+        children: [
+          SizedBox(height: MediaQuery.of(context).size.height / 4,),
+          CustomText(
+            text: '${ref.read(currentTabProvider)} Unavailable',
+            color: kBlack,
+          )
+        ],
+      );
     }
   }
 
-  bagheader() {
-    return Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20),
-        child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xffF7F7F9),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Row(children: [
-              Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          visible = [true, false];
-                          page = 'delivery';
-                        });
-                      },
-                      child: Stack(alignment: Alignment.center, children: [
-                        Visibility(
-                          maintainSize: true,
-                          maintainAnimation: true,
-                          maintainState: true,
-                          visible: visible[0],
-                          child: Container(
-                              height: 38,
-                              width: MediaQuery.of(context).size.width * 0.4,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(100),
-                              )),
+  bagHeader() {
+    return Container(
+        width: MediaQuery.of(context).size.width,
+        height: 48,
+        decoration: BoxDecoration(
+          color: const Color(0xffF7F7F9),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                  onTap: () {
+                    ref.read(currentTabProvider.notifier).state = "Delivery";
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 5.0,
+                        horizontal: 8
+                    ),
+                    child: Container(
+                      decoration: ref.read(currentTabProvider) == 'Delivery'
+                       ? BoxDecoration(
+                        color: kWhite,
+                        borderRadius: BorderRadius.circular(40),
+                      ) : null,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomText(
+                              text: 'Delivery',
+                              fontSize: 12,
+                              isBold: true,
+                              color: ref.read(currentTabProvider) == 'Delivery'
+                                ? kPrimary
+                                : kBlack
+                            ),
+                            widget.joint.deliveryAvailable
+                              ? const SizedBox.shrink()
+                              : CustomText(
+                              text: 'Not Available',
+                              fontSize: 12,
+                              color: ref.read(currentTabProvider) == 'Delivery'
+                                ? kPrimary
+                                : Colors.black
+                            )
+                          ],
                         ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Delivery',
-                                style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 12,
-                                    color: page == 'delivery'
-                                        ? kPrimary
-                                        : Colors.black),
-                              ),
-                              deliveryavailable == true
-                                  ? const SizedBox(
-                                      width: 0,
-                                      height: 0,
-                                    )
-                                  : Text(
-                                      'Not Available',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 12,
-                                          color: page == 'pickup'
-                                              ? kPrimary
-                                              : Colors.black),
-                                    ),
-                            ],
-                          ),
-                        ),
-                      ]))),
-              Padding(
-                  padding: const EdgeInsets.only(left: 0.0, right: 0),
-                  child: Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF7F7F9),
-                        borderRadius: BorderRadius.circular(100),
                       ),
-                      child: Row(children: [
-                        Padding(
-                            padding: const EdgeInsets.only(right: 0),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  visible = [false, true];
-                                  page = 'pickup';
-                                });
-                                print(page);
-                              },
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Visibility(
-                                    maintainSize: true,
-                                    maintainAnimation: true,
-                                    maintainState: true,
-                                    visible: visible[1],
-                                    child: Container(
-                                        height: 38,
-                                        width: 160,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                        )),
-                                  ),
-                                  Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Pick Up',
-                                          style: GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 12,
-                                              color: page == 'pickup'
-                                                  ? kPrimary
-                                                  : Colors.black),
-                                        ),
-                                        pickupavailable == true
-                                            ? const SizedBox(
-                                                width: 0, height: 0)
-                                            : Text(
-                                                'Not Available',
-                                                style: GoogleFonts.manrope(
-                                                    fontWeight: FontWeight.w800,
-                                                    fontSize: 12,
-                                                    color: page == 'pickup'
-                                                        ? kPrimary
-                                                        : Colors.black),
-                                              ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ))
-                      ])))
-            ])));
+                    ),
+                  ),
+              ),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(currentTabProvider.notifier).state = "Pickup";
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 5.0,
+                    horizontal: 8
+                  ),
+                  child: Container(
+                    decoration: ref.read(currentTabProvider) == 'Pickup'
+                      ? BoxDecoration(
+                      color: kWhite,
+                      borderRadius: BorderRadius.circular(40),
+                    ) : null,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomText(
+                            text: 'Pick Up',
+                            fontSize: 12,
+                            isBold: true,
+                            color: ref.read(currentTabProvider) == 'Pickup'
+                                ? kPrimary
+                                : Colors.black
+                          ),
+                          widget.joint.pickupAvailable
+                            ? const SizedBox.shrink()
+                            : CustomText(
+                            text: 'Not Available',
+                            fontSize: 12,
+                            color: ref.read(currentTabProvider) == "Pickup"
+                                ? kPrimary
+                                : kBlack
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ]
+        )
+    );
   }
 
-  getcartitems() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: foodCartRef
-            .doc(widget.user)
-            .collection('Orders')
-            .where('status', isEqualTo: 'pending')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return SizedBox();
-          }
+  Widget getCartItems() {
+    return SizedBox.shrink();
+    // return StreamBuilder<QuerySnapshot>(
+    //     stream: foodCartRef
+    //         .doc(widget.user)
+    //         .collection('Orders')
+    //         .where('status', isEqualTo: 'pending')
+    //         .snapshots(),
+    //     builder: (context, snapshot) {
+    //       if (!snapshot.hasData) {
+    //         return SizedBox();
+    //       }
+    //
+    //       List<FoodCartModel> foodcartlist = [];
+    //       for (var doc in snapshot.data!.docs) {
+    //         foodcartlist.add(FoodCartModel.fromDocument(doc, ref.read(userProvider).uid));
+    //       }
+    //       return Column(
+    //         children: foodcartlist,
+    //       );
+    //     }
+    //     );
+  }
 
-          List<FoodCartModel> foodcartlist = [];
-          for (var doc in snapshot.data!.docs) {
-            foodcartlist.add(FoodCartModel.fromDocument(doc, widget.user));
-          }
-          return Column(
-            children: foodcartlist,
-          );
-        });
+  void getSubtotal(){
+    double subTotal = 0;
+
+    for (FoodOrdersModel order in ref.read(cartListProvider)){
+      subTotal += order.price;
+    }
+
+    ref.read(subTotalProvider.notifier).state = subTotal;
   }
 
   @override
   Widget build(BuildContext context) {
+    final _currentTab = ref.watch(currentTabProvider);
+    final securityInfo = ref.watch(securityKeysProvider);
+    final cartList = ref.watch(cartListProvider);
+    final subTotal = ref.watch(subTotalProvider);
+
     return Scaffold(
-        appBar: CustomAppBar(title: "Your bag",),
+        appBar: CustomAppBar(title: "Your Bag",),
         body: Stack(
           children: [
             SingleChildScrollView(
-              child: Column(
-                children: [bagheader(), setpage()],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: [
+                    bagHeader(),
+                    setPage()
+                  ],
+                ),
               ),
             ),
-            StreamBuilder<QuerySnapshot>(
-                stream: foodCartRef
-                    .doc(widget.user)
-                    .collection('Orders')
-                    .where('status', isEqualTo: 'pending')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const SizedBox();
-                  }
-
-                  List<FoodCartModel> foodcartlist = [];
-                  dynamic subtotal = 0;
-                  dynamic total = 0;
-                  for (var doc in snapshot.data!.docs) {
-                    FoodCartModel foodCartModel =
-                        FoodCartModel.fromDocument(doc, widget.user);
-                    subtotal = subtotal +
-                        (foodCartModel.price * foodCartModel.quantity);
-                    total = subtotal + delivery;
-                    foodcartlist
-                        .add(FoodCartModel.fromDocument(doc, widget.user));
-                  }
-                  return DraggableScrollableSheet(
-                    initialChildSize: 0.40,
-                    minChildSize: 0.1,
-                    maxChildSize: 0.40,
-                    builder: ((BuildContext context,
-                            ScrollController scrollController) =>
-                        Container(
-                          decoration: BoxDecoration(
-                              color: kPrimary,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(21),
-                                  topRight: Radius.circular(21))),
-                          child:
-                              ListView(controller: scrollController, children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 14.0),
-                              child: Center(
-                                child: Container(
-                                  color: Colors.white,
-                                  width: 40,
-                                  height: 4,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20, top: 17),
-                              child: Row(
-                                children: [
-                                  Text('Subtotal',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                          color: Colors.white)),
-                                  Expanded(child: const SizedBox()),
-                                  Text('GHS $subtotal',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 18,
-                                          color: Colors.white))
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20, top: 16),
-                              child: Row(
-                                children: [
-                                  Text('Taxes',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white)),
-                                  Expanded(child: const SizedBox()),
-                                  Text('GHC $taxes',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white))
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20, top: 16),
-                              child: Row(
-                                children: [
-                                  Text('Service Fee',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white)),
-                                  Expanded(child: const SizedBox()),
-                                  Text('GHS ${total * servicecharge}',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white))
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20, top: 16),
-                              child: Row(
-                                children: [
-                                  Text('Delivery',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white)),
-                                  Expanded(child: const SizedBox()),
-                                  Text('GHS $delivery',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white))
-                                ],
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 22.0),
-                              child: Divider(
-                                color: Colors.white,
-                                height: 1.7,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 20.0, right: 20, top: 16),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (page == 'delivery' &&
-                                          deliveryavailable == true) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FoodCheckout(
-                                                userid: widget.user,
-                                                shopid: widget.shopid,
-                                                deliveryfee: delivery,
-                                                taxes: taxes,
-                                                total: total,
-                                                school: widget.schoolname,
-                                                servicecharge: servicecharge,
-                                                deliverytime: deliverytime,
-                                              ),
-                                            ));
-                                        print('available');
-                                      } else if (page == 'pickup' &&
-                                          pickupavailable == true) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FoodCheckout(
-                                                userid: widget.user,
-                                                shopid: widget.shopid,
-                                                deliveryfee: delivery,
-                                                taxes: taxes,
-                                                total: total,
-                                                school: widget.schoolname,
-                                                servicecharge: servicecharge,
-                                                deliverytime: deliverytime,
-                                              ),
-                                            ));
-                                        print('pick available');
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'Select an available option')));
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 8.0),
-                                          child: Icon(
-                                            Icons.ads_click_rounded,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        Text('Checkout',
-                                            style: GoogleFonts.manrope(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 16,
-                                                color: Colors.white)),
-                                      ],
-                                    ),
+            DraggableScrollableSheet(
+              initialChildSize: 0.40,
+              minChildSize: 0.1,
+              maxChildSize: 0.40,
+              builder: (BuildContext context, ScrollController scrollController) =>
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: kPrimary,
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(21),
+                        topRight: Radius.circular(21)
+                    )
+                  ),
+                  child: ListView(
+                    controller: scrollController,
+                    children: [
+                      SizedBox(height: 14,),
+                      Center(
+                        child: Container(
+                          color: Colors.white,
+                          width: 40,
+                          height: 4,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "Subtotal",
+                            fontSize: 18,
+                            color: kWhite,
+                            isBold: true,
+                          ),
+                          CustomText(
+                            text: "GHS $subTotal",
+                            fontSize: 18,
+                            color: kWhite,
+                            isBold: true,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "Taxes",
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                          CustomText(
+                            text: "GHS ${securityInfo!.taxFee}",
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 18,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "Service Fee",
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                          CustomText(
+                            text: "GHS ${securityInfo.serviceCharge}",
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 18,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "Delivery",
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                          CustomText(
+                            text: 'GHS ${widget.joint.price.toDouble()}',
+                            fontSize: 16,
+                            color: kWhite,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 22,),
+                      Divider(
+                        color: Colors.white,
+                        height: 1.5,
+                      ),
+                      SizedBox(height: 16,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              // if (page == 'Delivery' &&
+                              //     deliveryavailable == true) {
+                              //   Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) =>
+                              //             FoodCheckout(
+                              //               userid: widget.user,
+                              //               shopid: widget.shopid,
+                              //               deliveryfee: delivery,
+                              //               taxes: taxes,
+                              //               total: total,
+                              //               school: widget.schoolname,
+                              //               servicecharge: servicecharge,
+                              //               deliverytime: deliverytime,
+                              //             ),
+                              //       ));
+                              //   print('available');
+                              // } else if (page == 'Pickup' &&
+                              //     pickupavailable == true) {
+                              //   Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) =>
+                              //             FoodCheckout(
+                              //               userid: widget.user,
+                              //               shopid: widget.shopid,
+                              //               deliveryfee: delivery,
+                              //               taxes: taxes,
+                              //               total: total,
+                              //               school: widget.schoolname,
+                              //               servicecharge: servicecharge,
+                              //               deliverytime: deliverytime,
+                              //             ),
+                              //       ));
+                              //   print('pick available');
+                              // } else {
+                              //   ScaffoldMessenger.of(context)
+                              //       .showSnackBar(const SnackBar(
+                              //       content: Text(
+                              //           'Select an available option')));
+                              // }
+                            },
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: Icon(
+                                    Icons.ads_click_rounded,
+                                    color: Colors.white,
                                   ),
-                                  Expanded(child: const SizedBox()),
-                                  Text(
-                                      'GHS ${total + taxes + (total * servicecharge)}',
-                                      style: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 16,
-                                          color: Colors.white))
-                                ],
-                              ),
-                            )
-                          ]),
-                        )),
-                  );
-                })
+                                ),
+                                Text('Checkout',
+                                    style: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16,
+                                        color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          CustomText(
+                            text: 'GHS ${
+                              subTotal
+                              + securityInfo.taxFee
+                              + securityInfo.serviceCharge
+                              + widget.joint.price.toDouble()
+                            }',
+                            fontSize: 16,
+                            color: kWhite,
+                          )
+                        ],
+                      )
+                    ],
+                  )
+              ),
+            )
+
+            // StreamBuilder<QuerySnapshot>(
+            //     stream: foodCartRef
+            //         .doc(widget.user)
+            //         .collection('Orders')
+            //         .where('status', isEqualTo: 'pending')
+            //         .snapshots(),
+            //     builder: (context, snapshot) {
+            //       if (!snapshot.hasData) {
+            //         return const SizedBox();
+            //       }
+            //
+            //       List<FoodCartModel> foodcartlist = [];
+            //       dynamic subtotal = 0;
+            //       dynamic total = 0;
+            //       for (var doc in snapshot.data!.docs) {
+            //         FoodCartModel foodCartModel =
+            //             FoodCartModel.fromDocument(doc, widget.user);
+            //         subtotal = subtotal +
+            //             (foodCartModel.price * foodCartModel.quantity);
+            //         total = subtotal + delivery;
+            //         foodcartlist
+            //             .add(FoodCartModel.fromDocument(doc, widget.user));
+            //       }
+            //       return ;
+            //     }
+            //     )
           ],
         ));
   }

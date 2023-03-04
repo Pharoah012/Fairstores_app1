@@ -1,5 +1,6 @@
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodbag.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
@@ -9,12 +10,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CartCard extends ConsumerWidget {
   final JointModel joint;
-  final int itemCount;
+  final List<FoodOrdersModel> cartItems;
 
   const CartCard({
     Key? key,
     required this.joint,
-    required this.itemCount
+    required this.cartItems
   }) : super(key: key);
 
   @override
@@ -25,14 +26,12 @@ class CartCard extends ConsumerWidget {
     return GestureDetector(
       onTap: (){
 
-        if (itemCount > 0){
+        if (cartItems.length > 0){
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => FoodBag(
-                user: user.uid,
-                shopid: joint.jointID,
-                schoolname: selectedSchool,
+                joint: joint
               ),
             )
           );
@@ -76,7 +75,8 @@ class CartCard extends ConsumerWidget {
                   ],
                 ),
                 CustomText(
-                  text: '$itemCount ${itemCount == 1 ? "Item" : "Items"}',
+                  text: '${cartItems.length} '
+                      '${cartItems.length == 1 ? "Item" : "Items"}',
                   fontSize: 14,
                   isBold: true,
                   color: kWhite,
