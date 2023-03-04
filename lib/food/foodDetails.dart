@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/JointMenuOption.dart';
-import 'package:fairstores/models/cartListProvider.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
@@ -54,17 +54,17 @@ final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>
   }
 );
 
-final cartProvider = FutureProvider.family<List<FoodOrdersModel>, JointModel>(
-        (ref, joint) async {
+final cartProvider = FutureProvider.family<Map<String, FoodOrdersModel>, JointModel>(
+  (ref, joint) async {
 
       // get the cart items
-      List<FoodOrdersModel> orders = await FoodOrdersModel.getJointOrders(
+      Map<String, FoodOrdersModel> orders = await FoodOrdersModel.getCart(
         jointID: joint.jointID,
         userID: ref.read(userProvider).uid
       );
 
       // load the orders into the cart list provider
-      ref.read(cartListProvider.notifier).state = orders;
+      ref.read(cartInfoProvider.notifier).state = orders;
 
       return orders;
     }
@@ -317,7 +317,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
 
     return cart.when(
       data: (data){
-        List<FoodOrdersModel> cart = ref.read(cartListProvider);
+        List<FoodOrdersModel> cart = ref.read(cartInfoProvider).values.toList();
 
         return CartCard(
           joint: widget.joint,
@@ -440,7 +440,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
   Widget build(BuildContext context) {
     final selectedOption = ref.watch(selectedMenuOptionProvider);
     final menuListItems = ref.watch(menuItemsListProvider);
-    final cartList = ref.watch(cartListProvider);
+    final cartList = ref.watch(cartInfoProvider);
     final cart = ref.watch(cartProvider(widget.joint));
     final isFavorite = ref.watch(_favoriteProvider);
 

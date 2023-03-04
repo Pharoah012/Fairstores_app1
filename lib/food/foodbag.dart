@@ -1,20 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodcartmodel.dart';
-import 'package:fairstores/food/foodcheckout.dart';
-import 'package:fairstores/models/cartListProvider.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
-import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
+import 'package:fairstores/widgets/cartItem.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final currentTabProvider = StateProvider<String>((ref) => "delivery");
-final subTotalProvider = StateProvider<double>((ref) => 0);
+final currentTabProvider = StateProvider<String>((ref) => "Delivery");
 
 class FoodBag extends ConsumerStatefulWidget {
   final JointModel joint;
@@ -36,67 +34,6 @@ class _FoodBagState extends ConsumerState<FoodBag> {
       getSubtotal();
     });
     super.initState();
-  }
-  // dynamic delivery = 0;
-  // String deliverytime = '';
-  // bool deliveryavailable = false;
-  // bool pickupavailable = false;
-  // double taxes = 0;
-  // double servicecharge = 0;
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   // getdeliveryprice();
-  //   // getservicecharge();
-  // }
-
-  // getservicecharge() async {
-  //   SecurityModel securityModel = await SecurityModel.getSecurityKeys();
-  //   setState(() {
-  //     taxes = securityModel.taxFee.toDouble();
-  //     servicecharge = securityModel.serviceCharge;
-  //   });
-  // }
-
-  // getdeliveryprice() async {
-  //   DocumentSnapshot doc = await jointsRef
-  //       .doc(widget.schoolname)
-  //       .collection('Joints')
-  //       .doc(widget.shopid)
-  //       .get();
-  //   FoodTile foodtile =
-  //       FoodTile.fromDocument(doc, widget.user, widget.schoolname);
-  //   print(foodtile.pickupavailable);
-  //   setState(() {
-  //     delivery = foodtile.tileprice.toDouble();
-  //     deliverytime = foodtile.tiledistancetime;
-  //     deliveryavailable = foodtile.deliveryavailable;
-  //     pickupavailable = foodtile.pickupavailable;
-  //   });
-  // }
-
-  // String page = 'Delivery';
-  // // List<bool> visible = [true, false];
-  // int count = 0;
-
-  Widget setPage() {
-    if (ref.read(currentTabProvider) == 'Delivery' && widget.joint.deliveryAvailable) {
-      return getCartItems();
-
-    } else if (ref.read(currentTabProvider) == 'Pickup' && widget.joint.pickupAvailable) {
-      return getCartItems();
-    }
-    else{
-      return Column(
-        children: [
-          SizedBox(height: MediaQuery.of(context).size.height / 4,),
-          CustomText(
-            text: '${ref.read(currentTabProvider)} Unavailable',
-            color: kBlack,
-          )
-        ],
-      );
-    }
   }
 
   bagHeader() {
@@ -202,35 +139,11 @@ class _FoodBagState extends ConsumerState<FoodBag> {
     );
   }
 
-  Widget getCartItems() {
-    return SizedBox.shrink();
-    // return StreamBuilder<QuerySnapshot>(
-    //     stream: foodCartRef
-    //         .doc(widget.user)
-    //         .collection('Orders')
-    //         .where('status', isEqualTo: 'pending')
-    //         .snapshots(),
-    //     builder: (context, snapshot) {
-    //       if (!snapshot.hasData) {
-    //         return SizedBox();
-    //       }
-    //
-    //       List<FoodCartModel> foodcartlist = [];
-    //       for (var doc in snapshot.data!.docs) {
-    //         foodcartlist.add(FoodCartModel.fromDocument(doc, ref.read(userProvider).uid));
-    //       }
-    //       return Column(
-    //         children: foodcartlist,
-    //       );
-    //     }
-    //     );
-  }
-
   void getSubtotal(){
     double subTotal = 0;
 
-    for (FoodOrdersModel order in ref.read(cartListProvider)){
-      subTotal += order.price;
+    for (FoodOrdersModel order in ref.read(cartInfoProvider).values){
+      subTotal += order.price * order.quantity;
     }
 
     ref.read(subTotalProvider.notifier).state = subTotal;
@@ -240,22 +153,43 @@ class _FoodBagState extends ConsumerState<FoodBag> {
   Widget build(BuildContext context) {
     final _currentTab = ref.watch(currentTabProvider);
     final securityInfo = ref.watch(securityKeysProvider);
-    final cartList = ref.watch(cartListProvider);
+    final cartInfo = ref.watch(cartInfoProvider);
     final subTotal = ref.watch(subTotalProvider);
+
+    log("message");
 
     return Scaffold(
         appBar: CustomAppBar(title: "Your Bag",),
         body: Stack(
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    bagHeader(),
-                    setPage()
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  bagHeader(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cartInfo.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index){
+                        return Container(
+                          decoration: BoxDecoration(
+                              border: index != cartInfo.length -1
+                                  ? Border(
+                                  bottom:  BorderSide(
+                                      color: kLabelColor
+                                  )
+                              ) : null
+                          ),
+                          child: CartItem(
+                            order: cartInfo.values.elementAt(index),
+                          ),
+                        );
+                      }
+                    )
+                  )
+                ],
               ),
             ),
             DraggableScrollableSheet(
@@ -359,48 +293,54 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              // if (page == 'Delivery' &&
-                              //     deliveryavailable == true) {
+
+                              if (_currentTab == 'Delivery' &&
+                                  widget.joint.deliveryAvailable) {
                               //   Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             FoodCheckout(
-                              //               userid: widget.user,
-                              //               shopid: widget.shopid,
-                              //               deliveryfee: delivery,
-                              //               taxes: taxes,
-                              //               total: total,
-                              //               school: widget.schoolname,
-                              //               servicecharge: servicecharge,
-                              //               deliverytime: deliverytime,
-                              //             ),
-                              //       ));
-                              //   print('available');
-                              // } else if (page == 'Pickup' &&
-                              //     pickupavailable == true) {
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) =>
+                              //         FoodCheckout(
+                              //           userid: widget.user,
+                              //           shopid: widget.shopid,
+                              //           deliveryfee: delivery,
+                              //           taxes: taxes,
+                              //           total: total,
+                              //           school: widget.schoolname,
+                              //           servicecharge: servicecharge,
+                              //           deliverytime: deliverytime,
+                              //         ),
+                              //     )
+                              //   );
+                              // } else if (_currentTab == 'Pickup' &&
+                              //     widget.joint.pickupAvailable) {
                               //   Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             FoodCheckout(
-                              //               userid: widget.user,
-                              //               shopid: widget.shopid,
-                              //               deliveryfee: delivery,
-                              //               taxes: taxes,
-                              //               total: total,
-                              //               school: widget.schoolname,
-                              //               servicecharge: servicecharge,
-                              //               deliverytime: deliverytime,
-                              //             ),
-                              //       ));
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) =>
+                              //         FoodCheckout(
+                              //           userid: widget.user,
+                              //           shopid: widget.shopid,
+                              //           deliveryfee: delivery,
+                              //           taxes: taxes,
+                              //           total: total,
+                              //           school: widget.schoolname,
+                              //           servicecharge: servicecharge,
+                              //           deliverytime: deliverytime,
+                              //         ),
+                              //     )
+                              //   );
                               //   print('pick available');
-                              // } else {
-                              //   ScaffoldMessenger.of(context)
-                              //       .showSnackBar(const SnackBar(
-                              //       content: Text(
-                              //           'Select an available option')));
-                              // }
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          '$_currentTab is not available'
+                                      )
+                                    )
+                                );
+                              }
                             },
                             child: Row(
                               children: [

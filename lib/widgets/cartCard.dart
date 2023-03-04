@@ -31,7 +31,7 @@ class CartCard extends ConsumerWidget {
             context,
             MaterialPageRoute(
               builder: (context) => FoodBag(
-                joint: joint
+                joint: joint,
               ),
             )
           );

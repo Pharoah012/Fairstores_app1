@@ -6,7 +6,7 @@ class FoodOrdersModel{
 
   final String status;
   final String image;
-  final int quantity;
+  int quantity;
   final String foodName;
   final String orderID;
   final dynamic price;
@@ -14,7 +14,7 @@ class FoodOrdersModel{
   final List sides;
   final String cartID;
 
-  const FoodOrdersModel({
+  FoodOrdersModel({
     required this.sides,
     required this.jointID,
     required this.orderID,
@@ -26,7 +26,7 @@ class FoodOrdersModel{
     required this.cartID
   });
 
-  factory FoodOrdersModel.fromDocument(DocumentSnapshot doc, user) {
+  factory FoodOrdersModel.fromDocument(DocumentSnapshot doc) {
     return FoodOrdersModel(
       sides: doc.get('sides'),
       status: doc.get('status'),
@@ -55,6 +55,7 @@ class FoodOrdersModel{
     };
   }
 
+  // place an order
   Future<void> placeOrder({
     required String userID
   }) async {
@@ -64,12 +65,37 @@ class FoodOrdersModel{
       .doc(userID)
       .collection('Orders')
       .doc(this.orderID)
-      .set(toJson()
-    );
+      .set(toJson());
+  }
+
+  // remove the given order
+  Future<void> removeOrder({
+    required String userID,
+  }) async {
+
+    // delete the order
+    await foodCartRef
+        .doc(userID)
+        .collection('Orders')
+        .doc(this.orderID)
+        .delete();
+  }
+
+  // update the given order
+  Future<void> updateOrder({
+    required String userID,
+  }) async {
+
+    // update the order
+    await foodCartRef
+        .doc(userID)
+        .collection('Orders')
+        .doc(this.orderID)
+        .update(toJson());
   }
 
   // get all the orders from the given joint
-  static Future<List<FoodOrdersModel>> getJointOrders({
+  static Future<Map<String, FoodOrdersModel>> getCart({
     required String jointID,
     required String userID
   }) async {
@@ -80,12 +106,15 @@ class FoodOrdersModel{
       .where('shopid', isEqualTo: jointID)
       .get();
 
+    Map<String, FoodOrdersModel> cart = {};
 
-    List<FoodOrdersModel> orders = snapshot.docs
-      .map(
-        (doc) => FoodOrdersModel.fromDocument(doc, userID)).toList();
+    for (var item in snapshot.docs){
+      FoodOrdersModel order = FoodOrdersModel.fromDocument(item);
 
-    return orders;
+      cart[order.orderID] = order;
+    }
+
+    return cart;
 
   }
 
@@ -101,6 +130,28 @@ class FoodOrdersModel{
       .get();
 
     return snapshot.size >= 1;
+  }
+
+  // update the existing card with the items in the given list
+  static Future<void> updateCart({
+    required List<FoodOrdersModel> cartList,
+    required String userID
+  }) async {
+
+    for (FoodOrdersModel order in cartList){
+
+      // check if the user has removed the order
+      if (order.quantity == 0){
+        await order.removeOrder(
+          userID: userID,
+        );
+      }
+      else{
+        await order.updateOrder(
+          userID: userID
+        );
+      }
+    }
   }
 
 }

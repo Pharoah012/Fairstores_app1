@@ -1,21 +1,38 @@
 import 'dart:developer';
 
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class QuantityButton extends ConsumerWidget {
-  final StateProvider<int> quantityProvider;
+class QuantityButton extends ConsumerStatefulWidget {
+  final StateProvider<int>? quantityProvider;
+  final bool inCart;
+  final String? orderID;
 
   const QuantityButton({
     Key? key,
-    required this.quantityProvider
+    this.quantityProvider,
+    this.inCart = false,
+    this.orderID
+
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final _count = ref.watch(quantityProvider);
+  ConsumerState<QuantityButton> createState() => _QuantityButtonState();
+}
+
+class _QuantityButtonState extends ConsumerState<QuantityButton> {
+  @override
+  Widget build(BuildContext context) {
+
+    if (widget.inCart){
+      final _cartList = ref.watch(cartInfoProvider);
+      return cartQuantityButton();
+    }
+
+    final _count = ref.watch(widget.quantityProvider!);
 
     return ElevatedButton(
       onPressed: () {},
@@ -26,7 +43,7 @@ class QuantityButton extends ConsumerWidget {
           IconButton(
             onPressed: (){
               if (_count > 1){
-                ref.read(quantityProvider.notifier).state = _count - 1;
+                ref.read(widget.quantityProvider!.notifier).state = _count - 1;
               }
             },
             icon: Icon(
@@ -42,7 +59,7 @@ class QuantityButton extends ConsumerWidget {
           ),
           IconButton(
               onPressed: (){
-                ref.read(quantityProvider.notifier).state = _count + 1;
+                ref.read(widget.quantityProvider!.notifier).state = _count + 1;
               },
               icon: Icon(
                 Icons.add,
@@ -61,6 +78,79 @@ class QuantityButton extends ConsumerWidget {
           ),
           borderRadius: BorderRadius.circular(40.0),
         ),
+        fixedSize: Size.fromHeight(56),
+      ),
+    );
+  }
+
+  Widget cartQuantityButton(){
+    final _cartList = ref.watch(cartInfoProvider);
+
+    return ElevatedButton(
+      onPressed: () {},
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              border: Border.all(color: kGrey),
+              borderRadius: BorderRadius.circular(1000)
+            ),
+            child: Center(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: (){
+                  if (_cartList[widget.orderID]!.quantity > 0){
+                    _cartList[widget.orderID]!.quantity
+                    = _cartList[widget.orderID]!.quantity - 1;
+
+                    ref.read(cartInfoProvider.notifier).state = _cartList;
+
+                    log(ref.read(cartInfoProvider)[widget.orderID]!.quantity.toString());
+                  }
+                },
+                icon: Icon(
+                  Icons.remove,
+                  color: kGrey,
+                  size: 20,
+                )
+              ),
+            ),
+          ),
+          SizedBox(width: 5,),
+          CustomText(
+            text: _cartList[widget.orderID]!.quantity.toString(),
+            color: kBlack,
+            fontSize: 20,
+          ),
+          SizedBox(width: 5,),
+          CircleAvatar(
+            radius: 16.5,
+            backgroundColor: kPrimary,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: (){
+                _cartList[widget.orderID]!.quantity
+                = _cartList[widget.orderID]!.quantity + 1;
+
+                ref.read(cartInfoProvider.notifier).state = _cartList;
+
+                log(ref.read(cartInfoProvider)[widget.orderID]!.quantity.toString());
+              },
+              icon: Icon(
+                Icons.add,
+                color: kBlack,
+                size: 20,
+              )
+            ),
+          ),
+        ],
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         fixedSize: Size.fromHeight(56),
       ),
     );
