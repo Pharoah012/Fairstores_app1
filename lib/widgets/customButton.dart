@@ -1,12 +1,11 @@
-import 'dart:ffi';
-
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
-  final String text;
+  final String? text;
+  final Widget? child;
   final bool isOrange;
   final double? width;
   final Color textColor;
@@ -14,7 +13,8 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     Key? key,
     required this.onPressed,
-    required this.text,
+    this.text,
+    this.child,
     this.isOrange = false,
     this.width,
     this.textColor = kDarkGrey
@@ -22,32 +22,24 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      width: width == null
-        ? MediaQuery.of(context).size.width
-        : width,
-      decoration: BoxDecoration(
-        border: isOrange ? null : Border.all(
-          color: kDisabledBorderColor,
-        ),
-        borderRadius: isOrange ? null : BorderRadius.circular(40)
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isOrange ? kPrimary : kWhite,
-            elevation: 0
-          ),
-          child: CustomText(
-            text: text,
-            isMediumWeight: true,
-            color: isOrange ? kWhite : textColor,
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size.fromHeight(56),
+        backgroundColor: isOrange ? kPrimary : kWhite,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40.0),
+          side: BorderSide(
+            color: isOrange ? Colors.transparent : kDisabledBorderColor
           )
         ),
       ),
+      child: child ?? CustomText(
+        text: text!,
+        isMediumWeight: true,
+        color: isOrange ? kWhite : textColor,
+      )
     );
   }
 }

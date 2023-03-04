@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fairstores/food/foodcartmodel.dart';
 
 final foodCartRef = FirebaseFirestore.instance.collection('FoodCart');
 
@@ -12,11 +11,10 @@ class FoodOrdersModel{
   final String orderID;
   final dynamic price;
   final String jointID;
-  final String user;
   final List sides;
+  final String cartID;
 
   const FoodOrdersModel({
-    required this.user,
     required this.sides,
     required this.jointID,
     required this.orderID,
@@ -24,12 +22,12 @@ class FoodOrdersModel{
     required this.image,
     required this.foodName,
     required this.quantity,
-    required this.status
+    required this.status,
+    required this.cartID
   });
 
   factory FoodOrdersModel.fromDocument(DocumentSnapshot doc, user) {
     return FoodOrdersModel(
-      user: user,
       sides: doc.get('sides'),
       status: doc.get('status'),
       jointID: doc.get('shopid'),
@@ -38,6 +36,35 @@ class FoodOrdersModel{
       foodName: doc.get('ordername'),
       quantity: doc.get('quantity'),
       image: doc.get('image'),
+      cartID: doc.get("cartid")
+    );
+  }
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      "status": this.status,
+      "image": this.image,
+      "quantity": this.quantity,
+      "ordername": this.foodName,
+      "orderid": this.orderID,
+      "total": this.price,
+      "shopid": this.jointID,
+      "sides": this.sides,
+      "cartid": this.cartID
+    };
+  }
+
+  Future<void> placeOrder({
+    required String userID
+  }) async {
+
+    // place the order
+    await foodCartRef
+      .doc(userID)
+      .collection('Orders')
+      .doc(this.orderID)
+      .set(toJson()
     );
   }
 
@@ -62,8 +89,8 @@ class FoodOrdersModel{
 
   }
 
-  // check if the user has an order from the given joint
-  static Future<bool> isOrderFromJointInCart({
+  // check if the user has an order from another joint
+  static Future<bool> isCartAvailable({
     required String userID,
     required String jointID
   }) async {

@@ -43,9 +43,12 @@ class _SavedItemsState extends ConsumerState<SavedItems> {
           return ListView.builder(
             itemCount: data.length,
             itemBuilder: (context, index){
-              return data[index].lockshop
-                ? LockedJointTile(joint: data[index])
-                : UnlockedJointTile(joint: data[index]);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: data[index].lockshop
+                  ? LockedJointTile(joint: data[index])
+                  : UnlockedJointTile(joint: data[index]),
+              );
             }
           );
         },

@@ -13,7 +13,7 @@ class JointModel{
   final bool pickupAvailable;
   final String jointID;
   final String deliveryTime;
-  final String category;
+  final String categoryID;
   final List favourites;
   final String logo;
   final bool lockshop;
@@ -31,7 +31,7 @@ class JointModel{
     required this.location,
     required this.lockshop,
     required this.favouritescount,
-    required this.category,
+    required this.categoryID,
     required this.name,
     required this.jointID,
     required this.favourites,
@@ -50,7 +50,7 @@ class JointModel{
       location: doc.get('foodjoint_location'),
       lockshop: doc.get('lockshop'),
       favouritescount: doc.get('foodjoint_favourite_count'),
-      category: doc.get('categoryid'),
+      categoryID: doc.get('categoryid'),
       jointID: doc.get('foodjoint_id'),
       favourites: doc.get('foodjoint_favourites'),
       name: doc.get("foodjoint_name"),

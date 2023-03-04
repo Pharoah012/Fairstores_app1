@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/models/JointMenuOption.dart';
-import 'package:fairstores/models/foodCartModel.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/schoolListProvider.dart';
@@ -14,6 +14,7 @@ import 'package:fairstores/widgets/jointMenuOption.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 final selectedMenuOptionProvider = StateProvider<String>((ref) => "");
 final menuItemsListProvider = StateProvider<List<JointMenuItemModel>>((ref) => []);
@@ -83,6 +84,8 @@ class FoodDetails extends ConsumerStatefulWidget {
 }
 
 class _FoodhomeState extends ConsumerState<FoodDetails> {
+
+  RefreshController refreshController = RefreshController(initialRefresh: false);
 
   Widget jointLogo() {
     return Container(
@@ -288,7 +291,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
                   padding: const EdgeInsets.only(bottom: 23.0),
                   child: JointMenuItemTile(
                     menuItem: menuList[index],
-                    categoryID: ref.read(selectedMenuOptionProvider),
+                    joint: widget.joint,
                   ),
                 );
               }
@@ -316,6 +319,8 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
     return cart.when(
       data: (data){
         List<FoodOrdersModel> cart = ref.read(cartListProvider);
+
+        log(ref.read(cartListProvider).toString());
 
         return CartCard(
           joint: widget.joint,
@@ -506,17 +511,29 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
         children: [
           Container(
             height: MediaQuery.of(context).size.height,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  jointLogo(),
-                  jointHeader(),
-                  jointInfo(),
-                  jointMenuOptionTile(),
-                  SizedBox(height: 8,),
-                  jointMenuItems(),
-                  SizedBox(height: 80,)
-                ]
+            child: SmartRefresher(
+              controller: refreshController,
+              header: WaterDropHeader(),
+              onRefresh: (){
+                ref.invalidate(cartProvider(widget.joint));
+                ref.invalidate(jointMenuItemsProvider(widget.joint));
+
+                ref.read(cartProvider(widget.joint).future);
+                ref.read(jointMenuItemsProvider(widget.joint).future);
+                refreshController.refreshCompleted();
+              },
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    jointLogo(),
+                    jointHeader(),
+                    jointInfo(),
+                    jointMenuOptionTile(),
+                    SizedBox(height: 8,),
+                    jointMenuItems(),
+                    SizedBox(height: 80,)
+                  ]
+                ),
               ),
             ),
           ),

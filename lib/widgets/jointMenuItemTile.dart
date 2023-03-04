@@ -1,12 +1,20 @@
 import 'dart:developer';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/foodDetails.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
+import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/sideMenuOptionModel.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/quantityButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tuple/tuple.dart';
+import 'package:uuid/uuid.dart';
 
 final sideOptionsListProvider = StateProvider<List<SideMenuOptionModel>>(
   (ref) => []
@@ -15,8 +23,8 @@ final sideOptionsListProvider = StateProvider<List<SideMenuOptionModel>>(
 final sideOptionProvider = FutureProvider.family<List<SideMenuOptionModel>, Tuple2>(
   (ref, menuItemInfo) async {
   List<SideMenuOptionModel> sides = await menuItemInfo.item1.getSideMenuOptions(
-    jointID: menuItemInfo.item1.jointID,
-    categoryID: menuItemInfo.item2
+    jointID: menuItemInfo.item2.jointID,
+    categoryID: menuItemInfo.item2.categoryID
   );
 
   ref.read(sideOptionsListProvider.notifier).state = sides;
@@ -24,13 +32,15 @@ final sideOptionProvider = FutureProvider.family<List<SideMenuOptionModel>, Tupl
   return sides;
 });
 
+final _quantityProvider = StateProvider<int>((ref) => 1);
+
 class JointMenuItemTile extends ConsumerStatefulWidget {
   final JointMenuItemModel menuItem;
-  final String categoryID;
+  final JointModel joint;
 
   const JointMenuItemTile({
     required this.menuItem,
-    required this.categoryID
+    required this.joint
   });
 
   @override
@@ -40,7 +50,7 @@ class JointMenuItemTile extends ConsumerStatefulWidget {
 class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
   // int count = 1;
   // SideMenuCategoryOption sideoptions = const SideMenuCategoryOption();
-  // String orderid = const Uuid().v4();
+  String orderID = const Uuid().v4();
   //
   // @override
   // void initState() {
@@ -86,36 +96,16 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
   //             ]);
   //       });
   // }
-  //
-  // checkcartavailability() async {
-  //   QuerySnapshot snapshot = await foodCartRef
-  //       .doc(widget.userid)
-  //       .collection('Orders')
-  //       .where('shopid', isNotEqualTo: widget.shopid)
-  //       .get();
-  //   if (snapshot.docs.isNotEmpty) {
-  //     cartavailabiltypopup(context);
-  //     return false;
-  //   } else {}
-  //   return true;
-  // }
-  //
-  // closeorder() async {
-  //   //open order to be prepared
-  //   DocumentSnapshot snapshot = await foodCartRef
-  //       .doc(widget.userid)
-  //       .collection('Orders')
-  //       .doc(orderid)
-  //       .get();
-  //   FoodCartModel foodCartModel =
-  //   FoodCartModel.fromDocument(snapshot, widget.userid);
-  //   if (foodCartModel.status == '') {
-  //     snapshot.reference.delete();
-  //     Navigator.pop(context);
-  //   } else {
-  //     Navigator.pop(context);
-  //   }
-  // }
+
+  // Check if the cart can be used,
+  // meaning that it not occupied by another joint
+  Future<bool> checkCartAvailability() async {
+    return await FoodOrdersModel.isCartAvailable(
+      userID: ref.read(userProvider).uid,
+      jointID: widget.joint.jointID
+    );
+  }
+
   //
   // getoptions() async {
   //   DocumentSnapshot snapshot = await menuRef
@@ -136,312 +126,223 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
   //   }
   // }
   //
-  // orderfood() {
-  //   if (widget.menuItem.hassides == false) {
-  //     checkcartavailability();
-  //     foodCartRef.doc(widget.userid).collection('Orders').doc(orderID).set({
-  //       'cartid': 'cart${widget.userid}',
-  //       'orderid': orderID,
-  //       'shopid': widget.jointID,
-  //       'sides': [],
-  //       'ordername': widget.name,
-  //       'isrequired': false,
-  //       'total': widget.price,
-  //       'status': '',
-  //       'instructions': '',
-  //       'image': widget.tileimage,
-  //       'quantity': 1,
-  //       'userid': widget.userid
-  //     });
-  //     showMaterialModalBottomSheet(
-  //       isDismissible: false,
-  //       enableDrag: false,
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //       context: context,
-  //       builder: (context) => SizedBox(
-  //         height: 436,
-  //         child: Padding(
-  //           padding: const EdgeInsets.only(left: 20.0),
-  //           child:
-  //           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-  //             Padding(
-  //               padding: const EdgeInsets.only(
-  //                 top: 21.0,
-  //               ),
-  //               child: Stack(alignment: Alignment.topRight, children: [
-  //                 ClipRRect(
-  //                   borderRadius: BorderRadius.circular(20),
-  //                   child: CachedNetworkImage(
-  //                     imageUrl: widget.tileimage,
-  //                     fit: BoxFit.cover,
-  //                     width: MediaQuery.of(context).size.width * 0.9,
-  //                     height: 200,
-  //                   ),
-  //                 ),
-  //                 Padding(
-  //                   padding: const EdgeInsets.all(14.0),
-  //                   child: IconButton(
-  //                     onPressed: () {
-  //                       closeorder();
-  //                     },
-  //                     icon: Container(
-  //                       width: 20,
-  //                       height: 20,
-  //                       decoration: BoxDecoration(
-  //                           border: Border.all(color: const Color(0xffE7E4E4)),
-  //                           color: Colors.white,
-  //                           borderRadius: BorderRadius.circular(100)),
-  //                       child: const Icon(
-  //                         Icons.close_outlined,
-  //                         size: 15,
-  //                         color: Colors.black,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ]),
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.only(top: 18.0),
-  //               child: Text(
-  //                 widget.name,
-  //                 style: GoogleFonts.manrope(
-  //                     fontWeight: FontWeight.w700, fontSize: 20),
-  //               ),
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.only(top: 4.0),
-  //               child: Text(
-  //                 widget.description,
-  //                 style: GoogleFonts.manrope(
-  //                     fontWeight: FontWeight.w400,
-  //                     fontSize: 12,
-  //                     color: const Color(0xff8B8380)),
-  //               ),
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.only(top: 10.0),
-  //               child: Text(
-  //                 'GHS ${widget.price}',
-  //                 style: GoogleFonts.manrope(
-  //                     fontWeight: FontWeight.w600, fontSize: 18),
-  //               ),
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.only(top: 10.0),
-  //               child: Row(
-  //                 children: [
-  //                   Container(
-  //                       decoration: const BoxDecoration(
-  //                         color: Colors.white,
-  //                       ),
-  //                       width: MediaQuery.of(context).size.width * 0.4,
-  //                       height: 56,
-  //                       child: MaterialButton(
-  //                           onPressed: null,
-  //                           shape: RoundedRectangleBorder(
-  //                               borderRadius: BorderRadius.circular(100),
-  //                               side:
-  //                               const BorderSide(color: Color(0xffE7E4E4))),
-  //                           child: StreamBuilder<DocumentSnapshot>(
-  //                               stream: foodCartRef
-  //                                   .doc(widget.userid)
-  //                                   .collection('Orders')
-  //                                   .doc(orderID)
-  //                                   .snapshots(),
-  //                               builder: (context, snapshot) {
-  //                                 if (!snapshot.hasData) {
-  //                                   Row(
-  //                                       mainAxisAlignment:
-  //                                       MainAxisAlignment.center,
-  //                                       children: [
-  //                                         Padding(
-  //                                           padding: const EdgeInsets.only(
-  //                                               right: 20.0),
-  //                                           child: GestureDetector(
-  //                                             onTap: () {},
-  //                                             child: const Icon(Icons.remove,
-  //                                                 size: 20,
-  //                                                 color: Colors.black),
-  //                                           ),
-  //                                         ),
-  //                                         Text(
-  //                                           '1',
-  //                                           style: GoogleFonts.manrope(
-  //                                               fontWeight: FontWeight.w400,
-  //                                               fontSize: 20,
-  //                                               color: Colors.black),
-  //                                         ),
-  //                                         Padding(
-  //                                           padding: const EdgeInsets.only(
-  //                                               left: 20.0),
-  //                                           child: GestureDetector(
-  //                                             onTap: () {},
-  //                                             child: const Icon(
-  //                                               Icons.add,
-  //                                               size: 20,
-  //                                               color: Colors.black,
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ]);
-  //                                 }
-  //
-  //                                 FoodCartModel foodCartModel =
-  //                                 FoodCartModel.fromDocument(
-  //                                     snapshot.data!, widget.userid);
-  //                                 int count = foodCartModel.quantity;
-  //
-  //                                 return StatefulBuilder(builder:
-  //                                     (BuildContext context,
-  //                                     StateSetter setState) {
-  //                                   return Row(
-  //                                       mainAxisAlignment:
-  //                                       MainAxisAlignment.center,
-  //                                       children: [
-  //                                         Padding(
-  //                                           padding:
-  //                                           const EdgeInsets.only(right: 0),
-  //                                           child: IconButton(
-  //                                             onPressed: () {
-  //                                               setState(() {
-  //                                                 if (count == 1) {
-  //                                                 } else {
-  //                                                   count -= 1;
-  //                                                   foodCartRef
-  //                                                       .doc(widget.userid)
-  //                                                       .collection('Orders')
-  //                                                       .doc(orderID)
-  //                                                       .update({
-  //                                                     'quantity': count
-  //                                                   });
-  //                                                 }
-  //                                               });
-  //                                             },
-  //                                             icon: const Icon(Icons.remove,
-  //                                                 size: 20,
-  //                                                 color: Colors.black),
-  //                                           ),
-  //                                         ),
-  //                                         Text(
-  //                                           '$count',
-  //                                           style: GoogleFonts.manrope(
-  //                                               fontWeight: FontWeight.w400,
-  //                                               fontSize: 20,
-  //                                               color: Colors.black),
-  //                                         ),
-  //                                         Padding(
-  //                                           padding: const EdgeInsets.only(
-  //                                               left: 0.0),
-  //                                           child: IconButton(
-  //                                             onPressed: () {
-  //                                               count += 1;
-  //                                               foodCartRef
-  //                                                   .doc(widget.userid)
-  //                                                   .collection('Orders')
-  //                                                   .doc(orderID)
-  //                                                   .update(
-  //                                                   {'quantity': count});
-  //                                             },
-  //                                             icon: const Icon(
-  //                                               Icons.add,
-  //                                               size: 20,
-  //                                               color: Colors.black,
-  //                                             ),
-  //                                           ),
-  //                                         ),
-  //                                       ]);
-  //                                 });
-  //                               }))),
-  //                   Padding(
-  //                     padding: const EdgeInsets.only(
-  //                       left: 14.0,
-  //                     ),
-  //                     child: Container(
-  //                       decoration: BoxDecoration(
-  //                           color: kPrimary,
-  //                           borderRadius: BorderRadius.circular(100)),
-  //                       height: 56,
-  //                       width: MediaQuery.of(context).size.width * 0.45,
-  //                       child: MaterialButton(
-  //                           onPressed: () {
-  //                             foodCartRef
-  //                                 .doc(widget.userid)
-  //                                 .collection('Orders')
-  //                                 .doc(orderID)
-  //                                 .update({'status': 'pending'});
-  //                             Navigator.pop(context);
-  //                             Navigator.push(
-  //                                 context,
-  //                                 MaterialPageRoute(
-  //                                   builder: (context) => FoodBag(
-  //                                     jointID: widget.jointID,
-  //                                     user: widget.userid,
-  //                                     schoolname: widget.school,
-  //                                   ),
-  //                                 ));
-  //                           },
-  //                           child: Center(
-  //                               child: Row(
-  //                                 mainAxisAlignment: MainAxisAlignment.center,
-  //                                 children: [
-  //                                   const Padding(
-  //                                     padding: EdgeInsets.only(right: 6.0),
-  //                                     child: Icon(
-  //                                       Icons.shopping_bag,
-  //                                       color: Colors.white,
-  //                                       size: 15,
-  //                                     ),
-  //                                   ),
-  //                                   Text(
-  //                                     'Add to Bag',
-  //                                     style: GoogleFonts.manrope(
-  //                                         fontWeight: FontWeight.w600,
-  //                                         fontSize: 12,
-  //                                         color: Colors.white),
-  //                                   ),
-  //                                 ],
-  //                               ))),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             )
-  //           ]),
-  //         ),
-  //       ),
-  //     );
-  //   } else if (widget.hassides == true) {
-  //     checkcartavailability();
-  //
-  //     showBarModalBottomSheet(
-  //       isDismissible: false,
-  //       enableDrag: false,
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-  //       context: context,
-  //       builder: (context) => SizedBox(
-  //           height: MediaQuery.of(context).size.height * 0.90,
-  //           child: FoodOptions(
-  //             userid: widget.userid,
-  //             mealheader: widget.tileimage,
-  //             mealdescription: widget.description,
-  //             mealname: widget.name,
-  //             mealid: widget.id,
-  //             mealprice: widget.price,
-  //             school: widget.school,
-  //             jointID: widget.jointID,
-  //             categoryid: widget.categoryid,
-  //           )),
-  //     );
-  //   }
-  // }
+
+  // Add the given item to the user's cart
+  Future<void> addToBag(FoodOrdersModel order) async {
+    try{
+      await order.placeOrder(
+          userID: ref.read(userProvider).uid
+      );
+
+      ref.invalidate(cartProvider(widget.joint));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  "Your item has been added to cart"
+              )
+          )
+      );
+    } catch (exception) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Unable to add to cart. Please try again later."
+          )
+        )
+      );
+    }
+  }
+
+
+  orderFood() async {
+
+    // check if the menu item doesn't have sides
+    if (widget.menuItem.hassides == false) {
+
+      return showMaterialModalBottomSheet(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        context: context,
+        builder: (context){
+          return SizedBox(
+            height: 436,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 21.0,
+                      ),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: CachedNetworkImage(
+                              imageUrl: widget.menuItem.tileimage,
+                              fit: BoxFit.cover,
+                              // width: MediaQuery.of(context).size.width ,
+                              height: 200,
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: IconButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              icon: CircleAvatar(
+                                radius: 10,
+                                backgroundColor: kWhite,
+                                child: const Icon(
+                                  Icons.close_outlined,
+                                  size: 15,
+                                  color: kGrey,
+                                ),
+                              )
+                            ),
+                          ),
+                        ]
+                      ),
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    CustomText(
+                      text: widget.menuItem.name,
+                      fontSize: 20,
+                      isBold: true,
+                      color: kBlack,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    widget.menuItem.description.isEmpty
+                      ? SizedBox.shrink()
+                      : CustomText(
+                        text: widget.menuItem.description,
+                        fontSize: 12,
+                        color: kBlack,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    CustomText(
+                      text: 'GHS ${widget.menuItem.price.toDouble().toString()}',
+                      fontSize: 18,
+                      isMediumWeight: true,
+                      color: kBlack,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        QuantityButton(
+                          quantityProvider: _quantityProvider),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: CustomButton(
+                            isOrange: true,
+                            onPressed: () async {
+
+                              FoodOrdersModel foodOrder = FoodOrdersModel(
+                                  cartID: "cart${ref.read(userProvider).uid}",
+                                  sides: [],
+                                  jointID: widget.joint.jointID,
+                                  orderID: orderID,
+                                  price: widget.menuItem.price * ref.read(_quantityProvider),
+                                  image: widget.menuItem.tileimage,
+                                  foodName: widget.menuItem.name,
+                                  quantity:
+                                  ref.read(_quantityProvider),
+                                  status: "pending"
+                              );
+
+                              // check if the cart is available
+                              bool isCartAvailable = await checkCartAvailability();
+
+                              if (isCartAvailable) {
+
+                                // add the order to the user's bag
+                                await addToBag(foodOrder);
+                                Navigator.pop(context);
+                              }
+                              else{
+
+                              }
+
+
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.shopping_bag,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                CustomText(
+                                  text: 'Add to Bag',
+                                  fontSize: 16,
+                                  color: kWhite,
+                                  isMediumWeight: true,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ]
+              ),
+            ),
+          );
+        }
+      );
+    }
+
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: CustomText(text: "text"),
+    ));
+
+    //
+    // // show the side options of the item for the user to pick
+    // return showBarModalBottomSheet(
+    //   isDismissible: false,
+    //   enableDrag: false,
+    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    //   context: context,
+    //   builder: (context) => SizedBox(
+    //     height: MediaQuery.of(context).size.height * 0.90,
+    //     child: FoodOptions(
+    //       userid: widget.userid,
+    //       mealheader: widget.tileimage,
+    //       mealdescription: widget.description,
+    //       mealname: widget.name,
+    //       mealid: widget.id,
+    //       mealprice: widget.price,
+    //       school: widget.school,
+    //       jointID: widget.jointID,
+    //       categoryid: widget.categoryid,
+    //     )),
+    // );
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    Tuple2<JointMenuItemModel, String> menuItemInfo = Tuple2(
+    Tuple2<JointMenuItemModel, JointModel> menuItemInfo = Tuple2(
       widget.menuItem,
-      widget.categoryID
+      widget.joint
     );
+    final quantity = ref.watch(_quantityProvider);
 
     // watch the sides
     final sides = ref.watch(sideOptionProvider(menuItemInfo));
@@ -458,7 +359,7 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: GestureDetector(
         onTap: () {
-          // orderfood();
+          orderFood();
         },
         child: SizedBox(
           child: Row(
