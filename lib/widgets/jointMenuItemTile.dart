@@ -334,15 +334,6 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
           menuItem: widget.menuItem,
           menuItemOptionsList: sideOptionsListProvider,
           menuOptions: sideOptionProvider,
-          // userid: widget.userid,
-          // mealheader: widget.tileimage,
-          // mealdescription: widget.description,
-          // mealname: widget.name,
-          // mealid: widget.id,
-          // mealprice: widget.price,
-          // school: widget.school,
-          // jointID: widget.jointID,
-          // categoryid: widget.categoryid,
         )
       ),
     );
@@ -371,8 +362,6 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
       error: (_, err) => log("Sides Error: ${err.toString()}"),
       loading: () => log("loading sides")
     );
-
-    log(sidesList.length.toString());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),

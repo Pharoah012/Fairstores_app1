@@ -19,9 +19,11 @@ class MenuItemOptionModel {
 
   factory MenuItemOptionModel.fromDocument(DocumentSnapshot doc) {
     log(doc.data().toString());
+
+    //TODO:
     if (!(doc.data() as Map<String, dynamic>).containsKey('price')){
       return MenuItemOptionModel(
-          maxitems: doc.get('maxitems') ?? 0,
+          maxitems: doc.get('maxitems'),
           index: doc.get('index'),
           id: doc.get('id'),
           isrequired: doc.get('isrequired'),
@@ -32,7 +34,7 @@ class MenuItemOptionModel {
     return MenuItemOptionModel(
         maxitems: 0,
         index: 1,
-        id: "1",
+        id: "01",
         isrequired: false,
         name: "name"
     );

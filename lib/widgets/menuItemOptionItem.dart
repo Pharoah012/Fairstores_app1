@@ -54,7 +54,7 @@ class MenuItemOptionItem extends ConsumerWidget {
         Row(
           children: [
             CustomText(
-              text: menuItemOptionItem.name,
+              text: "+GHS ${menuItemOptionItem.price.toString()}",
               color: kBlack,
               isMediumWeight: true,
               fontSize: 10,
@@ -71,6 +71,9 @@ class MenuItemOptionItem extends ConsumerWidget {
 
                   // indicate that it has been unselected
                   ref.read(isSelectedProvider.notifier).state = !_isSelected;
+
+                  // decrement the number of options selected
+                  ref.read(selectedOptionsCountProvider.notifier).state = _selectedNumber - 1;
                 }
                 // check if the user can select this side
                 // if the currently selected number is less than the max
@@ -82,21 +85,30 @@ class MenuItemOptionItem extends ConsumerWidget {
                   // indicate that this item has been selected
                   ref.read(isSelectedProvider.notifier).state = !_isSelected;
 
+                  // increment the number of options selected
+                  ref.read(selectedOptionsCountProvider.notifier).state = _selectedNumber + 1;
+
                 }
               },
               child: Container(
-                padding: EdgeInsets.all(8),
+                height: 20,
+                width: 20,
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: kLabelColor
                   ),
-                  borderRadius: BorderRadius.circular(50)
+                  borderRadius: BorderRadius.circular(50),
                 ),
                 child: _isSelected
                   ? Center(
-                    child: CircleAvatar(
-                    backgroundColor: kGrey,
-                ),
+                    child: Container(
+                      height: 15,
+                      width: 15,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        color: kGreen
+                      ),
+                    ),
                   )
                   : null,
               ),

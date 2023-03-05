@@ -1,11 +1,13 @@
 import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/foodDetails.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/menuItemOptionItemModel.dart';
 import 'package:fairstores/models/menuItemOptionModel.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/customTextFormField.dart';
@@ -18,13 +20,15 @@ import 'package:uuid/uuid.dart';
 final selectedSidesProvider = StateProvider<List<MenuItemOptionItemModel>>(
   (ref) => []);
 
+final requiredCheckerProvider = StateProvider<Map<String, StateProvider<int>>>((ref) => {});
+
 final menuItemOptionItemsProvider = FutureProvider.family<List<MenuItemOptionItemModel>, Tuple3>(
   (ref, menuItemInfo) async {
-  List<MenuItemOptionItemModel> sidesList = await menuItemInfo.item1.getMenuItemOptionsList(
+
+  List<MenuItemOptionItemModel> sidesList = await menuItemInfo.item1.getMenuItemOptionList(
     jointID: menuItemInfo.item2.jointID,
     categoryID: menuItemInfo.item2.categoryID,
     menuItemOptionID: menuItemInfo.item3
-
   );
 
   return sidesList;
@@ -52,7 +56,7 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
   // bool isrequired = false;
   // bool selected = false;
 
-  String orderid = const Uuid().v4();
+  String orderID = const Uuid().v4();
   TextEditingController instructionController = TextEditingController();
 
   // @override
@@ -281,35 +285,21 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
   //       });
   // }
 
-  // checkisrequired() async {
-  //   DocumentSnapshot snapshot = await foodCartRef
-  //       .doc(widget.userid)
-  //       .collection('Orders')
-  //       .doc(orderid)
-  //       .get();
-  //   SideslistModel sideslistModel = SideslistModel.fromDocument(snapshot);
-  //
-  //   if (sideslistModel.isrequired == false) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Please select required')));
-  //   } else {
-  //     Navigator.pop(context);
-  //     foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).update({
-  //       'status': 'pending',
-  //       'instructions': instructionController.text,
-  //     });
-  //
-  //     // Navigator.push(
-  //     //     context,
-  //     //     MaterialPageRoute(
-  //     //       builder: (context) => FoodBag(
-  //     //           joint: null,),
-  //     //     ));
-  //     setState(() {
-  //       orderid = const Uuid().v4();
-  //     });
-  //   }
-  // }
+
+  
+  // check if options have been selected in required fields
+  bool areAllRequiredFieldsFilled(){
+    bool result = true;
+    
+    // iterate though the required fields to check if an option has been selected
+    for (StateProvider<int> numberOfSelectedFields in ref.read(requiredCheckerProvider).values){
+      if (ref.read(numberOfSelectedFields) < 1){
+        result = false;
+      }
+    }
+    
+    return result;
+  }
 
   Widget menuItemOptionItems(List<MenuItemOptionModel> options){
 
@@ -318,10 +308,11 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
       shrinkWrap: true,
       itemCount: options.length,
       itemBuilder: (context, index){
+        
         // initialize the info needed to get the menu item option items
-        Tuple3<JointModel, JointMenuItemModel, String> menuItemOptionItemInfo = Tuple3(
-          widget.joint,
+        Tuple3<JointMenuItemModel, JointModel, String> menuItemOptionItemInfo = Tuple3(
           widget.menuItem,
+          widget.joint,
           options[index].id
         );
 
@@ -361,6 +352,7 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
               ),
             ),
             Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
               color: kWhite,
               child: _menuItemOptionItemProvider.when(
                 data: (data){
@@ -373,18 +365,27 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
                     );
                   }
 
+                  // track the number of selected options
+                  final selectedOptionsCountProvider = StateProvider<int>(
+                          (ref) => 0
+                  );
+
+                  // check if the option is required and create a field for it in the required
+                  // field checker provider
+                  if (options[index].isrequired){
+                    ref.read(requiredCheckerProvider.notifier)
+                      .state[options[index].id] = selectedOptionsCountProvider;
+                  }
+
                   return ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: data.length,
                     shrinkWrap: true,
                     itemBuilder: (context, itemIndex){
-                      final selectedOptionsCountProvider = StateProvider<int>(
-                        (ref) => 0
-                      );
 
                       return MenuItemOptionItem(
                         menuItemOptionItem: data[itemIndex],
-                          selectedOptionsCountProvider: selectedOptionsCountProvider,
+                        selectedOptionsCountProvider: selectedOptionsCountProvider,
                         selectedSidesProvider: selectedSidesProvider,
                         menuItemMaxSidesNumber: options[index].maxitems
                       );
@@ -448,8 +449,58 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
               ),
               SizedBox(height: 18,),
               CustomButton(
-                onPressed: (){
-                  // checkisrequired();
+                onPressed: () async {
+
+                  // check if all the required option are selected
+                  if (!areAllRequiredFieldsFilled()){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select all required options')
+                      )
+                    );
+                  }
+
+                  // Create the order model
+                  FoodOrdersModel order = FoodOrdersModel(
+                    sides: ref.read(selectedSidesProvider).map(
+                      (object) => object.toJson()
+                    ).toList(),
+                    jointID: widget.joint.jointID,
+                    orderID: orderID,
+                    price: widget.menuItem.price,
+                    image: widget.menuItem.tileimage,
+                    foodName: widget.menuItem.name,
+                    quantity: 1,
+                    status: "pending",
+                    cartID: "cart${ref.read(userProvider).uid}"
+                  );
+
+                  // add the order to the cart
+                  try{
+                    await order.placeOrder(
+                        userID: ref.read(userProvider).uid
+                    );
+
+                    ref.invalidate(cartProvider(widget.joint));
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                "Your item has been added to cart"
+                            )
+                        )
+                    );
+
+                    // remove the drawer
+                    Navigator.of(context).pop();
+                  } catch (exception) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text("Unable to add to cart. Please try again later."
+                            )
+                        )
+                    );
+                  }
                 },
                 isOrange: true,
                 child: Row(
@@ -494,6 +545,9 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
     // watch the sides
     final sides = ref.watch(widget.menuOptions(menuItemInfo));
     final sidesList = ref.watch(widget.menuItemOptionsList);
+    
+    // watch the required fields
+    final _requiredFieldChecker = ref.watch(requiredCheckerProvider);
 
     return Scaffold(
       body: Stack(
