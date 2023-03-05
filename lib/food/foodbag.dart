@@ -1,11 +1,7 @@
-import 'dart:developer';
-
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
-import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/cartItem.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -131,17 +127,6 @@ class _FoodBagState extends ConsumerState<FoodBag> {
         )
     );
   }
-
-  // void getSubtotal(){
-  //   double subTotal = 0;
-  //
-  //   for (FoodOrdersModel order in ref.read(cartInfoProvider).values){
-  //     subTotal += order.price * order.quantity;
-  //   }
-  //
-  //   ref.read(subTotalProvider.notifier).state = subTotal;
-  // }
-
 
   @override
   Widget build(BuildContext context) {

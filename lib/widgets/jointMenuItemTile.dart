@@ -2,10 +2,11 @@ import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodDetails.dart';
+import 'package:fairstores/food/foodSideOptions.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
-import 'package:fairstores/models/sideMenuOptionModel.dart';
+import 'package:fairstores/models/menuItemOptionModel.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -15,22 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
-
-final sideOptionsListProvider = StateProvider<List<SideMenuOptionModel>>(
-  (ref) => []
-);
-
-final sideOptionProvider = FutureProvider.family<List<SideMenuOptionModel>, Tuple2>(
-  (ref, menuItemInfo) async {
-  List<SideMenuOptionModel> sides = await menuItemInfo.item1.getSideMenuOptions(
-    jointID: menuItemInfo.item2.jointID,
-    categoryID: menuItemInfo.item2.categoryID
-  );
-
-  ref.read(sideOptionsListProvider.notifier).state = sides;
-
-  return sides;
-});
 
 class JointMenuItemTile extends ConsumerStatefulWidget {
   final JointMenuItemModel menuItem;
@@ -46,78 +31,78 @@ class JointMenuItemTile extends ConsumerStatefulWidget {
 }
 
 class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
-  // int count = 1;
-  // SideMenuCategoryOption sideoptions = const SideMenuCategoryOption();
+
   String orderID = const Uuid().v4();
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getoptions();
-  // }
-  //
-  cartAvailabilityPopup({required String jointID}) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Center(
-            child: CustomText(
-              text: "Cart",
-              color: kPrimary,
-              isBold: true
-            )
-          ),
-          actions: [
-            CustomText(
-              text: 'Your cart is currently being used by another joint. '
-                  'Do you want to clear it?',
-              isCenter: true,
-            ),
-            TextButton(
-              onPressed: () async {
 
-                try {
-                  await FoodOrdersModel.clearCart(
-                    userID: ref.read(userProvider).uid,
-                    jointID: jointID
-                  );
+  final sideOptionsListProvider = StateProvider<List<MenuItemOptionModel>>(
+          (ref) => []
+  );
 
-                  Navigator.of(context).pop();
-                }
-                catch(exception){
-                  log(exception.toString());
-                  ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'An error occurred while clearing the other cart.'
-                      )
-                    )
-                  );
-                }
-                // QuerySnapshot snapshot = await foodCartRef
-                //     .doc(widget.userid)
-                //     .collection('Orders')
-                //     .get();
-                // for (var e in snapshot.docs) {
-                //   e.reference.delete();
-                // }
-                // Navigator.pop(context);
-                // Navigator.pop(context);
-              },
-              child: Center(
-                child: CustomText(
-                  text: "Clear Cart",
-                  color: kPrimary,
-                )
-              )
-            )
-          ]
-        );
-      }
+  final sideOptionProvider = FutureProvider.family<List<MenuItemOptionModel>, Tuple3>(
+      (ref, menuItemInfo) async {
+    List<MenuItemOptionModel> sides = await menuItemInfo.item1.getMenuItemOptions(
+        jointID: menuItemInfo.item2.jointID,
+        categoryID: menuItemInfo.item2.categoryID
     );
-  }
+
+    ref.read(menuItemInfo.item3.notifier).state = sides;
+
+    return sides;
+  });
+
+  // cartAvailabilityPopup({required String jointID}) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Center(
+  //           child: CustomText(
+  //             text: "Cart",
+  //             color: kPrimary,
+  //             isBold: true
+  //           )
+  //         ),
+  //         actions: [
+  //           CustomText(
+  //             text: 'Your cart is currently being used by another joint. '
+  //                 'Do you want to clear it?',
+  //             isCenter: true,
+  //           ),
+  //           TextButton(
+  //             onPressed: () async {
+  //
+  //               try {
+  //                 await FoodOrdersModel.clearCart(
+  //                   userID: ref.read(userProvider).uid,
+  //                   jointID: jointID
+  //                 );
+  //
+  //                 Navigator.of(context).pop();
+  //               }
+  //               catch(exception){
+  //                 log(exception.toString());
+  //                 ScaffoldMessenger.of(context)
+  //                   .showSnackBar(
+  //                   SnackBar(
+  //                     content: Text(
+  //                         'An error occurred while clearing the other cart.'
+  //                     )
+  //                   )
+  //                 );
+  //               }
+  //             },
+  //             child: Center(
+  //               child: CustomText(
+  //                 text: "Clear Cart",
+  //                 color: kPrimary,
+  //               )
+  //             )
+  //           )
+  //         ]
+  //       );
+  //     }
+  //   );
+  // }
 
   // Check if the cart can be used,
   // meaning that it not occupied by another joint
@@ -193,144 +178,144 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 21.0,
-                      ),
-                      child: Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: CachedNetworkImage(
-                              imageUrl: widget.menuItem.tileimage,
-                              fit: BoxFit.cover,
-                              width: MediaQuery.of(context).size.width ,
-                              height: 200,
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              icon: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: kWhite,
-                                child: const Icon(
-                                  Icons.close_outlined,
-                                  size: 15,
-                                  color: kGrey,
-                                ),
-                              )
-                            ),
-                          ),
-                        ]
-                      ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 21.0,
                     ),
-                    SizedBox(
-                      height: 18,
-                    ),
-                    CustomText(
-                      text: widget.menuItem.name,
-                      fontSize: 20,
-                      isBold: true,
-                      color: kBlack,
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    widget.menuItem.description.isEmpty
-                      ? SizedBox.shrink()
-                      : CustomText(
-                        text: widget.menuItem.description,
-                        fontSize: 12,
-                        color: kBlack,
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    CustomText(
-                      text: 'GHS ${widget.menuItem.price.toDouble().toString()}',
-                      fontSize: 18,
-                      isMediumWeight: true,
-                      color: kBlack,
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Stack(
                       children: [
-                        QuantityButton(
-                          quantityProvider: _quantityProvider
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: CustomButton(
-                            isOrange: true,
-                            onPressed: () async {
-
-                              FoodOrdersModel foodOrder = FoodOrdersModel(
-                                cartID: "cart${ref.read(userProvider).uid}",
-                                sides: [],
-                                jointID: widget.joint.jointID,
-                                orderID: orderID,
-                                price: widget.menuItem.price,
-                                image: widget.menuItem.tileimage,
-                                foodName: widget.menuItem.name,
-                                quantity:
-                                ref.read(_quantityProvider),
-                                status: "pending"
-                              );
-
-                              // // check if the cart is available
-                              // String? isCartAvailable = await checkCartAvailability();
-                              //
-                              // if (isCartAvailable == null) {
-                              //
-                              //
-                              // }
-                              // else{
-                              //   // Navigator.of(context).pop();
-                              //
-                              //   cartAvailabilityPopup(
-                              //     jointID: isCartAvailable
-                              //   );
-                              // }
-
-                              // add the order to the user's bag
-                              await addToBag(foodOrder);
-                              Navigator.pop(context);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.shopping_bag,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                CustomText(
-                                  text: 'Add to Bag',
-                                  fontSize: 16,
-                                  color: kWhite,
-                                  isMediumWeight: true,
-                                )
-                              ],
-                            ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: CachedNetworkImage(
+                            imageUrl: widget.menuItem.tileimage,
+                            fit: BoxFit.cover,
+                            width: MediaQuery.of(context).size.width ,
+                            height: 200,
                           ),
                         ),
-                      ],
-                    )
-                  ]
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: CircleAvatar(
+                              radius: 10,
+                              backgroundColor: kWhite,
+                              child: const Icon(
+                                Icons.close_outlined,
+                                size: 15,
+                                color: kGrey,
+                              ),
+                            )
+                          ),
+                        ),
+                      ]
+                    ),
+                  ),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  CustomText(
+                    text: widget.menuItem.name,
+                    fontSize: 20,
+                    isBold: true,
+                    color: kBlack,
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  widget.menuItem.description.isEmpty
+                    ? SizedBox.shrink()
+                    : CustomText(
+                      text: widget.menuItem.description,
+                      fontSize: 12,
+                      color: kBlack,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  CustomText(
+                    text: 'GHS ${widget.menuItem.price.toDouble().toString()}',
+                    fontSize: 18,
+                    isMediumWeight: true,
+                    color: kBlack,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      QuantityButton(
+                        quantityProvider: _quantityProvider
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: CustomButton(
+                          isOrange: true,
+                          onPressed: () async {
+
+                            FoodOrdersModel foodOrder = FoodOrdersModel(
+                              cartID: "cart${ref.read(userProvider).uid}",
+                              sides: [],
+                              jointID: widget.joint.jointID,
+                              orderID: orderID,
+                              price: widget.menuItem.price,
+                              image: widget.menuItem.tileimage,
+                              foodName: widget.menuItem.name,
+                              quantity:
+                              ref.read(_quantityProvider),
+                              status: "pending"
+                            );
+
+                            // // check if the cart is available
+                            // String? isCartAvailable = await checkCartAvailability();
+                            //
+                            // if (isCartAvailable == null) {
+                            //
+                            //
+                            // }
+                            // else{
+                            //   // Navigator.of(context).pop();
+                            //
+                            //   cartAvailabilityPopup(
+                            //     jointID: isCartAvailable
+                            //   );
+                            // }
+
+                            // add the order to the user's bag
+                            await addToBag(foodOrder);
+                            Navigator.pop(context);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.shopping_bag,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              CustomText(
+                                text: 'Add to Bag',
+                                fontSize: 16,
+                                color: kWhite,
+                                isMediumWeight: true,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ]
               ),
             ),
           );
@@ -338,41 +323,43 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
       );
     }
 
-    showDialog(context: context, builder: (context) => AlertDialog(
-      title: CustomText(text: "text"),
-    ));
-
-    //
-    // // show the side options of the item for the user to pick
-    // return showBarModalBottomSheet(
-    //   isDismissible: false,
-    //   enableDrag: false,
-    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    //   context: context,
-    //   builder: (context) => SizedBox(
-    //     height: MediaQuery.of(context).size.height * 0.90,
-    //     child: FoodOptions(
-    //       userid: widget.userid,
-    //       mealheader: widget.tileimage,
-    //       mealdescription: widget.description,
-    //       mealname: widget.name,
-    //       mealid: widget.id,
-    //       mealprice: widget.price,
-    //       school: widget.school,
-    //       jointID: widget.jointID,
-    //       categoryid: widget.categoryid,
-    //     )),
-    // );
+    // show the side options of the item for the user to pick
+    return showBarModalBottomSheet(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      context: context,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.90,
+        child: FoodOptions(
+          joint: widget.joint,
+          menuItem: widget.menuItem,
+          menuItemOptionsList: sideOptionsListProvider,
+          menuOptions: sideOptionProvider,
+          // userid: widget.userid,
+          // mealheader: widget.tileimage,
+          // mealdescription: widget.description,
+          // mealname: widget.name,
+          // mealid: widget.id,
+          // mealprice: widget.price,
+          // school: widget.school,
+          // jointID: widget.jointID,
+          // categoryid: widget.categoryid,
+        )
+      ),
+    );
 
   }
 
   @override
   Widget build(BuildContext context) {
-    Tuple2<JointMenuItemModel, JointModel> menuItemInfo = Tuple2(
+    Tuple3<
+      JointMenuItemModel,
+      JointModel,
+      StateProvider<List<MenuItemOptionModel>>
+    > menuItemInfo = Tuple3(
       widget.menuItem,
-      widget.joint
+      widget.joint,
+      sideOptionsListProvider
     );
-
 
     // watch the sides
     final sides = ref.watch(sideOptionProvider(menuItemInfo));
@@ -384,6 +371,8 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
       error: (_, err) => log("Sides Error: ${err.toString()}"),
       loading: () => log("loading sides")
     );
+
+    log(sidesList.length.toString());
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),

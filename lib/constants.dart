@@ -2,16 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 // ----------- Text Colors ------------
-const Color kPrimary = Color(0xffF25E37);
-const Color kWhite = Colors.white;
-const Color kBlack = Colors.black;
 const Color kBrownText = Color(0xff180602);
 const Color kDarkGrey = Color(0xff374151);
 const Color kPurple = Color(0xff4B4EFC);
 const Color kBlue = Color(0xff048EBF);
 const Color kGrey = Color(0xff6B7280);
-const Color kScaffoldColor = Color(0xFFE5E5E5);
 
+// -------------- Theme Colors -----------
+const kGreen = Color(0xFF1F8B24);
+const Color kScaffoldColor = Color(0xFFE5E5E5);
+const Color kPrimary = Color(0xffF25E37);
+const Color kWhite = Colors.white;
+const Color kBlack = Colors.black;
 
 // ----------- Button Colors ------------
 const Color kLabelColor = Color(0xff8B8380);
