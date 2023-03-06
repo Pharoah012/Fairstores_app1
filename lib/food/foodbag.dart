@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/foodCheckout.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/cartItem.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -128,239 +133,283 @@ class _FoodBagState extends ConsumerState<FoodBag> {
     );
   }
 
+  double totalAmount(){
+    return ref.read(subTotalProvider)
+      + ref.read(securityKeysProvider)!.taxFee
+      + ref.read(securityKeysProvider)!.serviceCharge
+      + widget.joint.price.toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     final _currentTab = ref.watch(currentTabProvider);
     final securityInfo = ref.watch(securityKeysProvider);
     final cartInfo = ref.watch(cartInfoProvider);
     final subTotal = ref.watch(subTotalProvider);
+    final user = ref.watch(userProvider);
 
     return Scaffold(
-        appBar: CustomAppBar(title: "Your Bag",),
-        body: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  bagHeader(),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: cartInfo.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index){
-                        final _quantityProvider = StateProvider.autoDispose<int>(
-                          (ref) => cartInfo.values.elementAt(index).quantity
-                        );
+      appBar: CustomAppBar(title: "Your Bag",),
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                bagHeader(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartInfo.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index){
+                      final _quantityProvider = StateProvider.autoDispose<int>(
+                        (ref) => cartInfo.values.elementAt(index).quantity
+                      );
 
-                        final quantity = ref.watch(_quantityProvider);
-                        return Container(
-                          decoration: BoxDecoration(
-                              border: index != cartInfo.length -1
-                                  ? Border(
-                                  bottom:  BorderSide(
-                                      color: kLabelColor
-                                  )
-                              ) : null
-                          ),
-                          child: CartItem(
-                            order: cartInfo.values.elementAt(index),
-                            quantityProvider: _quantityProvider
-                          ),
-                        );
-                      }
-                    )
-                  )
-                ],
-              ),
-            ),
-            DraggableScrollableSheet(
-              initialChildSize: 0.40,
-              minChildSize: 0.1,
-              maxChildSize: 0.40,
-              builder: (BuildContext context, ScrollController scrollController) =>
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: kPrimary,
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(21),
-                        topRight: Radius.circular(21)
-                    )
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      SizedBox(height: 14,),
-                      Center(
-                        child: Container(
-                          color: Colors.white,
-                          width: 40,
-                          height: 4,
+                      final quantity = ref.watch(_quantityProvider);
+                      return Container(
+                        decoration: BoxDecoration(
+                            border: index != cartInfo.length -1
+                                ? Border(
+                                bottom:  BorderSide(
+                                    color: kLabelColor
+                                )
+                            ) : null
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "Subtotal",
-                            fontSize: 18,
-                            color: kWhite,
-                            isBold: true,
-                          ),
-                          CustomText(
-                            text: "GHS $subTotal",
-                            fontSize: 18,
-                            color: kWhite,
-                            isBold: true,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "Taxes",
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                          CustomText(
-                            text: "GHS ${securityInfo!.taxFee}",
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 18,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "Service Fee",
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                          CustomText(
-                            text: "GHS ${securityInfo.serviceCharge}",
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 18,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CustomText(
-                            text: "Delivery",
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                          CustomText(
-                            text: 'GHS ${widget.joint.price.toDouble()}',
-                            fontSize: 16,
-                            color: kWhite,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 22,),
-                      Divider(
+                        child: CartItem(
+                          order: cartInfo.values.elementAt(index),
+                          quantityProvider: _quantityProvider
+                        ),
+                      );
+                    }
+                  )
+                )
+              ],
+            ),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.40,
+            minChildSize: 0.1,
+            maxChildSize: 0.40,
+            builder: (BuildContext context, ScrollController scrollController) =>
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: kPrimary,
+                  borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(21),
+                      topRight: Radius.circular(21)
+                  )
+                ),
+                child: ListView(
+                  controller: scrollController,
+                  children: [
+                    SizedBox(height: 14,),
+                    Center(
+                      child: Container(
                         color: Colors.white,
-                        height: 1.5,
+                        width: 40,
+                        height: 4,
                       ),
-                      SizedBox(height: 16,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: "Subtotal",
+                          fontSize: 18,
+                          color: kWhite,
+                          isBold: true,
+                        ),
+                        CustomText(
+                          text: "GHS $subTotal",
+                          fontSize: 18,
+                          color: kWhite,
+                          isBold: true,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: "Taxes",
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                        CustomText(
+                          text: "GHS ${securityInfo!.taxFee}",
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 18,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: "Service Fee",
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                        CustomText(
+                          text: "GHS ${securityInfo.serviceCharge}",
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 18,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: "Delivery",
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                        CustomText(
+                          text: 'GHS ${widget.joint.price.toDouble()}',
+                          fontSize: 16,
+                          color: kWhite,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 22,),
+                    Divider(
+                      color: Colors.white,
+                      height: 1.5,
+                    ),
+                    SizedBox(height: 16,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
 
-                              if (_currentTab == 'Delivery' &&
-                                  widget.joint.deliveryAvailable) {
-                              //   Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) =>
-                              //         FoodCheckout(
-                              //           userid: widget.user,
-                              //           shopid: widget.shopid,
-                              //           deliveryfee: delivery,
-                              //           taxes: taxes,
-                              //           total: total,
-                              //           school: widget.schoolname,
-                              //           servicecharge: servicecharge,
-                              //           deliverytime: deliverytime,
-                              //         ),
-                              //     )
-                              //   );
-                              // } else if (_currentTab == 'Pickup' &&
-                              //     widget.joint.pickupAvailable) {
-                              //   Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) =>
-                              //         FoodCheckout(
-                              //           userid: widget.user,
-                              //           shopid: widget.shopid,
-                              //           deliveryfee: delivery,
-                              //           taxes: taxes,
-                              //           total: total,
-                              //           school: widget.schoolname,
-                              //           servicecharge: servicecharge,
-                              //           deliverytime: deliverytime,
-                              //         ),
-                              //     )
-                              //   );
-                              //   print('pick available');
-                              } else {
-                                ScaffoldMessenger.of(context)
-                                  .showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '$_currentTab is not available'
-                                      )
+                            try{
+                              // update the cart
+                              FoodOrdersModel.updateCart(
+                                  cartList: cartInfo.values.toList(),
+                                  userID: ref.read(userProvider).uid
+                              ).then((value) {
+                                log("cart updated");
+
+                                // refresh the cart
+                                ref.invalidate(cartProvider);
+
+                                // redirect to checkout
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FoodCheckout(
+                                              joint: widget.joint,
+                                              taxes: double.parse(securityInfo.taxFee.toString()),
+                                              total: totalAmount(),
+                                              serviceCharge: securityInfo.serviceCharge
+                                          ),
                                     )
                                 );
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 8.0),
-                                  child: Icon(
-                                    Icons.ads_click_rounded,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text('Checkout',
-                                  style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 16,
-                                    color: Colors.white
+
+                              });
+                            }
+                            catch(exception){
+                              log(exception.toString());
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                  SnackBar(
+                                      content: Text(
+                                          'An error occurred while updating your cart'
+                                      )
                                   )
+                              );
+
+                            }
+
+                            // if (_currentTab == 'Delivery' &&
+                            //     widget.joint.deliveryAvailable) {
+                            //   Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //       builder: (context) =>
+                            //         FoodCheckout(
+                            //           userid: user.uid,
+                            //           shopid: widget.joint.jointID,
+                            //           deliveryfee: widget.joint.price,
+                            //           taxes: double.parse(securityInfo.taxFee.toString()),
+                            //           total: totalAmount(),
+                            //           school: user.school!,
+                            //           servicecharge: securityInfo.serviceCharge,
+                            //           deliverytime: widget.joint.deliveryTime,
+                            //         ),
+                            //     )
+                            //   );
+                            // } else if (_currentTab == 'Pickup' &&
+                            //     widget.joint.pickupAvailable) {
+                            //   // Navigator.push(
+                            //   //   context,
+                            //   //   MaterialPageRoute(
+                            //   //     builder: (context) =>
+                            //   //       FoodCheckout(
+                            //   //         userid: widget.user,
+                            //   //         shopid: widget.shopid,
+                            //   //         deliveryfee: delivery,
+                            //   //         taxes: taxes,
+                            //   //         total: total,
+                            //   //         school: widget.schoolname,
+                            //   //         servicecharge: servicecharge,
+                            //   //         deliverytime: deliverytime,
+                            //   //       ),
+                            //   //   )
+                            //   // );
+                            //   print('pick available');
+                            // } else {
+                            //   ScaffoldMessenger.of(context)
+                            //     .showSnackBar(
+                            //       SnackBar(
+                            //         content: Text(
+                            //             '$_currentTab is not available'
+                            //         )
+                            //       )
+                            //   );
+                            // }
+                          },
+                          child: Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(right: 8.0),
+                                child: Icon(
+                                  Icons.ads_click_rounded,
+                                  color: Colors.white,
                                 ),
-                              ],
-                            ),
+                              ),
+                              Text('Checkout',
+                                style: GoogleFonts.manrope(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 16,
+                                  color: Colors.white
+                                )
+                              ),
+                            ],
                           ),
-                          CustomText(
-                            text: 'GHS ${
-                              subTotal
-                              + securityInfo.taxFee
-                              + securityInfo.serviceCharge
-                              + widget.joint.price.toDouble()
-                            }',
-                            fontSize: 16,
-                            color: kWhite,
-                          )
-                        ],
-                      )
-                    ],
-                  )
-              ),
-            )
-          ],
-        ));
+                        ),
+                        CustomText(
+                          text: 'GHS ${totalAmount()}',
+                          fontSize: 16,
+                          color: kWhite,
+                        )
+                      ],
+                    )
+                  ],
+                )
+            ),
+          )
+        ],
+      )
+    );
   }
 }

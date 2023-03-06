@@ -57,7 +57,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           floatingLabelBehavior: FloatingLabelBehavior.never,
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: kPrimary),
-            borderRadius: BorderRadius.circular(10)
+            borderRadius: BorderRadius.circular(40)
           ),
           fillColor: kPrimary,
           focusColor: kPrimary,
@@ -65,7 +65,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
               borderSide: const BorderSide(
                   color: kLabelColor
               ),
-              borderRadius: BorderRadius.circular(10)
+              borderRadius: BorderRadius.circular(40)
           ),
           suffixIcon: widget.isPassword ? GestureDetector(
             child: Icon(

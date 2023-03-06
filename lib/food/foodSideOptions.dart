@@ -7,6 +7,7 @@ import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/menuItemOptionItemModel.dart';
 import 'package:fairstores/models/menuItemOptionModel.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -486,7 +487,7 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                             content: Text(
-                                "Your item has been added to cart"
+                              "Your item has been added to cart"
                             )
                         )
                     );

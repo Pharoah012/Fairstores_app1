@@ -22,6 +22,16 @@ class MenuItemOptionItemModel{
     );
   }
 
+
+  factory MenuItemOptionItemModel.fromJson(Map<String, dynamic> json) {
+    return MenuItemOptionItemModel(
+      id: json["id"],
+      name: json["name"],
+      image: json["image"],
+      price: double.parse(json["price"].toString()),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "id": this.id,

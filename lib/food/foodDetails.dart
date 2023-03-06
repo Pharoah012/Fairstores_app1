@@ -54,22 +54,6 @@ final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>
   }
 );
 
-final cartProvider = FutureProvider.family.autoDispose<Map<String, FoodOrdersModel>, JointModel>(
-  (ref, joint) async {
-
-      // get the cart items
-      Map<String, FoodOrdersModel> orders = await FoodOrdersModel.getCart(
-        jointID: joint.jointID,
-        userID: ref.read(userProvider).uid
-      );
-
-      // load the orders into the cart list provider
-      ref.read(cartInfoProvider.notifier).state = orders;
-
-      return orders;
-    }
-);
-
 class FoodDetails extends ConsumerStatefulWidget {
   final JointModel joint;
 

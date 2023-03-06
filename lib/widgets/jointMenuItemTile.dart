@@ -1,12 +1,12 @@
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/food/foodSideOptions.dart';
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointMenuItemModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/menuItemOptionModel.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';

@@ -215,19 +215,19 @@ class JointModel{
     return [];
   }
 
-  static Future<JointModel> getDeliveryPrice({
-    required String school,
-    required String foodID,
-    required String userID
-  }) async {
-    DocumentSnapshot doc = await jointsRef
-        .doc(school)
-        .collection('Joints')
-        .doc(foodID)
-        .get();
-
-    return JointModel.fromDocument(doc, userID);
-  }
+  // static Future<JointModel> getDeliveryPrice({
+  //   required String school,
+  //   required String foodID,
+  //   required String userID
+  // }) async {
+  //   DocumentSnapshot doc = await jointsRef
+  //       .doc(school)
+  //       .collection('Joints')
+  //       .doc(foodID)
+  //       .get();
+  //
+  //   return JointModel.fromDocument(doc, userID);
+  // }
 
   static Future<JointModel> getShop({
     required String school,
