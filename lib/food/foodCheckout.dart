@@ -126,11 +126,12 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                       itemBuilder: (context, index){
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   CustomText(
                                     text: ref.read(cartInfoProvider)
@@ -138,56 +139,60 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                                     fontSize: 16,
                                     color: kBlack,
                                   ),
-                                  Builder(
-                                    builder: (context){
-                                      List<dynamic> sides = ref.read(cartInfoProvider).values.elementAt(index).sides;
-
-                                      // check if the are sides and display them
-                                      if (sides.isNotEmpty){
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            ListView.builder(
-                                              itemCount: sides.length,
-                                              shrinkWrap: true,
-                                              physics: NeverScrollableScrollPhysics(),
-                                              itemBuilder: (context, sideIndex){
-                                                MenuItemOptionItemModel side
-                                                = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
-
-                                                return Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      CustomText(
-                                                        text: "+ ${side.name}",
-                                                        fontSize: 12,
-                                                      ),
-                                                      CustomText(
-                                                        text: "+ ${side.price}",
-                                                        fontSize: 12,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              }
-                                            ),
-                                          ],
-                                        );
-                                      }
-
-                                      return SizedBox.shrink();
-                                    }
+                                  CustomText(
+                                    text: "GHS ${ref.read(cartInfoProvider)
+                                      .values.elementAt(index).price}",
+                                    fontSize: 16,
+                                    color: kBlack,
                                   )
                                 ],
                               ),
-                              CustomText(
-                                text: "GHS ${ref.read(cartInfoProvider)
-                                  .values.elementAt(index).price}",
-                                fontSize: 16,
-                                color: kBlack,
+                              Builder(
+                                builder: (context){
+                                  List<dynamic> sides = ref.read(cartInfoProvider).values.elementAt(index).sides;
+
+                                  // check if the are sides and display them
+                                  if (sides.isNotEmpty){
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: MediaQuery.of(context).size.width,
+                                          child: ListView.builder(
+                                            itemCount: sides.length,
+                                            shrinkWrap: true,
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, sideIndex){
+                                              MenuItemOptionItemModel side
+                                              = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
+
+                                              return Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    CustomText(
+                                                      text: "+ ${side.name}",
+                                                      fontSize: 12,
+                                                    ),
+                                                    CustomText(
+                                                      text: "+ ${side.price}",
+                                                      fontSize: 12,
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+
+                                  return SizedBox.shrink();
+                                }
                               )
                             ],
                           ),
