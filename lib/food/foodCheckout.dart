@@ -43,28 +43,22 @@ class FoodCheckout extends ConsumerStatefulWidget {
     required this.taxes,
     required this.total,
     required this.joint
-  })
-      : super(key: key);
+  }) : super(key: key);
 
   @override
   ConsumerState<FoodCheckout> createState() => _FoodCheckoutState();
 }
 
 class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
-  String page = 'checkout';
-  FocusNode myFocusNode = FocusNode();
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  late ConfirmationModel confirm;
-  late Paybox paybox;
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController phonecontroller = TextEditingController();
   TextEditingController instructioncontroller = TextEditingController();
   String orderID = const Uuid().v4();
 
-  @override
-  void initState() {
-    super.initState();
-  }
+
+  final payBoxProvider = StateProvider<Paybox?>((ref) => null);
+
 
   Widget receipt() {
 
@@ -409,221 +403,56 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
 
   //comeback
   Future<void> payment() async {
-    final pay = Pay();
-    final Paybox paybox;
+    // final pay = Pay();
+    // final Paybox paybox;
     try {
       // print(network);
       print(
           '${widget.total + widget.taxes + (widget.total * widget.serviceCharge)}');
 
-      // if (ref.read(networkProvider) != null){
-      //   paybox = (await pay.payMomo(
-      //     ref.read(networkProvider)!,
-      //     '${widget.total + widget.taxes + (widget.total * widget.serviceCharge)}',
-      //     phonecontroller.text,
-      //     ref.read(userProvider).email!,
-      //     ref.read(userProvider).uid,
-      //     ref.read(userProvider).username!,
-      //   ))!;
-      //
-      //   setState(() {
-      //     this.paybox = paybox;
-      //   });
-      // }
+      late String network;
+
+
+      if (ref.read(networkProvider) != null){
+
+        switch (ref.read(networkProvider)){
+
+          // get the network from the selected option
+          case "Vodafone Mobile Money":
+            network = "Vodafone";
+            break;
+
+          case "MTN Mobile Money":
+            network = "Mtn";
+            break;
+
+          case "AirtelTigo Money":
+            network = "AirtelTigo";
+            break;
+        }
+
+        showDialog(
+          context: context,
+          builder: (context) => loadingPayment()
+        );
+
+        Paybox? paybox = await OrderPayment.payMomo(
+          network: network,
+          amount: widget.total.toString(),
+          number: phonecontroller.text,
+          email: ref.read(userProvider).email!,
+          userID: ref.read(userProvider).uid,
+          name: ref.read(userProvider).username!,
+          orderID: orderID
+        );
+
+        ref.read(payBoxProvider.notifier).state = paybox;
+      }
 
     } catch (e) {
       print(e);
       Fluttertoast.showToast(msg: e.toString());
     }
-  }
-
-  paymentDialog() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          title: CustomText(
-            text: 'Payment',
-            isBold: true,
-          ),
-          children: [
-            SimpleDialogOption(
-              child: Text('Payment is not complete. Do you want to advance?'),
-            ),
-            SimpleDialogOption(
-              child: Text('Proceed'),
-            ),
-            SimpleDialogOption(
-              onPressed: () async {
-                Navigator.pop(context);
-                Navigator.pop(context);
-
-                try{
-                  await FoodOrdersModel.clearCart(
-                      userID: ref.read(userProvider).uid,
-                      jointID: widget.joint.jointID
-                  );
-
-                  HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
-
-                  if (uploadedOrder == null){
-                    return showDialog(
-                        context: context,
-                        builder: (_) => CustomError(
-                            errorMessage: "We are unable to place your order. "
-                                "Please try again later"
-                        )
-                    );
-                  }
-
-                  // send the user a success notification
-                  AwesomeNotifications().createNotification(
-                      content: NotificationContent(
-                          id: 10,
-                          channelKey: 'basic_channel',
-                          title: 'Order Accepted',
-                          body: 'Your Order is being Processed'
-                      )
-                  );
-
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewOrder(
-                          joint: widget.joint,
-                          history: uploadedOrder,
-                        ),
-                      )
-                  );
-                }
-                catch(exception){
-                  log(exception.toString());
-                  showDialog(
-                    context: context,
-                    builder: (_) => CustomError(
-                      errorMessage: "We are unable to place your order. "
-                      "Please try again later"
-                    )
-                  );
-                }
-              },
-              child: CustomText(
-                text: "Close"
-              ),
-            )
-          ],
-        );
-      }
-    );
-  }
-
-  // Store the user's order in firestore and alert the user that
-  // their order has been placed
-  Future<void> upload() {
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          title: Center(
-            child: CustomText(
-              text: 'Payment on Delivery',
-              isBold: true,
-              color: kPrimary,
-            )
-          ),
-          children: [
-            SimpleDialogOption(
-              child: CustomText(
-                text: "Your order will be processed. Please note that you "
-                  "cannot terminate this order after 30 mins of being placed. "
-                  "Thank you."
-              )
-            ),
-            SimpleDialogOption(
-              onPressed: () async {
-
-                try{
-
-                  // close this dialog
-                  Navigator.of(context).pop();
-
-                  // show the loader
-                  showDialog(
-                      context: context,
-                      builder: (context) => CustomLoader()
-                  );
-
-                  HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
-
-                  if (uploadedOrder == null){
-                    return showDialog(
-                        context: context,
-                        builder: (_) => CustomError(
-                          errorMessage: "We are unable to place your order. "
-                              "Please try again later",
-                          oneRemove: true,
-                        )
-                    );
-                  }
-
-                  // get the IDs of the managers
-                  // who should receive this order and alert them
-
-                  sendNotification(
-                    ref.read(managersTokensListProvider),
-                    'An order has been placed',
-                    'New Order'
-                  );
-
-                  // Alert the user of the successful placement of the order
-                  AwesomeNotifications().createNotification(
-                    content: NotificationContent(
-                        id: 10,
-                        channelKey: 'basic_channel',
-                        title: 'Order Accepted',
-                        body: 'Your Order is being Processed'
-                    )
-                  );
-
-                  // redirect to show the user the order
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => ViewOrder(
-                        history: uploadedOrder,
-                        joint: widget.joint,
-                      ),
-                    )
-                  );
-
-                }
-                catch(exception){
-                  log(exception.toString());
-                  showDialog(
-                  context: context,
-                  builder: (context) => CustomError(
-                    errorMessage: "An error occurred during checkout. "
-                        "Please try again later.",
-                    // oneRemove: true,
-                  )
-                  );
-                }
-
-
-
-              },
-              child: Center(
-                child: CustomText(
-                  text: 'Place Order',
-                  color: kPrimary,
-                  isMediumWeight: true,
-                )
-              ),
-            )
-          ]
-        );
-      }
-    );
   }
 
   Widget confirmationButton() {
@@ -637,10 +466,21 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
         child: TextButton(
             onPressed: () async {
 
-
+              // show the loader
+              showDialog(
+                context: context,
+                builder: (context) => CustomLoader()
+              );
 
               try {
-                ConfirmationModel con = await PaymentConfirmation.confirmTrans(paybox);
+
+                //confirm the payment
+                ConfirmationModel con = await OrderPayment.confirmTrans(
+                  ref.read(payBoxProvider)!
+                );
+
+                // remove the loader
+                Navigator.of(context).pop();
 
                 // check if the the payment failed
                 if (con.status == 'Failed') {
@@ -672,8 +512,8 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                     return showDialog(
                         context: context,
                         builder: (_) => CustomError(
-                            errorMessage: "We are unable to place your order. "
-                                "Please try again later"
+                          errorMessage: "We are unable to place your order. "
+                              "Please try again later"
                         )
                     );
                   }
@@ -793,6 +633,192 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     );
   }
 
+  // paymentDialog() {
+  //   return showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return SimpleDialog(
+  //           title: CustomText(
+  //             text: 'Payment',
+  //             isBold: true,
+  //           ),
+  //           children: [
+  //             SimpleDialogOption(
+  //               child: Text('Payment is not complete. Do you want to advance?'),
+  //             ),
+  //             SimpleDialogOption(
+  //               child: Text('Proceed'),
+  //             ),
+  //             SimpleDialogOption(
+  //               onPressed: () async {
+  //                 Navigator.pop(context);
+  //                 Navigator.pop(context);
+  //
+  //                 try{
+  //
+  //                   HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
+  //
+  //                   if (uploadedOrder == null){
+  //                     return showDialog(
+  //                         context: context,
+  //                         builder: (_) => CustomError(
+  //                             errorMessage: "We are unable to place your order. "
+  //                                 "Please try again later"
+  //                         )
+  //                     );
+  //                   }
+  //
+  //                   // send the user a success notification
+  //                   AwesomeNotifications().createNotification(
+  //                       content: NotificationContent(
+  //                           id: 10,
+  //                           channelKey: 'basic_channel',
+  //                           title: 'Order Accepted',
+  //                           body: 'Your Order is being Processed'
+  //                       )
+  //                   );
+  //
+  //                   Navigator.push(
+  //                       context,
+  //                       MaterialPageRoute(
+  //                         builder: (context) => ViewOrder(
+  //                           joint: widget.joint,
+  //                           history: uploadedOrder,
+  //                         ),
+  //                       )
+  //                   );
+  //                 }
+  //                 catch(exception){
+  //                   log(exception.toString());
+  //                   showDialog(
+  //                       context: context,
+  //                       builder: (_) => CustomError(
+  //                           errorMessage: "We are unable to place your order. "
+  //                               "Please try again later"
+  //                       )
+  //                   );
+  //                 }
+  //               },
+  //               child: CustomText(
+  //                   text: "Close"
+  //               ),
+  //             )
+  //           ],
+  //         );
+  //       }
+  //   );
+  // }
+
+  // Store the user's order in firestore and alert the user that
+  // their order has been placed
+  Future<void> upload() {
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+              title: Center(
+                  child: CustomText(
+                    text: 'Payment on Delivery',
+                    isBold: true,
+                    color: kPrimary,
+                  )
+              ),
+              children: [
+                SimpleDialogOption(
+                    child: CustomText(
+                        text: "Your order will be processed. Please note that you "
+                            "cannot terminate this order after 30 mins of being placed. "
+                            "Thank you."
+                    )
+                ),
+                SimpleDialogOption(
+                  onPressed: () async {
+
+                    try{
+
+                      // close this dialog
+                      Navigator.of(context).pop();
+
+                      // show the loader
+                      showDialog(
+                          context: context,
+                          builder: (context) => CustomLoader()
+                      );
+
+                      HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
+
+                      if (uploadedOrder == null){
+                        return showDialog(
+                            context: context,
+                            builder: (_) => CustomError(
+                              errorMessage: "We are unable to place your order. "
+                                  "Please try again later",
+                              oneRemove: true,
+                            )
+                        );
+                      }
+
+                      // get the IDs of the managers
+                      // who should receive this order and alert them
+
+                      sendNotification(
+                          ref.read(managersTokensListProvider),
+                          'An order has been placed',
+                          'New Order'
+                      );
+
+                      // Alert the user of the successful placement of the order
+                      AwesomeNotifications().createNotification(
+                          content: NotificationContent(
+                              id: 10,
+                              channelKey: 'basic_channel',
+                              title: 'Order Accepted',
+                              body: 'Your Order is being Processed'
+                          )
+                      );
+
+                      // redirect to show the user the order
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => ViewOrder(
+                              history: uploadedOrder,
+                              joint: widget.joint,
+                            ),
+                          )
+                      );
+
+                    }
+                    catch(exception){
+                      log(exception.toString());
+                      showDialog(
+                          context: context,
+                          builder: (context) => CustomError(
+                            errorMessage: "An error occurred during checkout. "
+                                "Please try again later.",
+                            // oneRemove: true,
+                          )
+                      );
+                    }
+
+
+
+                  },
+                  child: Center(
+                      child: CustomText(
+                        text: 'Place Order',
+                        color: kPrimary,
+                        isMediumWeight: true,
+                      )
+                  ),
+                )
+              ]
+          );
+        }
+    );
+  }
+
+
   Future<HistoryModel?> updateFirestoreWithPayment() async {
     try{
 
@@ -841,6 +867,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     final network = ref.watch(networkProvider);
     final managersTokens = ref.watch(managersTokensProvider);
     final managersTokensList = ref.watch(managersTokensListProvider);
+    final payBox = ref.watch(payBoxProvider);
 
     return Scaffold(
       appBar: CustomAppBar(title: "Checkout"),

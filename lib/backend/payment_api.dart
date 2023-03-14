@@ -18,28 +18,30 @@ import 'confirmationModel.dart';
  *
  * */
 
-class Pay {
+class OrderPayment {
   /**
    * This function enables the payment with card
    * */
-  Paybox? paybox;
-  Future<dynamic> payCard(
-      String amount,
-      String fname,
-      String lname,
-      String cardNo,
-      String cardExp,
-      String cardCvc,
-      String cardCountry,
-      String cardAddress,
-      String cardState,
-      String cardZip,
-      String cardCity,
-      String cardEmail,
-      String uid) async {
+
+  Future<dynamic> payCard({
+    required String amount,
+    required String fname,
+    required String lname,
+    required String cardNo,
+    required String cardExp,
+    required String cardCvc,
+    required String cardCountry,
+    required String cardAddress,
+    required String cardState,
+    required String cardZip,
+    required String cardCity,
+    required String cardEmail,
+    required String uid,
+    required String orderID
+  }) async {
     try {
-      String orderId = this.orderId();
-      String voucher = this.voucherCode();
+
+      String voucher = randomNumeric(6);
       var request =
           http.MultipartRequest('POST', Uri.parse('https://paybox.com.co/pay'));
       request.headers.addAll({
@@ -48,7 +50,7 @@ class Pay {
         'Authorization': 'Bearer 0b0ac53e-ee3d-45cf-861b-0c103ad1c12c'
       });
       request.fields.addAll({
-        'order_id': orderId,
+        'order_id': orderID,
         'currency': 'GHS',
         'amount': amount,
         'mode': 'Card',
@@ -92,10 +94,17 @@ class Pay {
   /**
    * This function enables the payment with momo
    * */
-  Future<Paybox?> payMomo(String network, String amount, String number,
-      String email, String uid, String name) async {
-    String orderId = this.orderId();
-    String voucher = this.voucherCode();
+  static Future<Paybox?> payMomo({
+    required String network,
+    required String amount,
+    required String number,
+    required String email,
+    required String userID,
+    required String name,
+    required String orderID,
+  }) async {
+
+    String voucher = randomNumeric(6);
 
     // FirebaseAuth _auth = FirebaseAuth.instance;
     // String uid = _auth.currentUser!.uid;
@@ -109,7 +118,7 @@ class Pay {
     });
 
     request.fields.addAll({
-      'order_id': orderId,
+      'order_id': orderID,
       'currency': 'GHS',
       'amount': amount,
       'mode': 'Mobile Money',
@@ -122,7 +131,7 @@ class Pay {
       'payerPhone':
           '+233', //Depend on the country the code can be changed. Since we are onlyinghan for now im making 233 default
       'payerEmail': email,
-      'customer_id': uid,
+      'customer_id': userID,
       'callback_url': ''
     });
 
@@ -143,14 +152,7 @@ class Pay {
     return randomAlphaNumeric(10);
   }
 
-  /**
-   * The function creates the voucher code*/
-  String voucherCode() {
-    return randomNumeric(6);
-  }
-}
 
-class PaymentConfirmation {
   /**
    * This method confirms the trasaction but need the paybox model to get
    *  the trasaction token in other to make the get request
@@ -164,7 +166,7 @@ class PaymentConfirmation {
       // Send authorization headers to the backend.
       headers: {
         HttpHeaders.authorizationHeader:
-            'Bearer 0b0ac53e-ee3d-45cf-861b-0c103ad1c12c',
+        'Bearer 0b0ac53e-ee3d-45cf-861b-0c103ad1c12c',
       },
     );
     final response = jsonDecode(request.body);

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/menuItemOptionItemModel.dart';
@@ -32,9 +30,10 @@ final subTotalProvider = StateProvider<double>((ref){
   for (FoodOrdersModel order in ref.read(cartInfoProvider).values){
     subTotal += order.price * order.quantity;
 
+
     // get sum of sides and add to subtotal
     for (var side in order.sides){
-      subTotal += order.price - MenuItemOptionItemModel.fromJson(side).price;
+      subTotal += (order.price - MenuItemOptionItemModel.fromJson(side).price);
     }
   }
 

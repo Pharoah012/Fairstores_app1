@@ -49,6 +49,7 @@ class CartCard extends ConsumerWidget {
 
                 // refresh the cart
                 ref.invalidate(cartProvider);
+                ref.invalidate(cartInfoProvider);
               });
             }
             catch(exception){

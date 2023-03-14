@@ -317,107 +317,6 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
         log("loading Cart");
         return SizedBox.shrink();
       });
-
-    // return StreamBuilder<QuerySnapshot>(
-    //     stream: foodCartRef
-    //         .doc(ref.read(userProvider).uid)
-    //         .collection('Orders')
-    //         .where('shopid', isEqualTo: widget.joint.jointID)
-    //         .snapshots(),
-    //     builder: (context, snapshot) {
-    //       if (!snapshot.hasData) {
-    //         return const SizedBox();
-    //       }
-    //
-    //       List<Text> foodcartlist = [];
-    //       itemplural() {
-    //         String plural = 'Item';
-    //         if (foodcartlist.length == 1) {
-    //           plural = 'Item';
-    //           return 'Item';
-    //         } else if (foodcartlist.isEmpty) {
-    //           return 0;
-    //         } else {
-    //           plural = 'Items';
-    //           return plural;
-    //         }
-    //       }
-    //
-    //       for (var doc in snapshot.data!.docs) {
-    //         foodcartlist.add(const Text('available'));
-    //       }
-    //       return foodcartlist.isEmpty
-    //           ? const SizedBox()
-    //           : Padding(
-    //               padding:
-    //                   const EdgeInsets.only(left: 20.0, right: 18, bottom: 27),
-    //               child: Container(
-    //                 decoration: BoxDecoration(
-    //                   borderRadius: BorderRadius.circular(12),
-    //                   boxShadow: [
-    //                     BoxShadow(
-    //                       color: const Color(0xff010F07).withOpacity(0.12),
-    //                       spreadRadius: 5,
-    //                       blurRadius: 7,
-    //                       offset:
-    //                           const Offset(0, 20), // changes position of shadow
-    //                     ),
-    //                   ],
-    //                   color: kPrimary,
-    //                 ),
-    //                 width: MediaQuery.of(context).size.width,
-    //                 height: 70,
-    //                 child: MaterialButton(
-    //                   onPressed: (() {
-    //                     Navigator.push(
-    //                         context,
-    //                         MaterialPageRoute(
-    //                           builder: (context) => FoodBag(
-    //                             shopid: widget.joint.jointID,
-    //                             user: ref.read(userProvider).uid,
-    //                             schoolname: ref.read(userProvider).school!,
-    //                           ),
-    //                         ));
-    //                   }),
-    //                   child: Row(children: [
-    //                     Image.asset('images/shoppingcart.png'),
-    //                     Padding(
-    //                       padding: const EdgeInsets.only(left: 15.0),
-    //                       child: Column(
-    //                         mainAxisAlignment: MainAxisAlignment.center,
-    //                         crossAxisAlignment: CrossAxisAlignment.start,
-    //                         children: [
-    //                           Text(
-    //                             'View Cart',
-    //                             style: GoogleFonts.manrope(
-    //                                 fontWeight: FontWeight.w500,
-    //                                 fontSize: 12,
-    //                                 color: Colors.white.withOpacity(0.64)),
-    //                           ),
-    //                           Padding(
-    //                             padding: const EdgeInsets.only(top: 4.0),
-    //                             child: Text(widget.joint.name,
-    //                                 style: GoogleFonts.manrope(
-    //                                     fontWeight: FontWeight.w600,
-    //                                     fontSize: 16,
-    //                                     color: Colors.white)),
-    //                           )
-    //                         ],
-    //                       ),
-    //                     ),
-    //                     Expanded(child: const SizedBox()),
-    //                     Text(
-    //                       '${foodcartlist.length} ${itemplural()}',
-    //                       style: GoogleFonts.manrope(
-    //                           fontSize: 14,
-    //                           fontWeight: FontWeight.w600,
-    //                           color: Colors.white),
-    //                     )
-    //                   ]),
-    //                 ),
-    //               ),
-    //             );
-    //     });
   }
 
   @override
@@ -497,9 +396,11 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
               header: WaterDropHeader(),
               onRefresh: (){
                 ref.invalidate(cartProvider(widget.joint));
+                ref.invalidate(cartInfoProvider);
                 ref.invalidate(jointMenuItemsProvider(widget.joint));
 
                 ref.read(cartProvider(widget.joint).future);
+                ref.read(cartInfoProvider);
                 ref.read(jointMenuItemsProvider(widget.joint).future);
                 refreshController.refreshCompleted();
               },
