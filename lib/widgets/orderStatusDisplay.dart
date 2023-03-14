@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -7,31 +9,34 @@ import 'package:intl/intl.dart';
 class OrderStatusDisplay extends StatelessWidget {
   final String status;
   final Timestamp orderDate;
+  final Timestamp? feedbackDate;
 
   const OrderStatusDisplay({
     Key? key,
     required this.status,
-    required this.orderDate
+    required this.orderDate,
+    required this.feedbackDate
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String date = DateFormat("dd/mm/yyyy hh:mm").format(
-      DateTime.fromMillisecondsSinceEpoch(orderDate.millisecondsSinceEpoch * 1000)
+    String dateOfOrder = DateFormat("dd/MM/yyyy hh:mm a").format(
+      DateTime.fromMillisecondsSinceEpoch(orderDate.millisecondsSinceEpoch)
     );
 
     switch (status){
-      case "pending":
-        return showPlacedStatus(date);
+      case "active":
+        return showPlacedStatus(dateOfOrder);
 
       default:
-        return showRejectedOrDelivered(status, date);
+        return showRejectedOrDelivered(status, dateOfOrder, feedbackDate);
     }
   }
 
   // display the tracker for when the order has been placed
   Widget showPlacedStatus(String orderDate){
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
           backgroundColor: kPrimary,
@@ -41,25 +46,38 @@ class OrderStatusDisplay extends StatelessWidget {
           ),
         ),
         SizedBox(width: 20,),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomText(
-              text: "Order Placed",
-              color: kBlack,
-              isBold: true,
-            ),
-            CustomText(
-              text: "Your order was placed on $orderDate"
-            )
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomText(
+                text: "Order Placed",
+                color: kBlack,
+                isBold: true,
+              ),
+              CustomText(
+                text: "Your order was placed on $orderDate"
+              )
+            ],
+          ),
         )
       ],
     );
   }
 
   // display the tracker for when the order has been delivered or rejected
-  Widget showRejectedOrDelivered(String status, String orderDate){
+  Widget showRejectedOrDelivered(
+    String status,
+    String orderDate,
+    Timestamp? feedbackDate
+  ){
+
+    String dateOfFeedback = DateFormat("dd/MM/yyyy hh:mm a").format(
+        DateTime.fromMillisecondsSinceEpoch(feedbackDate!.millisecondsSinceEpoch)
+    );
+
+
     return Row(
       children: [
         CircleAvatar(
@@ -71,6 +89,7 @@ class OrderStatusDisplay extends StatelessWidget {
         ),
         SizedBox(width: 20,),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomText(
@@ -78,10 +97,12 @@ class OrderStatusDisplay extends StatelessWidget {
               color: kBlack,
               isBold: true,
             ),
-            CustomText(
-              text: "Your order was "
-                "${status == "delivered" ? "Delivered" : "Rejected"} "
-                "on $orderDate"
+            Flexible(
+              child: CustomText(
+                text: "Your order was "
+                  "${status == "delivered" ? "Delivered" : "Rejected"} "
+                  "on $dateOfFeedback"
+              ),
             )
           ],
         )

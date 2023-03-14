@@ -12,7 +12,7 @@ import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/sendnotification.dart';
 import 'package:fairstores/food/vieworder.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
-import 'package:fairstores/providers/securityKeysProvider.dart';
+import 'package:fairstores/providers/managersTokensProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/checkoutPaymentOption.dart';
@@ -52,44 +52,19 @@ class FoodCheckout extends ConsumerStatefulWidget {
 
 class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
   String page = 'checkout';
-  // List<bool> visible = [true, false];
-  // FocusNode myFocusNode = FocusNode();
-  List<String> schoollist = [];
-  // String? selectedValue;
-  // GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  // List<bool> selected = [false, false, false, false];
+  FocusNode myFocusNode = FocusNode();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   late ConfirmationModel confirm;
   late Paybox paybox;
   TextEditingController phonecontroller = TextEditingController();
   TextEditingController instructioncontroller = TextEditingController();
-  // String network = '';
-  // List<String> orderDetails = [];
   String orderID = const Uuid().v4();
-  List<String> tokens = [];
 
   @override
   void initState() {
     super.initState();
-    // schoolList();
-    // getmanagertokens();
   }
-
-  // getmanagertokens() async {
-  //   QuerySnapshot snapshot =
-  //       await userRef.where('ismanager', isEqualTo: true).get();
-  //   List<String> tokens = [];
-  //   snapshot.docs.forEach((element) async {
-  //     UserModel model = UserModel.fromDocument(element);
-  //
-  //     DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
-  //     TokenModel tokenModel = TokenModel.fromDocument(doc);
-  //     tokens.add(tokenModel.devtoken.toString());
-  //   });
-  //   setState(() {
-  //     this.tokens = tokens;
-  //   });
-  // }
 
   Widget receipt() {
 
@@ -309,46 +284,6 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Form(
-        //   key: formKey,
-        //   child: Padding(
-        //     padding: const EdgeInsets.only(left: 20.0, right: 20),
-        //     child: SizedBox(
-        //       width: MediaQuery.of(context).size.width,
-        //       height: 56,
-        //       child: TextFormField(
-        //         validator: ((value) {
-        //           if (value!.isEmpty) {
-        //             return 'Provide Phone Number';
-        //           }
-        //         }),
-        //         controller: phonecontroller,
-        //         focusNode: myFocusNode,
-        //         cursorColor: kPrimary,
-        //         decoration: InputDecoration(
-        //             focusColor: kPrimary,
-        //             focusedBorder: OutlineInputBorder(
-        //                 borderRadius: BorderRadius.circular(10),
-        //                 borderSide: BorderSide(
-        //                   color: kPrimary,
-        //                 )),
-        //             enabledBorder: OutlineInputBorder(
-        //               borderRadius: BorderRadius.circular(10),
-        //               borderSide: const BorderSide(
-        //                 color: Color(0xffE5E5E5),
-        //               ),
-        //             ),
-        //             label: Text('Phone Number',
-        //                 style: GoogleFonts.manrope(
-        //                     fontSize: 14,
-        //                     fontWeight: FontWeight.w500,
-        //                     color: myFocusNode.hasFocus
-        //                         ? kPrimary
-        //                         : const Color(0xff374151)))),
-        //       ),
-        //     ),
-        //   ),
-        // ),
         Container(
           color: kWhite,
           child: Padding(
@@ -438,7 +373,6 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
           color: kWhite,
           child: Column(
             children: [
-
               CheckoutPaymentOption(
                 title: "Payment on Delivery",
                 networkProvider: networkProvider
@@ -455,6 +389,17 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                   title: "AirtelTigo Money",
                   networkProvider: networkProvider
               ),
+              SizedBox(height: 20,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                  key: formKey,
+                  child: CustomTextFormField(
+                    labelText: "Phone Number",
+                    controller: phonecontroller,
+                  )
+                ),
+              )
             ],
           ),
         )
@@ -598,57 +543,73 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
             SimpleDialogOption(
               onPressed: () async {
 
-                // close this dialog
-                Navigator.pop(context);
+                try{
 
-                // show the loader
-                showDialog(
-                  context: context,
-                  builder: (context) => CustomLoader()
-                );
+                  // close this dialog
+                  Navigator.of(context).pop();
 
-                HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
-
-                if (uploadedOrder == null){
-                  return showDialog(
+                  // show the loader
+                  showDialog(
                       context: context,
-                      builder: (_) => CustomError(
-                          errorMessage: "We are unable to place your order. "
-                              "Please try again later"
-                      )
+                      builder: (context) => CustomLoader()
                   );
-                }
 
-                // get the IDs of the managers
-                // who should receive this order and alert them
+                  HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
 
-                // sendNotification(
-                //   tokens,
-                //   'An order has been placed',
-                //   'New Order'
-                // );
+                  if (uploadedOrder == null){
+                    return showDialog(
+                        context: context,
+                        builder: (_) => CustomError(
+                          errorMessage: "We are unable to place your order. "
+                              "Please try again later",
+                          oneRemove: true,
+                        )
+                    );
+                  }
 
-                // Alert the user of the successful placement of the order
-                AwesomeNotifications().createNotification(
+                  // get the IDs of the managers
+                  // who should receive this order and alert them
+
+                  sendNotification(
+                    ref.read(managersTokensListProvider),
+                    'An order has been placed',
+                    'New Order'
+                  );
+
+                  // Alert the user of the successful placement of the order
+                  AwesomeNotifications().createNotification(
                     content: NotificationContent(
                         id: 10,
                         channelKey: 'basic_channel',
                         title: 'Order Accepted',
                         body: 'Your Order is being Processed'
                     )
-                );
+                  );
 
+                  // redirect to show the user the order
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => ViewOrder(
+                        history: uploadedOrder,
+                        joint: widget.joint,
+                      ),
+                    )
+                  );
 
-                // redirect to show the user the order
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ViewOrder(
-                      history: uploadedOrder,
-                      joint: widget.joint,
-                    ),
+                }
+                catch(exception){
+                  log(exception.toString());
+                  showDialog(
+                  context: context,
+                  builder: (context) => CustomError(
+                    errorMessage: "An error occurred during checkout. "
+                        "Please try again later.",
+                    // oneRemove: true,
                   )
-                );
+                  );
+                }
+
+
 
               },
               child: Center(
@@ -719,7 +680,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
 
                   // send the order to all the respective managers
                   sendNotification(
-                    tokens,
+                    ref.read(managersTokensListProvider),
                     'An order has been placed',
                     'New Order'
                   );
@@ -851,12 +812,14 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
         status: 'active',
         shopID: widget.joint.jointID,
         total: widget.total,
-        timestamp: Timestamp.fromDate(DateTime.now()),
+        orderTime: Timestamp.fromDate(DateTime.now()),
         instructions: instructioncontroller.text,
         paymentType: ref.read(networkProvider)!,
         tax: widget.taxes,
         serviceCharge: widget.serviceCharge,
-        deliverFee: widget.joint.price.toDouble()
+        deliverFee: widget.joint.price.toDouble(),
+        phoneNumber: phonecontroller.text,
+        feedbackTime: null
       );
 
       // Add the order to History
@@ -876,6 +839,8 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     final cartInfo = ref.watch(cartInfoProvider);
     final cart = ref.watch(cartProvider(widget.joint));
     final network = ref.watch(networkProvider);
+    final managersTokens = ref.watch(managersTokensProvider);
+    final managersTokensList = ref.watch(managersTokensListProvider);
 
     return Scaffold(
       appBar: CustomAppBar(title: "Checkout"),
@@ -900,6 +865,10 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                     CustomButton(
                       isOrange: true,
                       onPressed: (){
+
+                        if (!formKey.currentState!.validate()){
+                          return;
+                        }
 
                         // check if the user hasn't selected a payment option
                         if (network == null) {

@@ -70,7 +70,7 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
                                 children: [
                                   CustomText(
                                     text: "${ref.read(cartInfoProvider)
-                                        .values.elementAt(index).quantity}} "
+                                        .values.elementAt(index).quantity} "
                                         "x ${ref.read(cartInfoProvider)
                                         .values.elementAt(index).foodName}",
                                     fontSize: 16,
@@ -115,7 +115,8 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
                                                           fontSize: 12,
                                                         ),
                                                         CustomText(
-                                                          text: "${side.price}",
+                                                          text: "${ref.read(cartInfoProvider)
+                                                              .values.elementAt(index).price - side.price}",
                                                           fontSize: 12,
                                                         ),
                                                       ],
@@ -247,7 +248,8 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
         SizedBox(height: 20,),
         OrderStatusDisplay(
           status: widget.history.status,
-          orderDate: widget.history.timestamp,
+          orderDate: widget.history.orderTime,
+          feedbackDate: widget.history.feedbackTime,
         )
       ],
     );
@@ -270,6 +272,9 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
                   userID: user.uid,
                   jointID: widget.joint.jointID
               );
+
+              ref.refresh(cartProvider(widget.joint));
+              ref.refresh(cartInfoProvider);
 
               Navigator.pop(context);
               Navigator.pop(context);
@@ -309,6 +314,7 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
                 ),
                 SizedBox(height: 23,),
                 trackingOrder(),
+                SizedBox(height: 23,),
                 receipt()
               ]
             ),

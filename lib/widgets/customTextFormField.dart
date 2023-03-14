@@ -67,6 +67,18 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
               ),
               borderRadius: BorderRadius.circular(40)
           ),
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                color: Colors.red
+            ),
+            borderRadius: BorderRadius.circular(40)
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                color: Colors.red
+            ),
+            borderRadius: BorderRadius.circular(40)
+          ),
           suffixIcon: widget.isPassword ? GestureDetector(
             child: Icon(
               Icons.visibility,

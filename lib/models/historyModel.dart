@@ -13,13 +13,15 @@ class HistoryModel{
   final String status;
   final String shopID;
   final dynamic total;
-  final Timestamp timestamp;
+  final Timestamp orderTime;
   final String paymentType;
   final String instructions;
   JointModel? joint;
   final double tax;
   final double serviceCharge;
   final double deliverFee;
+  final String phoneNumber;
+  final Timestamp? feedbackTime;
 
   HistoryModel({
     required this.deliveryLocation,
@@ -30,12 +32,14 @@ class HistoryModel{
     required this.status,
     required this.shopID,
     required this.total,
-    required this.timestamp,
+    required this.orderTime,
     required this.paymentType,
     required this.instructions,
     required this.tax,
     required this.serviceCharge,
     required this.deliverFee,
+    required this.phoneNumber,
+    required this.feedbackTime,
     this.joint
 
   });
@@ -49,13 +53,15 @@ class HistoryModel{
       orderDetails: doc.get('orderdetails'),
       orderID: doc.get('orderid'),
       status: doc.get('status'),
-      timestamp: doc.get('timestamp'),
+      orderTime: doc.get('timestamp'),
       total: doc.get('total'),
       instructions: doc.get("instructions"),
       paymentType: doc.get("paymentType"),
       tax: doc.get("tax"),
-      deliverFee: doc.get("deliverFee"),
-      serviceCharge: doc.get("serviceCharge")
+      deliverFee: doc.get("deliveryFee"),
+      serviceCharge: doc.get("serviceCharge"),
+      phoneNumber: doc.get("phoneNumber"),
+      feedbackTime: doc.get("feedbackTime")
     );
 
     return history;
@@ -73,12 +79,14 @@ class HistoryModel{
       "status": this.status,
       "shopid": this.shopID,
       "total": this.total,
-      "timestamp": this.timestamp,
+      "timestamp": this.orderTime,
       "paymentType": this.paymentType,
       "instructions": this.instructions,
       "serviceCharge": this.serviceCharge,
       "deliveryFee": this.deliverFee,
-      "tax": this.tax
+      "tax": this.tax,
+      "phoneNumber": this.phoneNumber,
+      "feedbackTime": this.feedbackTime
     };
   }
 

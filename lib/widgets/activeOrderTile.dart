@@ -53,9 +53,10 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                 text: widget.history.joint?.name ?? "",
                 fontSize: 16,
                 isBold: true,
+                color: kBlack,
               ),
               CustomText(
-                text: timeago.format(widget.history.timestamp.toDate()),
+                text: timeago.format(widget.history.orderTime.toDate()),
                 isMediumWeight: true,
                 fontSize: 10,
               ),

@@ -63,7 +63,7 @@ class _HistoryTileState extends State<HistoryTile> {
                       children: [
                         CustomText(
                           text: timeago.format(
-                            widget.history.timestamp.toDate()
+                            widget.history.orderTime.toDate()
                           ),
                           fontSize: 10,
                         ),

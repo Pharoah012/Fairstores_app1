@@ -134,7 +134,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
       backgroundColor: widget.color,
       leadingWidth: 81,
       leading: GestureDetector(
-        onTap: () => widget.onBackTap ?? Navigator.of(context).pop(),
+        onTap: widget.onBackTap ?? () => Navigator.of(context).pop(),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

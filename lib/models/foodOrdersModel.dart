@@ -53,7 +53,7 @@ class FoodOrdersModel{
       "total": this.price,
       "shopid": this.jointID,
       "sides": this.sides,
-      "cartid": this.cartID
+      "cartid": this.cartID,
     };
   }
 

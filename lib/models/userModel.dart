@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/models/tokenModel.dart';
 
@@ -74,20 +76,24 @@ class UserModel {
     await userRef.doc(this.uid).update(info);
   }
 
-  Future<List<String>> getManagerTokens() async {
+  static Future<List<String>> getManagerTokens() async {
     // get the tokens of the managers
     QuerySnapshot snapshot = await userRef
       .where('ismanager', isEqualTo: true).get();
 
     List<String> tokens = [];
 
-    //
     snapshot.docs.forEach((element) async {
       UserModel model = UserModel.fromDocument(element);
 
       DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
-      TokenModel tokenModel = TokenModel.fromDocument(doc);
-      tokens.add(tokenModel.devtoken);
+
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+
+      if (data != null && data.containsKey("devtoken")){
+        TokenModel tokenModel = TokenModel.fromDocument(doc);
+        tokens.add(tokenModel.devtoken);
+      }
     });
 
     return tokens;

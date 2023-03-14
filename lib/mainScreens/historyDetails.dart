@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/models/historyModel.dart';
+import 'package:fairstores/models/menuItemOptionItemModel.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/whatsappchat.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
@@ -67,8 +68,103 @@ class _HistoryDetailsState extends ConsumerState<HistoryDetails> {
       title: CustomText(
         text: widget.history.joint!.name,
         fontSize: 18,
-        isBold: true
+        isBold: true,
+        color: kBlack,
       )
+    );
+  }
+
+  Widget receipt() {
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: widget.history.orderDetails.length,
+              itemBuilder: (context, index){
+                log(widget.history.orderDetails.first.toString());
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: widget.history.orderDetails[index]['ordername'],
+                            fontSize: 16,
+                            color: kBlack,
+                          ),
+                          CustomText(
+                            text: "GHS ${widget.history.orderDetails[index]['total']}",
+                            fontSize: 16,
+                            color: kBlack,
+                          )
+                        ],
+                      ),
+                      Builder(
+                          builder: (context){
+                            List<dynamic> sides = widget.history.orderDetails[index]['sides'];
+
+                            // check if the are sides and display them
+                            if (sides.isNotEmpty){
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    child: ListView.builder(
+                                        itemCount: sides.length,
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemBuilder: (context, sideIndex){
+                                          MenuItemOptionItemModel side
+                                          = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
+
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                CustomText(
+                                                  text: "+ ${side.name}",
+                                                  fontSize: 12,
+                                                ),
+                                                CustomText(
+                                                  text: "+ ${widget.history.orderDetails[index]['total'] - side.price}",
+                                                  fontSize: 12,
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return SizedBox.shrink();
+                          }
+                      )
+                    ],
+                  ),
+                );
+              }
+            )
+          ],
+        )
+      ],
     );
   }
 
@@ -150,15 +246,7 @@ class _HistoryDetailsState extends ConsumerState<HistoryDetails> {
                 isBold: true,
               ),
               SizedBox(height: 16,),
-              ...List.generate(
-                widget.history.orderDetails.length,
-                (index) => CustomText(
-                  text: widget.history.orderDetails[index].toString(),
-                  fontSize: 16,
-                  isMediumWeight: true,
-                  overflow: TextOverflow.visible,
-                )
-              ),
+              receipt(),
               SizedBox(height: 20,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

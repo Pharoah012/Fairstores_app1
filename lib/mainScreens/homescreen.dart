@@ -13,6 +13,7 @@ import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/categoryProvider.dart';
 import 'package:fairstores/providers/historyProviders.dart';
 import 'package:fairstores/providers/jointProvider.dart';
+import 'package:fairstores/providers/managersTokensProvider.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +140,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         loading: () => log("loading history")
     );
 
+    // load the managers tokens
+    final managersTokens = ref.watch(managersTokensProvider);
+    final managersTokensList = ref.watch(managersTokensListProvider);
 
+    managersTokens.when(
+        data: (data) => log("loaded managers tokens"),
+        error: (_, err) => log(err.toString()),
+        loading: () => log("loading managers tokens")
+    );
 
     return WillPopScope(
         onWillPop: () async => false,
