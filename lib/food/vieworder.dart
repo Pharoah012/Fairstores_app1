@@ -1,295 +1,319 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer';
 import 'package:fairstores/constants.dart';
-import 'package:fairstores/food/foodcartmodel.dart';
-import 'package:fairstores/whatsappchat.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
+import 'package:fairstores/models/historyModel.dart';
+import 'package:fairstores/models/jointModel.dart';
+import 'package:fairstores/models/menuItemOptionItemModel.dart';
+import 'package:fairstores/providers/cartInfoProvider.dart';
+import 'package:fairstores/providers/userProvider.dart';
+import 'package:fairstores/widgets/CustomAppBar.dart';
+import 'package:fairstores/widgets/customErrorWidget.dart';
+import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/orderStatusDisplay.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ViewOrder extends StatefulWidget {
-  final String userid;
-  final String orderid;
-  final dynamic total;
-  final dynamic taxes;
-  final dynamic servicecharge;
-  final dynamic deliveryfee;
-  const ViewOrder(
-      {Key? key,
-      required this.orderid,
-      required this.deliveryfee,
-      required this.userid,
-      required this.total,
-      required this.servicecharge,
-      required this.taxes})
-      : super(key: key);
+class ViewOrder extends ConsumerStatefulWidget {
+  final JointModel joint;
+  final HistoryModel history;
+
+  const ViewOrder({
+    Key? key,
+    required this.joint,
+    required this.history
+  }) : super(key: key);
 
   @override
-  State<ViewOrder> createState() => _ViewOrderState();
+  ConsumerState<ViewOrder> createState() => _ViewOrderState();
 }
 
-class _ViewOrderState extends State<ViewOrder> {
-  List<String> orderdetails = [];
+class _ViewOrderState extends ConsumerState<ViewOrder> {
 
-  receipt() {
-    return FutureBuilder<QuerySnapshot>(
-        future: foodCartRef
-            .doc(widget.userid)
-            .collection('Orders')
-            .where('userid', isEqualTo: widget.userid)
-            .get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const SizedBox();
-          }
-          List<Widget> foodcartlist = [];
-          List<String> orderdetails = [];
-          for (var doc in snapshot.data!.docs) {
-            List<Padding> foodsidelist = [];
-            FoodCartModel foodCartModel =
-                FoodCartModel.fromDocument(doc, widget.userid);
-            foodsidelist = foodCartModel.sides
-                .map((e) => Padding(
-                      padding: const EdgeInsets.only(top: 8.0, left: 15),
-                      child: Text(
-                        '+ $e.',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 12,
-                            color: Colors.black.withOpacity(0.4)),
-                      ),
-                    ))
-                .toList();
-            orderdetails.add(
-                '${foodCartModel.quantity}x ${foodCartModel.foodname} + $foodsidelist');
-            print(orderdetails);
+  Widget receipt() {
 
-            foodcartlist.add(Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 13, top: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '${foodCartModel.quantity}x ${foodCartModel.foodname}',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w500, fontSize: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CustomText(
+          text: "Receipts",
+          isMediumWeight: true,
+          color: kBlack,
+        ),
+        SizedBox(height: 10,),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ref.read(cartProvider(widget.joint)).when(
+                data: (data){
+                  if (data.isEmpty){
+                    return Center(
+                      child: CustomText(
+                          text: "There are no items in the cart"
                       ),
-                      Expanded(child: SizedBox()),
-                      Text(
-                        'GHS ${foodCartModel.price}',
-                        style: GoogleFonts.manrope(
-                            fontWeight: FontWeight.w400, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: foodsidelist,
-                  ),
-                ],
-              ),
-            ));
-          }
+                    );
+                  }
 
-          this.orderdetails = orderdetails;
-          print(orderdetails);
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, top: 23),
-                child: Text('Delivery Address',
-                    style: GoogleFonts.manrope(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black.withOpacity(0.5))),
-              ),
-              Column(
-                children: foodcartlist,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20, top: 20),
-                child: Row(
-                  children: [
-                    Text('Delivery',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        )),
-                    Expanded(child: const SizedBox()),
-                    Text('GHS ${widget.deliveryfee}',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        ))
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20, top: 16),
-                child: Row(
-                  children: [
-                    Text('Taxes',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        )),
-                    Expanded(child: const SizedBox()),
-                    Text('GHC ${widget.taxes}',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        ))
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20, top: 16),
-                child: Row(
-                  children: [
-                    Text('Service Fee',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        )),
-                    Expanded(child: SizedBox()),
-                    Text('GHS ${widget.servicecharge * widget.total}',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 16,
-                        ))
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20, top: 16),
-                child: Row(
-                  children: [
-                    Text('Total Price',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                        )),
-                    Expanded(child: const SizedBox()),
-                    Text(
-                        'GHS ${widget.total + widget.taxes + (widget.total * widget.servicecharge)}',
-                        style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                        ))
-                  ],
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 22.0),
-                child: Divider(
-                  color: Colors.white,
-                  height: 1.7,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 20.0, right: 20, bottom: 30, top: 20),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xffE7E4E4)),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(100)),
-                  child: TextButton(
-                    onPressed: () {
-                      openwhatsapp(context);
-                      //     //  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const PurchsaeSuccessful(),));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20.0, right: 20),
-                      child: Text(
-                        'Contact Customer Care',
-                        style: GoogleFonts.manrope(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xff374151)),
-                      ),
+                  return ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: ref.read(cartInfoProvider).values.length,
+                      itemBuilder: (context, index){
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CustomText(
+                                    text: "${ref.read(cartInfoProvider)
+                                        .values.elementAt(index).quantity}} "
+                                        "x ${ref.read(cartInfoProvider)
+                                        .values.elementAt(index).foodName}",
+                                    fontSize: 16,
+                                    color: kBlack,
+                                  ),
+                                  CustomText(
+                                    text: "GHS ${ref.read(cartInfoProvider)
+                                        .values.elementAt(index).price}",
+                                    fontSize: 16,
+                                    color: kBlack,
+                                  )
+                                ],
+                              ),
+                              Builder(
+                                  builder: (context){
+                                    List<dynamic> sides = ref.read(cartInfoProvider).values.elementAt(index).sides;
+
+                                    // check if the are sides and display them
+                                    if (sides.isNotEmpty){
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: MediaQuery.of(context).size.width,
+                                            child: ListView.builder(
+                                                itemCount: sides.length,
+                                                shrinkWrap: true,
+                                                physics: NeverScrollableScrollPhysics(),
+                                                itemBuilder: (context, sideIndex){
+                                                  MenuItemOptionItemModel side
+                                                  = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
+
+                                                  return Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        CustomText(
+                                                          text: "+ ${side.name}",
+                                                          fontSize: 12,
+                                                        ),
+                                                        CustomText(
+                                                          text: "${side.price}",
+                                                          fontSize: 12,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+
+                                    return SizedBox.shrink();
+                                  }
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                  );
+                },
+                error: (_, err){
+                  log(err.toString());
+                  return Center(
+                    child: CustomText(
+                        text: "An error occurred while retrieving your orders"
                     ),
+                  );
+                },
+                loading: () => Center(
+                  child: CircularProgressIndicator(
+                    color: kPrimary,
                   ),
+                )
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText(
+                  text: "Delivery Fee",
+                  fontSize: 16,
+                  color: kBlack,
                 ),
+                CustomText(
+                  text: "GHS ${widget.joint.price.toString()}",
+                  fontSize: 16,
+                  color: kBlack,
+                ),
+              ],
+            ),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText(
+                  text: "Taxes",
+                  fontSize: 16,
+                  color: kBlack,
+                ),
+                CustomText(
+                  text: "GHS ${widget.history.tax}",
+                  fontSize: 16,
+                  color: kBlack,
+                ),
+              ],
+            ),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText(
+                  text: "Service Fee",
+                  fontSize: 16,
+                  color: kBlack,
+                ),
+                CustomText(
+                  text: "GHS ${widget.history.serviceCharge}",
+                  fontSize: 16,
+                  color: kBlack,
+                ),
+              ],
+            ),
+            SizedBox(height: 20,),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomText(
+                    text: "Total Price",
+                    fontSize: 18,
+                    color: kBlack,
+                    isBold: true
+                ),
+                CustomText(
+                  text: "GHS ${widget.history.total}",
+                  fontSize: 18,
+                  color: kBlack,
+                  isBold: true,
+                ),
+              ],
+            ),
+            SizedBox(height: 20,),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget trackingOrder(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CustomText(
+              text: "Tracking Order",
+              color: kBlack,
+              isMediumWeight: true,
+            ),
+            IconButton(
+              onPressed: (){},
+              icon: Icon(
+               Icons.keyboard_arrow_up,
+               color: kBlack,
               )
-            ],
-          );
-        });
+            )
+          ],
+        ),
+        SizedBox(height: 20,),
+        OrderStatusDisplay(
+          status: widget.history.status,
+          orderDate: widget.history.timestamp,
+        )
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(userProvider);
+    final cartInfo = ref.watch(cartInfoProvider);
+    final cart = ref.watch(cartProvider(widget.joint));
+
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(
-            'FairStores',
-            style: GoogleFonts.manrope(
-                color: Colors.black, fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () async {
-              QuerySnapshot snapshot = await foodCartRef
-                  .doc(widget.userid)
-                  .collection('Orders')
-                  .get();
-              for (var e in snapshot.docs) {
-                e.reference.delete();
-              }
+      backgroundColor: kWhite,
+        appBar: CustomAppBar(
+          title: 'FairStores',
+          color: kWhite,
+          onBackTap: () async {
+            try{
+              await FoodOrdersModel.clearCart(
+                  userID: user.uid,
+                  jointID: widget.joint.jointID
+              );
 
               Navigator.pop(context);
               Navigator.pop(context);
               Navigator.pop(context);
-            },
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(
-                    left: 10.0,
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.black,
-                    size: 12,
-                  ),
-                ),
-                Text(
-                  'Back',
-                  style: GoogleFonts.manrope(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
+
+            }
+            catch(exception){
+              log(exception.toString());
+              showDialog(
+                context: context,
+                builder: (_) => CustomError(
+                    errorMessage: "An error occurred during processing"
                 )
-              ],
-            ),
-          ),
+              );
+            }
+          },
         ),
         body: SingleChildScrollView(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0, top: 23),
-              child: Text('Order Details',
-                  style: GoogleFonts.manrope(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text: 'Order Details',
+                  fontSize: 16,
+                  isBold: true,
+                  color: kBlack,
+                ),
+                SizedBox(height: 23,),
+                CustomText(
+                  text: 'You will receive a call once your '
+                      'order has been delivered',
+                  fontSize: 16,
+                  isMediumWeight: true,
+                  color: kPrimary,
+                ),
+                SizedBox(height: 23,),
+                trackingOrder(),
+                receipt()
+              ]
             ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 20.0, top: 23, bottom: 23, right: 20),
-              child: Text(
-                  'You will recieve a call once your order has been delivered',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
-                      fontSize: 16, fontWeight: FontWeight.w500, color: kPrimary)),
-            ),
-            receipt()
-          ]),
-        ));
+          ),
+        )
+    );
   }
 }

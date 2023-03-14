@@ -89,7 +89,10 @@ class _FoodPageState extends ConsumerState<FoodPage> {
               itemBuilder: (context, index){
                 return Padding(
                   padding: const EdgeInsets.only(left: 20.0),
-                  child: AdTile(ad: data[index]),
+                  child: AdTile(
+                    isOneItem: data.length == 1,
+                    ad: data[index]
+                  ),
                 );
               }
             ),

@@ -4,29 +4,32 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/backend/confirmationModel.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/models/foodOrdersModel.dart';
 import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/models/jointModel.dart';
 import 'package:fairstores/models/menuItemOptionItemModel.dart';
-import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/backend/oayboxmodel.dart';
 import 'package:fairstores/backend/sendnotification.dart';
-import 'package:fairstores/backend/tokenmodel.dart';
-import 'package:fairstores/food/foodcartmodel.dart';
 import 'package:fairstores/food/vieworder.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
+import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
+import 'package:fairstores/widgets/checkoutPaymentOption.dart';
 import 'package:fairstores/widgets/customButton.dart';
+import 'package:fairstores/widgets/customErrorWidget.dart';
+import 'package:fairstores/widgets/customLoader.dart';
 import 'package:fairstores/widgets/customText.dart';
+import 'package:fairstores/widgets/customTextButton.dart';
 import 'package:fairstores/widgets/customTextFormField.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fairstores/backend/payment_api.dart';
-import 'package:fairstores/models/schoolModel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
+
+final networkProvider = StateProvider.autoDispose<String?>((ref) => null);
 
 class FoodCheckout extends ConsumerStatefulWidget {
   final double taxes;
@@ -49,44 +52,44 @@ class FoodCheckout extends ConsumerStatefulWidget {
 
 class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
   String page = 'checkout';
-  List<bool> visible = [true, false];
-  FocusNode myFocusNode = FocusNode();
+  // List<bool> visible = [true, false];
+  // FocusNode myFocusNode = FocusNode();
   List<String> schoollist = [];
-  String? selectedValue;
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  List<bool> selected = [false, false, false, false];
+  // String? selectedValue;
+  // GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  // List<bool> selected = [false, false, false, false];
 
   late ConfirmationModel confirm;
   late Paybox paybox;
   TextEditingController phonecontroller = TextEditingController();
   TextEditingController instructioncontroller = TextEditingController();
-  String network = '';
-  List<String> orderDetails = [];
+  // String network = '';
+  // List<String> orderDetails = [];
   String orderID = const Uuid().v4();
   List<String> tokens = [];
 
   @override
   void initState() {
     super.initState();
-    schoolList();
-    getmanagertokens();
+    // schoolList();
+    // getmanagertokens();
   }
 
-  getmanagertokens() async {
-    QuerySnapshot snapshot =
-        await userRef.where('ismanager', isEqualTo: true).get();
-    List<String> tokens = [];
-    snapshot.docs.forEach((element) async {
-      UserModel model = UserModel.fromDocument(element);
-
-      DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
-      TokenModel tokenModel = TokenModel.fromDocument(doc);
-      tokens.add(tokenModel.devtoken.toString());
-    });
-    setState(() {
-      this.tokens = tokens;
-    });
-  }
+  // getmanagertokens() async {
+  //   QuerySnapshot snapshot =
+  //       await userRef.where('ismanager', isEqualTo: true).get();
+  //   List<String> tokens = [];
+  //   snapshot.docs.forEach((element) async {
+  //     UserModel model = UserModel.fromDocument(element);
+  //
+  //     DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
+  //     TokenModel tokenModel = TokenModel.fromDocument(doc);
+  //     tokens.add(tokenModel.devtoken.toString());
+  //   });
+  //   setState(() {
+  //     this.tokens = tokens;
+  //   });
+  // }
 
   Widget receipt() {
 
@@ -178,7 +181,8 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                                                       fontSize: 12,
                                                     ),
                                                     CustomText(
-                                                      text: "+ ${side.price}",
+                                                      text: "GHS ${ref.read(cartInfoProvider)
+                                                          .values.elementAt(index).price - side.price}",
                                                       fontSize: 12,
                                                     ),
                                                   ],
@@ -288,18 +292,18 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     );
   }
 
-  schoolList() async {
-    QuerySnapshot snapshot = await schoolRef.get();
-    List<String> schoollist = [];
-    for (var doc in snapshot.docs) {
-      SchoolModel schoolModel = SchoolModel.fromDocument(doc);
-      schoollist.add(schoolModel.schoolname);
-    }
-
-    setState(() {
-      this.schoollist = schoollist;
-    });
-  }
+  // schoolList() async {
+  //   QuerySnapshot snapshot = await schoolRef.get();
+  //   List<String> schoollist = [];
+  //   for (var doc in snapshot.docs) {
+  //     SchoolModel schoolModel = SchoolModel.fromDocument(doc);
+  //     schoollist.add(schoolModel.schoolname);
+  //   }
+  //
+  //   setState(() {
+  //     this.schoollist = schoollist;
+  //   });
+  // }
 
   Widget checkout() {
     return Column(
@@ -435,150 +439,22 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
           child: Column(
             children: [
 
-              ListTile(
-                onTap: () {
-                  setState(() {
-                    selected = [true, false, false, false];
-                    network = 'Cash';
-                  });
-                },
-                leading: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 20,
-                      height: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                              selected[0] == true ? Colors.grey : Colors.white),
-                          color: selected[0] == true ? Colors.green : Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 15,
-                      height: 15,
-                    ),
-                  ],
-                ),
-                title: Text(
-                  'Payment on Delivery',
-                  style:
-                  GoogleFonts.manrope(fontWeight: FontWeight.w500, fontSize: 16),
-                ),
+              CheckoutPaymentOption(
+                title: "Payment on Delivery",
+                networkProvider: networkProvider
               ),
-              ListTile(
-                onTap: () {
-                  setState(() {
-                    selected = [false, true, false, false];
-                    network = 'Vodafone';
-                  });
-                },
-                leading: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 20,
-                      height: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                              selected[1] == true ? Colors.grey : Colors.white),
-                          color: selected[1] == true ? Colors.green : Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 15,
-                      height: 15,
-                    ),
-                  ],
-                ),
-                title: Text(
-                  'Vodafone Mobile Money',
-                  style:
-                  GoogleFonts.manrope(fontWeight: FontWeight.w500, fontSize: 16),
-                ),
+              CheckoutPaymentOption(
+                  title: "Vodafone Mobile Money",
+                  networkProvider: networkProvider
               ),
-              ListTile(
-                onTap: () {
-                  setState(() {
-                    selected = [false, false, true, false];
-                    network = 'Mtn';
-                  });
-                },
-                leading: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 20,
-                      height: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                              selected[2] == true ? Colors.grey : Colors.white),
-                          color: selected[2] == true ? Colors.green : Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 15,
-                      height: 15,
-                    ),
-                  ],
-                ),
-                title: Text(
-                  'MTN Mobile Money',
-                  style:
-                  GoogleFonts.manrope(fontWeight: FontWeight.w500, fontSize: 16),
-                ),
+              CheckoutPaymentOption(
+                  title: "MTN Mobile Money",
+                  networkProvider: networkProvider
               ),
-              ListTile(
-                onTap: () {
-                  setState(() {
-                    selected = [false, false, false, true];
-                    network = 'AirtelTigo';
-                  });
-                },
-                leading: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 20,
-                      height: 20,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                              selected[3] == true ? Colors.grey : Colors.white),
-                          color: selected[3] == true ? Colors.green : Colors.white,
-                          borderRadius: BorderRadius.circular(40)),
-                      width: 15,
-                      height: 15,
-                    ),
-                  ],
-                ),
-                title: Text(
-                  'AirtelTigo Money',
-                  style:
-                  GoogleFonts.manrope(fontWeight: FontWeight.w500, fontSize: 16),
-                ),
-              )
+              CheckoutPaymentOption(
+                  title: "AirtelTigo Money",
+                  networkProvider: networkProvider
+              ),
             ],
           ),
         )
@@ -587,25 +463,29 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
   }
 
   //comeback
-  payment(String network) async {
+  Future<void> payment() async {
     final pay = Pay();
     final Paybox paybox;
     try {
-      print(network);
+      // print(network);
       print(
           '${widget.total + widget.taxes + (widget.total * widget.serviceCharge)}');
-      paybox = (await pay.payMomo(
-        network,
-        '${widget.total + widget.taxes + (widget.total * widget.serviceCharge)}',
-        phonecontroller.text,
-        ref.read(userProvider).email!,
-        ref.read(userProvider).uid,
-        ref.read(userProvider).username!,
-      ))!;
 
-      setState(() {
-        this.paybox = paybox;
-      });
+      // if (ref.read(networkProvider) != null){
+      //   paybox = (await pay.payMomo(
+      //     ref.read(networkProvider)!,
+      //     '${widget.total + widget.taxes + (widget.total * widget.serviceCharge)}',
+      //     phonecontroller.text,
+      //     ref.read(userProvider).email!,
+      //     ref.read(userProvider).uid,
+      //     ref.read(userProvider).username!,
+      //   ))!;
+      //
+      //   setState(() {
+      //     this.paybox = paybox;
+      //   });
+      // }
+
     } catch (e) {
       print(e);
       Fluttertoast.showToast(msg: e.toString());
@@ -614,140 +494,178 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
 
   paymentDialog() {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text(
-              'Payment',
-              style: GoogleFonts.montserrat(
-                  color: kPrimary, fontWeight: FontWeight.bold),
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: CustomText(
+            text: 'Payment',
+            isBold: true,
+          ),
+          children: [
+            SimpleDialogOption(
+              child: Text('Payment is not complete. Do you want to advance?'),
             ),
-            children: [
-              SimpleDialogOption(
-                child: Text('Payment is not complete. Do you want to advance?'),
-              ),
-              SimpleDialogOption(
-                child: Text('Proceed'),
-              ),
-              SimpleDialogOption(
-                onPressed: () async {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+            SimpleDialogOption(
+              child: Text('Proceed'),
+            ),
+            SimpleDialogOption(
+              onPressed: () async {
+                Navigator.pop(context);
+                Navigator.pop(context);
 
-                  QuerySnapshot snapshot = await foodCartRef
-                      .doc(ref.read(userProvider).uid)
-                      .collection('Orders')
-                      .get();
-                  for (var e in snapshot.docs) {
-                    e.reference.delete();
-                  }
-
-                  HistoryModel history = HistoryModel(
-                    deliveryLocation: ref.read(userProvider).school!,
-                    orderID: orderID,
-                    orderDetails: orderDetails,
-                    user: ref.read(userProvider).uid,
-                    school: ref.read(userProvider).school!,
-                    status: 'active',
-                    shopID: widget.joint.jointID,
-                    total: widget.total,
-                    timestamp: Timestamp.fromDate(DateTime.now())
+                try{
+                  await FoodOrdersModel.clearCart(
+                      userID: ref.read(userProvider).uid,
+                      jointID: widget.joint.jointID
                   );
 
-                  await history.addItemToHistory();
+                  HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
 
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ViewOrder(
-                          userid: ref.read(userProvider).uid,
-                          total: widget.total,
-                          orderid: orderID,
-                          taxes: widget.taxes,
-                          deliveryfee: widget.joint.price,
-                          servicecharge: widget.serviceCharge,
-                        ),
-                      ));
+                  if (uploadedOrder == null){
+                    return showDialog(
+                        context: context,
+                        builder: (_) => CustomError(
+                            errorMessage: "We are unable to place your order. "
+                                "Please try again later"
+                        )
+                    );
+                  }
+
+                  // send the user a success notification
                   AwesomeNotifications().createNotification(
                       content: NotificationContent(
                           id: 10,
                           channelKey: 'basic_channel',
                           title: 'Order Accepted',
-                          body: 'Your Order is being Processed'));
-                },
-                child: Text('Close'),
-              )
-            ],
-          );
-        });
+                          body: 'Your Order is being Processed'
+                      )
+                  );
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewOrder(
+                          joint: widget.joint,
+                          history: uploadedOrder,
+                        ),
+                      )
+                  );
+                }
+                catch(exception){
+                  log(exception.toString());
+                  showDialog(
+                    context: context,
+                    builder: (_) => CustomError(
+                      errorMessage: "We are unable to place your order. "
+                      "Please try again later"
+                    )
+                  );
+                }
+              },
+              child: CustomText(
+                text: "Close"
+              ),
+            )
+          ],
+        );
+      }
+    );
   }
 
-  upload() {
-    print(orderDetails);
+  // Store the user's order in firestore and alert the user that
+  // their order has been placed
+  Future<void> upload() {
+
     return showDialog(
-        context: context,
-        builder: (context) {
-          return SimpleDialog(
-              title: Center(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: Center(
+            child: CustomText(
+              text: 'Payment on Delivery',
+              isBold: true,
+              color: kPrimary,
+            )
+          ),
+          children: [
+            SimpleDialogOption(
+              child: CustomText(
+                text: "Your order will be processed. Please note that you "
+                  "cannot terminate this order after 30 mins of being placed. "
+                  "Thank you."
+              )
+            ),
+            SimpleDialogOption(
+              onPressed: () async {
+
+                // close this dialog
+                Navigator.pop(context);
+
+                // show the loader
+                showDialog(
+                  context: context,
+                  builder: (context) => CustomLoader()
+                );
+
+                HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
+
+                if (uploadedOrder == null){
+                  return showDialog(
+                      context: context,
+                      builder: (_) => CustomError(
+                          errorMessage: "We are unable to place your order. "
+                              "Please try again later"
+                      )
+                  );
+                }
+
+                // get the IDs of the managers
+                // who should receive this order and alert them
+
+                // sendNotification(
+                //   tokens,
+                //   'An order has been placed',
+                //   'New Order'
+                // );
+
+                // Alert the user of the successful placement of the order
+                AwesomeNotifications().createNotification(
+                    content: NotificationContent(
+                        id: 10,
+                        channelKey: 'basic_channel',
+                        title: 'Order Accepted',
+                        body: 'Your Order is being Processed'
+                    )
+                );
+
+
+                // redirect to show the user the order
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewOrder(
+                      history: uploadedOrder,
+                      joint: widget.joint,
+                    ),
+                  )
+                );
+
+              },
+              child: Center(
                 child: CustomText(
-                  text: 'Cash Payment',
-                  isBold: true,
+                  text: 'Place Order',
                   color: kPrimary,
+                  isMediumWeight: true,
                 )
               ),
-              children: [
-                SimpleDialogOption(
-                    child: Text(
-                        'Your order will be processed. Please note that you cannot terminate this order after 30 mins of being placed. Thank you',
-                        style: GoogleFonts.manrope())),
-                SimpleDialogOption(
-                  onPressed: () async {
-                    transactionsRef.doc(orderID).set({
-                      'orderid': orderID,
-                      'shopid': widget.joint.jointID,
-                      'school': ref.read(userProvider).school,
-                      'orderdetails': orderDetails,
-                      'total': widget.total,
-                      'paymentStatus': 'Cash',
-                      'status': 'active',
-                      'deliverylocation': ref.read(userProvider).school,
-                      'instructions': instructioncontroller.text,
-                      'userid': ref.read(userProvider).uid,
-                      'timestamp': DateTime.now()
-                    });
-
-                    Navigator.pop(context);
-                    sendNotification(
-                        tokens, 'An order has been placed', 'New Order');
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ViewOrder(
-                            userid: ref.read(userProvider).uid,
-                            orderid: orderID,
-                            total: widget.total,
-                            taxes: widget.taxes,
-                            deliveryfee: widget.joint.price,
-                            servicecharge: widget.serviceCharge,
-                          ),
-                        ));
-                    AwesomeNotifications().createNotification(
-                        content: NotificationContent(
-                            id: 10,
-                            channelKey: 'basic_channel',
-                            title: 'Order Accepted',
-                            body: 'Your Order is being Processed'));
-                  },
-                  child: Center(
-                      child: Text('Place Order',
-                          style: GoogleFonts.manrope(
-                              color: kPrimary, fontWeight: FontWeight.w500))),
-                )
-              ]);
-        });
+            )
+          ]
+        );
+      }
+    );
   }
 
-  confirmationButton() {
+  Widget confirmationButton() {
     return Padding(
       padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 5, top: 20),
       child: Container(
@@ -757,58 +675,93 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
             color: kPrimary, borderRadius: BorderRadius.circular(100)),
         child: TextButton(
             onPressed: () async {
-              final con = confirmation();
-              confirm = await con.confirmTrans(paybox);
 
-              if (confirm.status == 'Failed') {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Payment Failed, Try again')));
-              } else if (confirm.status == 'Pending') {
-                //   paymentdialog(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text(
-                        'Pop Up not initialized. Please Wait or Try again')));
-              } else if (confirm.status == 'Success') {
-                transactionsRef.doc(orderID).set({
-                  'orderid': orderID,
-                  'shopid': widget.joint.jointID,
-                  'school': ref.read(userProvider).school,
-                  'orderdetails': orderDetails,
-                  'total': widget.total,
-                  'paymentStatus': confirm.status,
-                  'status': 'active',
-                  'deliverylocation': ref.read(userProvider).school,
-                  'instructions': instructioncontroller.text,
-                  'userid': ref.read(userProvider).uid,
-                  'timestamp': DateTime.now()
-                });
 
-                sendNotification(
-                    tokens, 'An order has been placed', 'New Order');
 
-                Navigator.pop(context);
+              try {
+                ConfirmationModel con = await PaymentConfirmation.confirmTrans(paybox);
 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewOrder(
-                        userid: ref.read(userProvider).uid,
-                        orderid: orderID,
-                        total: widget.total,
-                        taxes: widget.taxes,
-                        deliveryfee: widget.joint.price,
-                        servicecharge: widget.serviceCharge,
-                      ),
-                    ));
-                AwesomeNotifications().createNotification(
-                    content: NotificationContent(
-                        id: 10,
-                        channelKey: 'basic_channel',
-                        title: 'Order Accepted',
-                        body: 'Your Order is being Processed'));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Payment not initialized. Please wait')));
+                // check if the the payment failed
+                if (con.status == 'Failed') {
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Payment Failed, Try again')
+                    )
+                  );
+
+                } else if (con.status == 'Pending') {
+                  // check if the payment is still pending
+                  //   paymentdialog(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                            'Pop Up not initialized. Please Wait or Try again'
+                          )
+                      )
+                  );
+
+                } else if (con.status == 'Success') {
+                  // check if the payment was successful and update the
+                  // firestore with the receipt
+
+                  HistoryModel? uploadedOrder = await updateFirestoreWithPayment();
+
+                  if (uploadedOrder == null){
+                    return showDialog(
+                        context: context,
+                        builder: (_) => CustomError(
+                            errorMessage: "We are unable to place your order. "
+                                "Please try again later"
+                        )
+                    );
+                  }
+
+                  // send the order to all the respective managers
+                  sendNotification(
+                    tokens,
+                    'An order has been placed',
+                    'New Order'
+                  );
+
+                  // alert the user of a successful order
+                  AwesomeNotifications().createNotification(
+                      content: NotificationContent(
+                          id: 10,
+                          channelKey: 'basic_channel',
+                          title: 'Order Accepted',
+                          body: 'Your Order is being Processed'
+                      )
+                  );
+
+                  Navigator.pop(context);
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ViewOrder(
+                          history: uploadedOrder,
+                          joint: widget.joint,
+                        ),
+                      )
+                  );
+
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Payment not initialized. Please wait')));
+                }
+
+              }
+              catch(exception){
+                log(exception.toString());
+                showDialog(
+                    context: context,
+                    builder: (_) => CustomError(
+                        errorMessage: "An error occurred while making "
+                          "payment for your order."
+                    )
+                );
+
               }
             },
             child: Padding(
@@ -824,7 +777,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     );
   }
 
-  loadingPayment() {
+  Widget loadingPayment() {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -832,146 +785,165 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
           leading: const Text('s'),
           elevation: 0,
           backgroundColor: Colors.white,
-          title: Text(
-            'Payment Verification',
-            style: GoogleFonts.manrope(
-                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black),
+          title: CustomText(
+            text: 'Payment Verification',
+            isBold: true,
+            color: kBlack,
           ),
           centerTitle: true,
         ),
         body: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Expanded(child: const SizedBox()),
-            CircularProgressIndicator(
-              color: kPrimary,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 14.0),
-              child: Text(
-                'Kindly wait for the pop-up to make payment. If pop up does not show, please try again',
-                style: GoogleFonts.manrope(),
-                textAlign: TextAlign.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: const SizedBox()),
+              CircularProgressIndicator(
+                color: kPrimary,
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                payment(network);
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: CustomText(
-                  text: 'Try Again',
-                  fontSize: 13,
-                  color: kPrimary,
-                )
+              SizedBox(height: 14,),
+              CustomText(
+                text: 'Kindly wait for the pop-up to make payment. '
+                  'If pop up does not show, please try again',
+                isCenter: true,
               ),
-            ),
-            CustomText(
-              text: 'Click the button below once Payment has been made',
-            ),
-            Expanded(child: const SizedBox()),
-            confirmationButton(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 30),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: CustomText(
-                  text: 'Go Back',
+              CustomTextButton(
+                onPressed: ()=>payment(),
+                title: 'Try Again',
+                fontSize: 13,
+              ),
+              SizedBox(height: 10,),
+              CustomText(
+                text: 'Click the button below once Payment has been made',
+              ),
+              Spacer(),
+              confirmationButton(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30),
+                child: CustomTextButton(
+                  onPressed: () => Navigator.pop(context),
+                  title: 'Go Back',
                   fontSize: 16,
-                  color: kPrimary,
                 )
-              ),
-            )
-          ]),
+              )
+            ]
+          ),
         ),
       ),
     );
+  }
+
+  Future<HistoryModel?> updateFirestoreWithPayment() async {
+    try{
+
+      // get the user's orders
+      List<FoodOrdersModel> orders = ref.read(cartInfoProvider).values.toList();
+
+      // iterate through the map and convert the objects to Maps or JSON
+      List<Map<String, dynamic>> orderInfo = orders.map((object) => object.toJson()).toList();
+
+
+      HistoryModel history = HistoryModel(
+        deliveryLocation: ref.read(userProvider).school!,
+        orderID: orderID,
+        orderDetails: orderInfo,
+        user: ref.read(userProvider).uid,
+        school: ref.read(userProvider).school!,
+        status: 'active',
+        shopID: widget.joint.jointID,
+        total: widget.total,
+        timestamp: Timestamp.fromDate(DateTime.now()),
+        instructions: instructioncontroller.text,
+        paymentType: ref.read(networkProvider)!,
+        tax: widget.taxes,
+        serviceCharge: widget.serviceCharge,
+        deliverFee: widget.joint.price.toDouble()
+      );
+
+      // Add the order to History
+      await history.addItemToHistory();
+
+      return history;
+
+    }
+    catch(exception){
+      log(exception.toString());
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final cartInfo = ref.watch(cartInfoProvider);
     final cart = ref.watch(cartProvider(widget.joint));
+    final network = ref.watch(networkProvider);
 
-    return page == 'checkout'
-        ? Scaffold(
-          appBar: CustomAppBar(title: "Checkout"),
-          body: SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  checkout(),
-                  receipt(),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        CustomText(
-                          text: 'Clicking Place Order will take you to a portal '
-                              'where payment can be completed',
-                          color: kBlack,
-                        ),
-                        SizedBox(height: 20,),
-                        CustomButton(
-                          isOrange: true,
-                          onPressed: (){
-                            if (formKey.currentState!.validate()) {
-                              if (network == '') {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Select a Network')));
-                              } else if (network == 'Cash') {
-                                upload();
-                              } else if (network == 'Mtn') {
-                                payment('Mtn');
-                                setState(() {
-                                  page = 'payment';
-                                });
-                              } else if (network == 'Vodafone') {
-                                payment('Vodafone');
-                                setState(() {
-                                  page = 'payment';
-                                });
-                              } else if (network == 'AirtelTigo') {
-                                payment('AirtelTigo');
-                                setState(() {
-                                  page = 'payment';
-                                });
-                              }
-                            } else {
-                              Fluttertoast.showToast(msg: 'Check Details');
-                            }
-                            //     //  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const PurchsaeSuccessful(),));
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CustomText(
-                                text: "Place Order",
-                                color: kWhite,
-                                fontSize: 16,
-                                isMediumWeight: true,
-                              ),
-                              CustomText(
-                                text: "GHS ${widget.total}",
-                                color: kWhite,
-                                fontSize: 16,
-                                isMediumWeight: true,
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+    return Scaffold(
+      appBar: CustomAppBar(title: "Checkout"),
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              checkout(),
+              receipt(),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    CustomText(
+                      text: 'Clicking Place Order will take you to a portal '
+                          'where payment can be completed',
+                      color: kBlack,
                     ),
-                  )
-                ],
+                    SizedBox(height: 20,),
+                    CustomButton(
+                      isOrange: true,
+                      onPressed: (){
+
+                        // check if the user hasn't selected a payment option
+                        if (network == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Select a Network')
+                              )
+                          );
+                        }
+                        else if (network == "Payment on Delivery") {
+                          //proceed to place the order
+                          upload();
+                        }
+                        else{
+                          // proceed to payment
+                          payment();
+                        }
+                        //     //  Navigator.push(context, MaterialPageRoute(builder: (context) =>  const PurchsaeSuccessful(),));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          CustomText(
+                            text: "Place Order",
+                            color: kWhite,
+                            fontSize: 16,
+                            isMediumWeight: true,
+                          ),
+                          CustomText(
+                            text: "GHS ${widget.total}",
+                            color: kWhite,
+                            fontSize: 16,
+                            isMediumWeight: true,
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               )
-            ),
-          ),
-        )
-      : loadingPayment();
+            ],
+          )
+        ),
+      ),
+    );
   }
 }

@@ -1,7 +1,5 @@
 import 'package:fairstores/widgets/customDropdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-
 class DropdownProvider extends StateNotifier<CustomDropdown> {
 
   DropdownProvider(CustomDropdown state) : super(state);

@@ -24,30 +24,33 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: kEnabledBorderColor)
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kLabelColor)
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 90,
             height: 90,
             decoration: BoxDecoration(
-                image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(
-                      widget.history.joint!.headerImage,
-                    )
-                ),
-                borderRadius: BorderRadius.circular(12)),
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: CachedNetworkImageProvider(
+                    widget.history.joint?.headerImage ?? "",
+                  )
+              ),
+              borderRadius: BorderRadius.circular(12)),
           ),
           SizedBox(width: 15.0,),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               CustomText(
-                text: widget.history.joint!.name,
+                text: widget.history.joint?.name ?? "",
                 fontSize: 16,
                 isBold: true,
               ),
@@ -56,27 +59,37 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                 isMediumWeight: true,
                 fontSize: 10,
               ),
-              SizedBox(height: 16,),
+              SizedBox(height: 4,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomButton(
+                  Flexible(
+                    child: CustomButton(
                       onPressed: (){},
-                      text: "Track Order"
+                      text: "Track Order",
+                      textColor: kPrimary,
+                      textSize: 10,
+                      height: 30,
+                    ),
                   ),
                   SizedBox(width: 10,),
-                  CustomButton(
+                  Flexible(
+                    child: CustomButton(
+                      textSize: 10,
+                      height: 30,
                       onPressed: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HistoryDetails(
-                                history: widget.history,
-                              ),
-                            )
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HistoryDetails(
+                              history: widget.history,
+                            ),
+                          )
                         );
                       },
                       text: 'Order Details'
+                    ),
                   ),
                 ],
               ),

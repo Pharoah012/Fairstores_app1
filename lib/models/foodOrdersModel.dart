@@ -144,11 +144,17 @@ class FoodOrdersModel{
     required String userID,
     required String jointID
   }) async {
+    // Get the user's order from the given store
     QuerySnapshot snapshot = await foodCartRef
-        .doc(userID)
-        .collection('Orders')
-        .where('shopid', isNotEqualTo: jointID)
-        .get();
+      .doc(userID)
+      .collection('Orders')
+      .where("shopid", isEqualTo: jointID)
+      .get();
+
+    // delete the orders
+    for (var e in snapshot.docs) {
+      e.reference.delete();
+    }
 
     return snapshot.docs.isEmpty;
   }

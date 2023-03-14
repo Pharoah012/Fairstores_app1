@@ -14,7 +14,12 @@ class HistoryModel{
   final String shopID;
   final dynamic total;
   final Timestamp timestamp;
+  final String paymentType;
+  final String instructions;
   JointModel? joint;
+  final double tax;
+  final double serviceCharge;
+  final double deliverFee;
 
   HistoryModel({
     required this.deliveryLocation,
@@ -26,31 +31,32 @@ class HistoryModel{
     required this.shopID,
     required this.total,
     required this.timestamp,
+    required this.paymentType,
+    required this.instructions,
+    required this.tax,
+    required this.serviceCharge,
+    required this.deliverFee,
     this.joint
 
   });
 
   factory HistoryModel.fromDocument(DocumentSnapshot doc) {
     HistoryModel history = HistoryModel(
-        user: doc.get("userid"),
-        school: doc.get("school"),
-        shopID: doc.get('shopid'),
-        deliveryLocation: doc.get('deliverylocation'),
-        orderDetails: doc.get('orderdetails'),
-        orderID: doc.get('orderid'),
-        status: doc.get('status'),
-        timestamp: doc.get('timestamp'),
-        total: doc.get('total')
+      user: doc.get("userid"),
+      school: doc.get("school"),
+      shopID: doc.get('shopid'),
+      deliveryLocation: doc.get('deliverylocation'),
+      orderDetails: doc.get('orderdetails'),
+      orderID: doc.get('orderid'),
+      status: doc.get('status'),
+      timestamp: doc.get('timestamp'),
+      total: doc.get('total'),
+      instructions: doc.get("instructions"),
+      paymentType: doc.get("paymentType"),
+      tax: doc.get("tax"),
+      deliverFee: doc.get("deliverFee"),
+      serviceCharge: doc.get("serviceCharge")
     );
-
-    // get the joint of the history object
-    JointModel.getShop(
-      school: history.school,
-      shopID: history.shopID,
-      userID: history.user
-    ).then((value) {
-      history.joint = value;
-    });
 
     return history;
 
@@ -61,13 +67,18 @@ class HistoryModel{
     return {
       "deliverylocation": this.deliveryLocation,
       "orderid": this.orderID,
-      "orderDdtails": this.orderDetails,
+      "orderdetails": this.orderDetails,
       "userid": this.user,
       "school": this.school,
       "status": this.status,
       "shopid": this.shopID,
       "total": this.total,
       "timestamp": this.timestamp,
+      "paymentType": this.paymentType,
+      "instructions": this.instructions,
+      "serviceCharge": this.serviceCharge,
+      "deliveryFee": this.deliverFee,
+      "tax": this.tax
     };
   }
 
@@ -87,6 +98,15 @@ class HistoryModel{
         .map((doc) => HistoryModel.fromDocument(doc))
         .toList();
 
+    for (HistoryModel history in activeOrders){
+      // get the joint of each history item
+      history.joint = await JointModel.getShop(
+          school: history.school,
+          shopID: history.shopID,
+          userID: history.user
+      );
+    }
+
     return activeOrders;
   }
 
@@ -99,10 +119,19 @@ class HistoryModel{
         .collection('foodhistory')
         .get();
 
-    List<HistoryModel> activeOrders = snapshot.docs
+    List<HistoryModel> historyItems = snapshot.docs
         .map((doc) => HistoryModel.fromDocument(doc))
         .toList();
 
-    return activeOrders;
+    for (HistoryModel history in historyItems){
+      // get the joint of each history item
+      history.joint = await JointModel.getShop(
+          school: history.school,
+          shopID: history.shopID,
+          userID: history.user
+      );
+    }
+
+    return historyItems;
   }
 }

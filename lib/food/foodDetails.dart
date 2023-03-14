@@ -289,9 +289,9 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
           );
         },
         loading: () => Center(
-          child: CustomText(
-              text: "Fetching the menu items"
-          ),
+          child: CircularProgressIndicator(
+            color: kPrimary,
+          )
         )
     );
   }

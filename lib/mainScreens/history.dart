@@ -8,6 +8,7 @@ import 'package:fairstores/widgets/activeOrderTile.dart';
 import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:fairstores/widgets/eventTicketHistoryTile.dart';
+import 'package:fairstores/widgets/historyTile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -79,18 +80,66 @@ class _HistoryState extends ConsumerState<History> {
       final activeOrders = ref.watch(activeOrdersProvider);
       final history = ref.watch(historyProvider);
 
-      return Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomText(
-              text: "Active Orders",
-              color: kBlack,
-              isMediumWeight: true,
-            ),
-            SizedBox(height: 20,),
-            activeOrders.when(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomText(
+            text: "Active Orders",
+            color: kBlack,
+            isMediumWeight: true,
+          ),
+          SizedBox(height: 20,),
+          activeOrders.when(
+            data: (data){
+              if (data.isEmpty){
+                return Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12)
+                  ),
+                  child: Center(
+                    child: CustomText(
+                        text: "You have no active orders"
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: data.length,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index){
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: ActiveOrderTile(
+                      history: data[index],
+                    ),
+                  );
+                }
+              );
+            },
+            error: (_, err){
+              log(err.toString());
+              return SizedBox.shrink();
+            },
+            loading: () => Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child: Center(
+                child: CustomText(
+                  text: "Fetching your active orders"
+                ),
+              ),
+            )
+          ),
+          CustomText(
+            text: "History",
+            color: kBlack,
+            isMediumWeight: true,
+          ),
+          SizedBox(height: 20,),
+          history.when(
               data: (data){
                 if (data.isEmpty){
                   return Container(
@@ -99,22 +148,22 @@ class _HistoryState extends ConsumerState<History> {
                     ),
                     child: Center(
                       child: CustomText(
-                          text: "You have no active orders"
+                          text: "You have no orders"
                       ),
                     ),
                   );
                 }
 
                 return ListView.builder(
-                  itemCount: data.length,
-                  itemBuilder: (context, index){
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: ActiveOrderTile(
-                        history: data[index],
-                      ),
-                    );
-                  }
+                    itemCount: data.length,
+                    itemBuilder: (context, index){
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: HistoryTile(
+                          history: data[index],
+                        ),
+                      );
+                    }
                 );
               },
               error: (_, err){
@@ -122,63 +171,14 @@ class _HistoryState extends ConsumerState<History> {
                 return SizedBox.shrink();
               },
               loading: () => Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12)
-                ),
                 child: Center(
                   child: CustomText(
-                    text: "Fetching your active orders"
+                      text: "Fetching your orders"
                   ),
                 ),
               )
-            ),
-            CustomText(
-              text: "History",
-              color: kBlack,
-              isMediumWeight: true,
-            ),
-            SizedBox(height: 20,),
-            history.when(
-                data: (data){
-                  if (data.isEmpty){
-                    return Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12)
-                      ),
-                      child: Center(
-                        child: CustomText(
-                            text: "You have no orders"
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
-                          child: ActiveOrderTile(
-                            history: data[index],
-                          ),
-                        );
-                      }
-                  );
-                },
-                error: (_, err){
-                  log(err.toString());
-                  return SizedBox.shrink();
-                },
-                loading: () => Container(
-                  child: Center(
-                    child: CustomText(
-                        text: "Fetching your orders"
-                    ),
-                  ),
-                )
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     } else if (ref.read(_selectedOptionProvider) == 'events') {
       final pendingEventTickets = ref.watch(pendingEventTicketsProvider);
@@ -204,6 +204,8 @@ class _HistoryState extends ConsumerState<History> {
 
                 return ListView.builder(
                     itemCount: data.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index){
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20.0),
@@ -245,6 +247,8 @@ class _HistoryState extends ConsumerState<History> {
 
                 return ListView.builder(
                     itemCount: data.length,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index){
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20.0),
@@ -376,7 +380,9 @@ class _HistoryState extends ConsumerState<History> {
 
                   _refreshController.refreshCompleted();
                 },
-                child: pageDisplay()
+                child: SingleChildScrollView(
+                  child: pageDisplay()
+                )
               ),
             ),
           ],

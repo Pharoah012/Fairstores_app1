@@ -150,13 +150,13 @@ class Pay {
   }
 }
 
-class confirmation {
+class PaymentConfirmation {
   /**
    * This method confirms the trasaction but need the paybox model to get
    *  the trasaction token in other to make the get request
    *
    * */
-  Future<dynamic> confirmTrans(Paybox paybox) async {
+  static Future<dynamic> confirmTrans(Paybox paybox) async {
     // var request = http.MultipartRequest(
     //     'GET', Uri.parse('https://paybox.com.co/transaction/${paybox.token}'));
     var request = await http.get(

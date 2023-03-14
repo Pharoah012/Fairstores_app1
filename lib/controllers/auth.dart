@@ -50,6 +50,8 @@ class Auth {
     final status = await OneSignal.shared.getDeviceState();
     final String? osUserID = status?.userId;
     print(osUserID);
+
+    final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
     tokensRef.doc(currentUser!.uid).set({'devtoken': osUserID});
   }
 

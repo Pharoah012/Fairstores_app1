@@ -10,12 +10,16 @@ class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget
   final String? title;
   final bool isDropdown;
   final bool isCenter;
+  final VoidCallback? onBackTap;
+  final Color color;
 
   const CustomAppBar({
     Key? key,
     this.title,
     this.isDropdown = false,
     this.isCenter = true,
+    this.onBackTap,
+    this.color = kScaffoldColor
   }) : super(key: key);
 
   @override
@@ -45,6 +49,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
       iconTheme: IconThemeData(
           color: kBlack
       ),
+      backgroundColor: widget.color,
       toolbarHeight: 70,
       automaticallyImplyLeading: false,
       // leadingWidth: 10,
@@ -126,9 +131,10 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
       iconTheme: IconThemeData(
           color: kBlack
       ),
+      backgroundColor: widget.color,
       leadingWidth: 81,
       leading: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
+        onTap: () => widget.onBackTap ?? Navigator.of(context).pop(),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -158,6 +164,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
     return AppBar(
       automaticallyImplyLeading: false,
       elevation: 0,
+      backgroundColor: widget.color,
       title: CustomText(
         text: widget.title!,
         color: kBlack,

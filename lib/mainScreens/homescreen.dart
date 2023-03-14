@@ -11,6 +11,7 @@ import 'package:fairstores/models/userModel.dart';
 import 'package:fairstores/providers/adsProvider.dart';
 import 'package:fairstores/providers/authProvider.dart';
 import 'package:fairstores/providers/categoryProvider.dart';
+import 'package:fairstores/providers/historyProviders.dart';
 import 'package:fairstores/providers/jointProvider.dart';
 import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
@@ -113,13 +114,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         loading: () => log("loading joints")
     );
 
-    // load the joints
+    // load the best selling joints
     final bestSellers = ref.watch(bestSellersProvider(null));
 
     bestSellers.when(
         data: (data) => log("loaded joints"),
         error: (_, err) => log(err.toString()),
         loading: () => log("loading joints")
+    );
+
+    // load the history
+    final activeOrders = ref.watch(activeOrdersProvider);
+    final history = ref.watch(historyProvider);
+
+    activeOrders.when(
+      data: (data) => log("loaded active orders"),
+      error: (_, err) => log(err.toString()),
+      loading: () => log("loading active orders")
+    );
+
+    history.when(
+        data: (data) => log("loaded history"),
+        error: (_, err) => log(err.toString()),
+        loading: () => log("loading history")
     );
 
 

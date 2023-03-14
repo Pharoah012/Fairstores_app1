@@ -4,17 +4,19 @@ import 'package:flutter/material.dart';
 
 class AdTile extends StatelessWidget {
   final AdModel ad;
+  final bool isOneItem;
 
   const AdTile({
     Key? key,
-    required this.ad
+    required this.ad,
+    this.isOneItem = false
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 315,
-      padding: EdgeInsets.only(right: 15),
+      width: isOneItem ? MediaQuery.of(context).size.width - 40 :  315,
+      padding: EdgeInsets.only(left: 20),
       decoration: BoxDecoration(
         image:  DecorationImage(
           fit: BoxFit.cover,

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fairstores/models/tokenModel.dart';
 
 final userRef = FirebaseFirestore.instance.collection('Users');
+final tokensRef = FirebaseFirestore.instance.collection('UserTokens');
 
 class UserModel {
   String? email;
@@ -70,5 +72,24 @@ class UserModel {
     };
 
     await userRef.doc(this.uid).update(info);
+  }
+
+  Future<List<String>> getManagerTokens() async {
+    // get the tokens of the managers
+    QuerySnapshot snapshot = await userRef
+      .where('ismanager', isEqualTo: true).get();
+
+    List<String> tokens = [];
+
+    //
+    snapshot.docs.forEach((element) async {
+      UserModel model = UserModel.fromDocument(element);
+
+      DocumentSnapshot doc = await tokensRef.doc(model.uid).get();
+      TokenModel tokenModel = TokenModel.fromDocument(doc);
+      tokens.add(tokenModel.devtoken);
+    });
+
+    return tokens;
   }
 }

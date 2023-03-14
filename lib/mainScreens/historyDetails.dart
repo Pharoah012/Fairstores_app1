@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/food/foodDetails.dart';
 import 'package:fairstores/models/historyModel.dart';
@@ -74,164 +76,173 @@ class _HistoryDetailsState extends ConsumerState<HistoryDetails> {
   Widget build(BuildContext context) {
     final security = ref.watch(securityKeysGeneratorProvider);
     final securityDetails = ref.watch(securityKeysProvider);
+    
     return Scaffold(
       appBar: CustomAppBar(title: 'Order Details'),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            orderHeader(),
-            Container(
-              height: 42,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: kPrimary.withOpacity(0.1),
-              ),
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: CustomText(
-                        text: 'Order Cost: GHS ${widget.history.total}',
-                        fontSize: 12,
-                        isMediumWeight: true,
-                        color: kPrimary,
-                      )
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              orderHeader(),
+              Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: kPrimary.withOpacity(0.1),
                 ),
-              ),
-            ),
-            CustomText(
-              text: 'Order Status: ${widget.history.status}',
-              fontSize: 12,
-              color: kBlack,
-              isBold: true,
-            ),
-            SizedBox(height: 23,),
-            CustomText(
-              text: 'Delivery Address',
-              fontSize: 12,
-              isBold: true,
-            ),
-            SizedBox(height: 12,),
-            Row(
-              children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 17,
-                  child: Icon(
-                    Icons.location_on,
-                    color: kDarkGrey,
+                width: MediaQuery.of(context).size.width,
+                child: Center(
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: CustomText(
+                          text: 'Order Cost: GHS ${widget.history.total}',
+                          fontSize: 12,
+                          isMediumWeight: true,
+                          color: kPrimary,
+                        )
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(width: 5,),
-                CustomText(
-                  text: widget.history.deliveryLocation,
-                  fontSize: 12,
-                  isBold: true,
-                )
-              ],
-            ),
-            SizedBox(height: 23,),
-            CustomText(
-              text: 'Order Details',
-              fontSize: 16,
-              color: kBlack,
-              isBold: true,
-            ),
-            SizedBox(height: 16,),
-            ...List.generate(
-              widget.history.orderDetails.length,
-              (index) => CustomText(
-                text: widget.history.orderDetails[index].toString(),
+              ),
+              SizedBox(height: 8,),
+              CustomText(
+                text: 'Order Status: ${widget.history.status}',
+                fontSize: 12,
+                color: kBlack,
+                isBold: true,
+              ),
+              SizedBox(height: 23,),
+              CustomText(
+                text: 'Delivery Address',
+                fontSize: 12,
+                isBold: true,
+                color: kBlack,
+              ),
+              SizedBox(height: 12,),
+              Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 17,
+                    child: Icon(
+                      Icons.location_on,
+                      color: kDarkGrey,
+                    ),
+                  ),
+                  SizedBox(width: 5,),
+                  CustomText(
+                    text: widget.history.deliveryLocation,
+                    fontSize: 12,
+                    isBold: true,
+                  )
+                ],
+              ),
+              SizedBox(height: 23,),
+              CustomText(
+                text: 'Order Details',
                 fontSize: 16,
-                isMediumWeight: true,
-                overflow: TextOverflow.visible,
+                color: kBlack,
+                isBold: true,
+              ),
+              SizedBox(height: 16,),
+              ...List.generate(
+                widget.history.orderDetails.length,
+                (index) => CustomText(
+                  text: widget.history.orderDetails[index].toString(),
+                  fontSize: 16,
+                  isMediumWeight: true,
+                  overflow: TextOverflow.visible,
+                )
+              ),
+              SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomText(
+                    text: 'Delivery',
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                  CustomText(
+                    text: 'GHS ${widget.history.joint!.price.toString()}',
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                ],
+              ),
+              SizedBox(height: 16,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomText(
+                    text: 'Taxes',
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                  CustomText(
+                    text: 'GHC ${securityDetails!.taxFee.toString()}',
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                ],
+              ),
+              SizedBox(height: 16,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomText(
+                    text: "Service Fee",
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                  CustomText(
+                    text: 'GHS ${securityDetails.serviceCharge * widget.history.total}',
+                    fontSize: 16,
+                    color: kBlack,
+                  ),
+                ],
+              ),
+              SizedBox(height: 16,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomText(
+                    text: 'Total Price',
+                    fontSize: 18,
+                    color: kBlack,
+                    isBold: true,
+                  ),
+                  CustomText(
+                    text: 'GHS ${widget.history.total}',
+                    fontSize: 18,
+                    color: kBlack,
+                    isBold: true
+                  ),
+                ],
+              ),
+              SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomButton(
+                    onPressed: () => openwhatsapp(context),
+                    text: "Customer Care"
+                  ),
+                  SizedBox(width: 5,),
+                  CustomButton(
+                    onPressed: (){},
+                    text: "Order Again",
+                    isOrange: true,
+                  ),
+                ],
               )
-            ),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                  text: 'Delivery',
-                  fontSize: 16,
-                ),
-                CustomText(
-                  text: 'GHS ${widget.history.joint!.price.toString()}',
-                  fontSize: 16,
-                ),
-              ],
-            ),
-            SizedBox(height: 16,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                  text: 'Taxes',
-                  fontSize: 16,
-                ),
-                CustomText(
-                  text: 'GHC ${securityDetails!.taxFee.toString()}',
-                  fontSize: 16,
-                ),
-              ],
-            ),
-            SizedBox(height: 16,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                  text: "Service Fee",
-                  fontSize: 16,
-                  color: kBlack,
-                ),
-                CustomText(
-                  text: 'GHS ${securityDetails.serviceCharge * widget.history.total}',
-                  fontSize: 16,
-                  color: kBlack,
-                ),
-              ],
-            ),
-            SizedBox(height: 16,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                  text: 'Total Price',
-                  fontSize: 18,
-                  color: kBlack,
-                  isBold: true,
-                ),
-                CustomText(
-                  text: 'GHS ${widget.history.total}',
-                  fontSize: 18,
-                  color: kBlack,
-                  isBold: true
-                ),
-              ],
-            ),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomButton(
-                  onPressed: () => openwhatsapp(context),
-                  text: "Customer Care"
-                ),
-                SizedBox(width: 5,),
-                CustomButton(
-                  onPressed: (){},
-                  text: "Order Again",
-                  isOrange: true,
-                ),
-              ],
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

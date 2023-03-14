@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TokenModel {
-  String? devtoken;
+  final String devtoken;
 
-  TokenModel({this.devtoken});
+  TokenModel({
+    required this.devtoken
+  });
 
   //recieves data from the server
   factory TokenModel.fromDocument(DocumentSnapshot doc) {

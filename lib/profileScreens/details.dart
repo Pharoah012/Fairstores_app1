@@ -3,6 +3,7 @@ import 'package:fairstores/whatsappchat.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Details extends StatefulWidget {
   final String details;
@@ -47,8 +48,8 @@ class _DetailsState extends State<Details> {
                       text: "Contact Us",
                       color: kPrimary,
                     ),
-                    Icon(
-                      Icons.whatsapp,
+                    FaIcon(
+                      FontAwesomeIcons.whatsapp,
                       color: kPrimary,
                     )
                   ],

@@ -9,6 +9,8 @@ class CustomButton extends StatelessWidget {
   final bool isOrange;
   final double? width;
   final Color textColor;
+  final double textSize;
+  final double height;
 
   const CustomButton({
     Key? key,
@@ -17,32 +19,32 @@ class CustomButton extends StatelessWidget {
     this.child,
     this.isOrange = false,
     this.width,
-    this.textColor = kDarkGrey
+    this.textColor = kDarkGrey,
+    this.textSize = 14,
+    this.height = 56
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size.fromHeight(56),
-          backgroundColor: isOrange ? kPrimary : kWhite,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40.0),
-            side: BorderSide(
-              color: isOrange ? Colors.transparent : kDisabledBorderColor
-            )
-          ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size.fromHeight(height),
+        backgroundColor: isOrange ? kPrimary : kWhite,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(40.0),
+          side: BorderSide(
+            color: isOrange ? Colors.transparent : kDisabledBorderColor
+          )
         ),
-        child: child ?? CustomText(
-          text: text!,
-          isMediumWeight: true,
-          color: isOrange ? kWhite : textColor,
-        )
       ),
+      child: child ?? CustomText(
+        text: text!,
+        isMediumWeight: true,
+        color: isOrange ? kWhite : textColor,
+        fontSize: textSize,
+      )
     );
   }
 }

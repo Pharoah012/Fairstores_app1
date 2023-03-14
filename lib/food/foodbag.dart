@@ -9,6 +9,7 @@ import 'package:fairstores/providers/securityKeysProvider.dart';
 import 'package:fairstores/providers/userProvider.dart';
 import 'package:fairstores/widgets/CustomAppBar.dart';
 import 'package:fairstores/widgets/cartItem.dart';
+import 'package:fairstores/widgets/customButton.dart';
 import 'package:fairstores/widgets/customText.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -284,125 +285,124 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                       height: 1.5,
                     ),
                     SizedBox(height: 16,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
+                    CustomButton(
+                      onPressed: (){
+                        try{
+                          // update the cart
+                          FoodOrdersModel.updateCart(
+                              cartList: cartInfo.values.toList(),
+                              userID: ref.read(userProvider).uid
+                          ).then((value) {
+                            log("cart updated");
 
-                            try{
-                              // update the cart
-                              FoodOrdersModel.updateCart(
-                                  cartList: cartInfo.values.toList(),
-                                  userID: ref.read(userProvider).uid
-                              ).then((value) {
-                                log("cart updated");
+                            // refresh the cart
+                            ref.invalidate(cartProvider);
 
-                                // refresh the cart
-                                ref.invalidate(cartProvider);
+                            // redirect to checkout
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      FoodCheckout(
+                                          joint: widget.joint,
+                                          taxes: double.parse(securityInfo.taxFee.toString()),
+                                          total: totalAmount(),
+                                          serviceCharge: securityInfo.serviceCharge
+                                      ),
+                                )
+                            );
 
-                                // redirect to checkout
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          FoodCheckout(
-                                              joint: widget.joint,
-                                              taxes: double.parse(securityInfo.taxFee.toString()),
-                                              total: totalAmount(),
-                                              serviceCharge: securityInfo.serviceCharge
-                                          ),
-                                    )
-                                );
-
-                              });
-                            }
-                            catch(exception){
-                              log(exception.toString());
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'An error occurred while updating your cart'
-                                      )
+                          });
+                        }
+                        catch(exception){
+                          log(exception.toString());
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'An error occurred while updating your cart'
                                   )
-                              );
+                              )
+                          );
 
-                            }
+                        }
 
-                            // if (_currentTab == 'Delivery' &&
-                            //     widget.joint.deliveryAvailable) {
-                            //   Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) =>
-                            //         FoodCheckout(
-                            //           userid: user.uid,
-                            //           shopid: widget.joint.jointID,
-                            //           deliveryfee: widget.joint.price,
-                            //           taxes: double.parse(securityInfo.taxFee.toString()),
-                            //           total: totalAmount(),
-                            //           school: user.school!,
-                            //           servicecharge: securityInfo.serviceCharge,
-                            //           deliverytime: widget.joint.deliveryTime,
-                            //         ),
-                            //     )
-                            //   );
-                            // } else if (_currentTab == 'Pickup' &&
-                            //     widget.joint.pickupAvailable) {
-                            //   // Navigator.push(
-                            //   //   context,
-                            //   //   MaterialPageRoute(
-                            //   //     builder: (context) =>
-                            //   //       FoodCheckout(
-                            //   //         userid: widget.user,
-                            //   //         shopid: widget.shopid,
-                            //   //         deliveryfee: delivery,
-                            //   //         taxes: taxes,
-                            //   //         total: total,
-                            //   //         school: widget.schoolname,
-                            //   //         servicecharge: servicecharge,
-                            //   //         deliverytime: deliverytime,
-                            //   //       ),
-                            //   //   )
-                            //   // );
-                            //   print('pick available');
-                            // } else {
-                            //   ScaffoldMessenger.of(context)
-                            //     .showSnackBar(
-                            //       SnackBar(
-                            //         content: Text(
-                            //             '$_currentTab is not available'
-                            //         )
-                            //       )
-                            //   );
-                            // }
-                          },
-                          child: Row(
+                        // if (_currentTab == 'Delivery' &&
+                        //     widget.joint.deliveryAvailable) {
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //       builder: (context) =>
+                        //         FoodCheckout(
+                        //           userid: user.uid,
+                        //           shopid: widget.joint.jointID,
+                        //           deliveryfee: widget.joint.price,
+                        //           taxes: double.parse(securityInfo.taxFee.toString()),
+                        //           total: totalAmount(),
+                        //           school: user.school!,
+                        //           servicecharge: securityInfo.serviceCharge,
+                        //           deliverytime: widget.joint.deliveryTime,
+                        //         ),
+                        //     )
+                        //   );
+                        // } else if (_currentTab == 'Pickup' &&
+                        //     widget.joint.pickupAvailable) {
+                        //   // Navigator.push(
+                        //   //   context,
+                        //   //   MaterialPageRoute(
+                        //   //     builder: (context) =>
+                        //   //       FoodCheckout(
+                        //   //         userid: widget.user,
+                        //   //         shopid: widget.shopid,
+                        //   //         deliveryfee: delivery,
+                        //   //         taxes: taxes,
+                        //   //         total: total,
+                        //   //         school: widget.schoolname,
+                        //   //         servicecharge: servicecharge,
+                        //   //         deliverytime: deliverytime,
+                        //   //       ),
+                        //   //   )
+                        //   // );
+                        //   print('pick available');
+                        // } else {
+                        //   ScaffoldMessenger.of(context)
+                        //     .showSnackBar(
+                        //       SnackBar(
+                        //         content: Text(
+                        //             '$_currentTab is not available'
+                        //         )
+                        //       )
+                        //   );
+                        // }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
                               const Padding(
                                 padding: EdgeInsets.only(right: 8.0),
                                 child: Icon(
                                   Icons.ads_click_rounded,
-                                  color: Colors.white,
+                                  color: kPrimary,
                                 ),
                               ),
                               Text('Checkout',
                                 style: GoogleFonts.manrope(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 16,
-                                  color: Colors.white
+                                  color: kPrimary
                                 )
                               ),
                             ],
                           ),
-                        ),
-                        CustomText(
-                          text: 'GHS ${totalAmount()}',
-                          fontSize: 16,
-                          color: kWhite,
-                        )
-                      ],
+                          CustomText(
+                            text: 'GHS ${totalAmount()}',
+                            fontSize: 16,
+                            color: kPrimary,
+                          )
+                        ],
+                      ),
                     )
                   ],
                 )

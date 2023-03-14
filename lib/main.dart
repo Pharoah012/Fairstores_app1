@@ -49,7 +49,7 @@ Future<void> main() async {
       // Channel groups are only visual and are not required
       channelGroups: [
         NotificationChannelGroup(
-            channelGroupkey: 'basic_channel_group',
+            channelGroupKey: 'basic_channel_group',
             channelGroupName: 'Basic group')
       ],
       debug: true
