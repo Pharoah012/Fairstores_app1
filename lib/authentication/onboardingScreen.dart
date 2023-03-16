@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:fairstores/mainScreens/homescreen.dart';
@@ -577,49 +578,59 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ],
                   ),
                   SizedBox(height: 30,),
-                  CustomSocialAuthButton(
-                    isSignIn: false,
-                    onPressed: () async {
-                      Map<String, dynamic> signUp = await _auth.socialAuthentication(
-                        authMethod: "apple",
-                        isSignIn: false
+                  Builder(builder: (context){
+                    if (Platform.isIOS){
+                      return Column(
+                        children: [
+                          CustomSocialAuthButton(
+                            isSignIn: false,
+                            onPressed: () async {
+                              Map<String, dynamic> signUp = await _auth.socialAuthentication(
+                                  authMethod: "apple",
+                                  isSignIn: false
+                              );
+
+                              if (signUp['type'] == "error"){
+                                return showDialog(
+                                    context: context,
+                                    builder: (context) => signUp['object']
+                                );
+                              }
+
+                              // check if the sign up object is an auth method
+                              // meaning that the user does not have an account
+                              if (signUp['object'] is String){
+                                ref.read(userProvider.notifier).state = UserModel(
+                                    ismanager: false,
+                                    uid: ref.read(authProvider).currentUser!.uid,
+                                    email: ref.read(authProvider).currentUser!.email,
+                                    username: ref.read(authProvider).currentUser!.displayName
+                                );
+                              }
+                              else{
+                                // set the user provider to the user object that is returned
+                                ref.read(userProvider.notifier).state = signUp['object'];
+                              }
+
+                              // redirect the user to homeScreen
+                              Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen(
+                                        isSocialAuth: true,
+                                      )
+                                  ),
+                                      (route)=> false
+                              );
+
+                            },
+                          ),
+                          SizedBox(height: 15,),
+                        ],
                       );
+                    }
 
-                      if (signUp['type'] == "error"){
-                        return showDialog(
-                          context: context,
-                          builder: (context) => signUp['object']
-                        );
-                      }
-
-                      // check if the sign up object is an auth method
-                      // meaning that the user does not have an account
-                      if (signUp['object'] is String){
-                        ref.read(userProvider.notifier).state = UserModel(
-                          ismanager: false,
-                          uid: ref.read(authProvider).currentUser!.uid,
-                          email: ref.read(authProvider).currentUser!.email,
-                          username: ref.read(authProvider).currentUser!.displayName
-                        );
-                      }
-                      else{
-                        // set the user provider to the user object that is returned
-                        ref.read(userProvider.notifier).state = signUp['object'];
-                      }
-
-                      // redirect the user to homeScreen
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen(
-                              isSocialAuth: true,
-                            )
-                        ),
-                        (route)=> false
-                      );
-
-                    },
-                  ),
-                  SizedBox(height: 15,),
+                    return SizedBox.shrink();
+                  }),
                   CustomSocialAuthButton(
                     isApple: false,
                     isSignIn: false,
@@ -803,11 +814,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 context: context,
                                 builder: (context) => login['object']
                             );
-
-
                           }
                           else{
-                            ref.read(userProvider.notifier).state = verifyOTP['object'];
+                            ref.read(userProvider.notifier).state = login['object'];
 
                             Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(
@@ -826,7 +835,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 }
               },
               text: "Log In",
-              isOrange: true
+              isOrange: true,
+              width: MediaQuery.of(context).size.width,
             ),
             SizedBox(height: 20,),
             Row(
@@ -882,47 +892,57 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ],
             ),
             SizedBox(height: 30,),
-            CustomSocialAuthButton(
-              onPressed: () async {
+            Builder(builder: (context){
+              if (Platform.isIOS){
+                return Column(
+                  children: [
+                    CustomSocialAuthButton(
+                      onPressed: () async {
 
-                Map<String, dynamic> signIn = await _auth.socialAuthentication(
-                  authMethod: "apple",
-                );
+                        Map<String, dynamic> signIn = await _auth.socialAuthentication(
+                          authMethod: "apple",
+                        );
 
-                if (signIn['type'] == "error"){
-                  return showDialog(
-                      context: context,
-                      builder: (context) => signIn['object']
-                  );
-                }
+                        if (signIn['type'] == "error"){
+                          return showDialog(
+                              context: context,
+                              builder: (context) => signIn['object']
+                          );
+                        }
 
-                // check if the sign in object is an auth method
-                // meaning that the user does not have an account
-                if (signIn['object'] is String){
-                  ref.read(userProvider.notifier).state = UserModel(
-                    ismanager: false,
-                    uid: ref.read(authProvider).currentUser!.uid,
-                    email: ref.read(authProvider).currentUser!.email,
-                    username: ref.read(authProvider).currentUser!.displayName
-                  );
-                }
-                else{
-                  // set the user provider to the user object that is returned
-                  ref.read(userProvider.notifier).state = signIn['object'];
-                }
+                        // check if the sign in object is an auth method
+                        // meaning that the user does not have an account
+                        if (signIn['object'] is String){
+                          ref.read(userProvider.notifier).state = UserModel(
+                              ismanager: false,
+                              uid: ref.read(authProvider).currentUser!.uid,
+                              email: ref.read(authProvider).currentUser!.email,
+                              username: ref.read(authProvider).currentUser!.displayName
+                          );
+                        }
+                        else{
+                          // set the user provider to the user object that is returned
+                          ref.read(userProvider.notifier).state = signIn['object'];
+                        }
 
-                // redirect the user to homeScreen
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => HomeScreen(
-                          isSocialAuth: true,
-                        )
+                        // redirect the user to homeScreen
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen(
+                                  isSocialAuth: true,
+                                )
+                            ),
+                                (route)=> false
+                        );
+                      },
                     ),
-                        (route)=> false
+                    SizedBox(height: 15,),
+                  ],
                 );
-              },
-            ),
-            SizedBox(height: 15,),
+              }
+
+              return SizedBox.shrink();
+            }),
             CustomSocialAuthButton(
               isApple: false,
               onPressed: () async {

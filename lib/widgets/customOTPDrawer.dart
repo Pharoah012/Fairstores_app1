@@ -105,9 +105,10 @@ class _CustomOTPDrawerState extends ConsumerState<CustomOTPDrawer> {
               ),
               SizedBox(height: 20,),
               CustomButton(
-                  onPressed: widget.verificationLogic,
-                  text: "Continue",
-                  isOrange: true
+                width: MediaQuery.of(context).size.width,
+                onPressed: widget.verificationLogic,
+                text: "Continue",
+                isOrange: true
               ),
               SizedBox(height: 8,),
               GestureDetector(

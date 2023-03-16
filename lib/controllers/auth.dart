@@ -183,10 +183,6 @@ class Auth {
         phoneAuthCredential
       );
 
-      // check if the user exists
-      UserModel userModel = await getUser();
-
-
 
       bool addUserDetailsToFirebase = await postUserDetailsToFirestore(
         phoneNumber: phoneNumber,
@@ -200,6 +196,8 @@ class Auth {
         );
       }
 
+      // Get the user's info
+      UserModel userModel = await getUser();
 
 
       return successReport(successObject: userModel);
@@ -246,6 +244,12 @@ class Auth {
     required PhoneAuthCredential credential,
   }) async {
     try {
+
+      // sign in using the credential generated from successful OTP verification
+      UserCredential signIn = await _firebaseAuth.signInWithCredential(
+          credential
+      );
+
       UserModel user = await getUser();
 
       return successReport(successObject: user);
