@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MenuItemOptionItem extends ConsumerWidget {
   final MenuItemOptionItemModel menuItemOptionItem;
   final StateProvider<int> selectedOptionsCountProvider;
-  final StateProvider<List<MenuItemOptionItemModel>> selectedSidesProvider;
+  final AutoDisposeStateProvider<List<MenuItemOptionItemModel>> selectedSidesProvider;
   final int menuItemMaxSidesNumber;
 
   MenuItemOptionItem({

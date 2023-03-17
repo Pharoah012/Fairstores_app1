@@ -18,8 +18,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 final selectedMenuOptionProvider = StateProvider<String>((ref) => "");
-final menuItemsListProvider = StateProvider<List<JointMenuItemModel>>((ref) => []);
-final foodCartListProvider = StateProvider((ref) => []);
+// final menuItemsListProvider = StateProvider<List<JointMenuItemModel>>((ref) => []);
+// final foodCartListProvider = StateProvider((ref) => []);
 final _favoriteProvider = StateProvider<bool>((ref) => false);
 
 final jointMenuItemsProvider = FutureProvider.autoDispose.family<List<JointMenuItemModel>, JointModel>(
@@ -29,9 +29,6 @@ final jointMenuItemsProvider = FutureProvider.autoDispose.family<List<JointMenuI
     List<JointMenuItemModel> menuOptions = await joint.getMenuOptionItems(
       menuOption: ref.read(selectedMenuOptionProvider)
     );
-
-    // assign the list of the list of menu items to the menu item provider
-    ref.read(menuItemsListProvider.notifier).state = menuOptions;
 
     return menuOptions;
   }
@@ -47,7 +44,7 @@ final jointMenuOptionProvider = FutureProvider.family<List<JointMenuOptionModel>
       ref.read(selectedMenuOptionProvider.notifier).state = menuOptions.first.id;
     }
 
-    // refresh the menu items list
+    // refresh the menu items
     ref.invalidate(jointMenuItemsProvider(joint));
 
     return menuOptions;
@@ -217,8 +214,10 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
               return GestureDetector(
                 onTap: () {
                   ref.read(selectedMenuOptionProvider.notifier).state = data[index].id;
-                  log((ref.read(selectedMenuOptionProvider) == data[index].id).toString());
-                  ref.invalidate(jointMenuItemsProvider);
+
+                  // refresh the menu items list
+                  ref.invalidate(jointMenuItemsProvider(widget.joint));
+                  ref.read(jointMenuItemsProvider(widget.joint).future);
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0),
@@ -241,21 +240,21 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
         );
       },
       loading: () => Center(
-        child: CustomText(
-            text: "Fetching the menu"
-        ),
+        child: CircularProgressIndicator(
+          color: kPrimary,
+        )
       )
     );
   }
 
-  jointMenuItems() {
+  Widget jointMenuItems() {
 
     final jointMenuOptionItems = ref.watch(jointMenuItemsProvider(widget.joint));
 
     return jointMenuOptionItems.when(
         data: (data){
 
-          List<JointMenuItemModel> menuList = ref.read(menuItemsListProvider);
+          List<JointMenuItemModel> menuList = data;
 
           if (menuList.isEmpty){
             return Center(
@@ -275,6 +274,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
                   child: JointMenuItemTile(
                     menuItem: menuList[index],
                     joint: widget.joint,
+                    selectedCategory: selectedMenuOptionProvider
                   ),
                 );
               }
@@ -322,7 +322,6 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
   @override
   Widget build(BuildContext context) {
     final selectedOption = ref.watch(selectedMenuOptionProvider);
-    final menuListItems = ref.watch(menuItemsListProvider);
     final cartInfo = ref.watch(cartInfoProvider);
     final cart = ref.watch(cartProvider(widget.joint));
     final isFavorite = ref.watch(_favoriteProvider);

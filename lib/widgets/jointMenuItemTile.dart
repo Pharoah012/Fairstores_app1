@@ -20,10 +20,12 @@ import 'package:uuid/uuid.dart';
 class JointMenuItemTile extends ConsumerStatefulWidget {
   final JointMenuItemModel menuItem;
   final JointModel joint;
+  final StateProvider<String> selectedCategory;
 
   const JointMenuItemTile({
     required this.menuItem,
-    required this.joint
+    required this.joint,
+    required this.selectedCategory
   });
 
   @override
@@ -32,23 +34,49 @@ class JointMenuItemTile extends ConsumerStatefulWidget {
 
 class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
 
-  String orderID = const Uuid().v4();
+  // providers needed for generating the sides
+  // final sideOptionsListProvider = StateProvider<List<MenuItemOptionModel>>(
+  //         (ref) => []
+  // );
 
-  final sideOptionsListProvider = StateProvider<List<MenuItemOptionModel>>(
-          (ref) => []
-  );
-
-  final sideOptionProvider = FutureProvider.family<List<MenuItemOptionModel>, Tuple3>(
+  final sideOptionProvider = FutureProvider.family<
+      List<MenuItemOptionModel>,
+      Tuple3<
+        JointMenuItemModel,
+        JointModel,
+        StateProvider<String>
+      >
+  >(
       (ref, menuItemInfo) async {
+
     List<MenuItemOptionModel> sides = await menuItemInfo.item1.getMenuItemOptions(
         jointID: menuItemInfo.item2.jointID,
-        categoryID: menuItemInfo.item2.categoryID
+        categoryID: ref.read(menuItemInfo.item3)
     );
 
-    ref.read(menuItemInfo.item3.notifier).state = sides;
 
     return sides;
   });
+
+  String orderID = const Uuid().v4();
+  late Tuple3<
+    JointMenuItemModel,
+    JointModel,
+    StateProvider<String>
+  > menuItemInfo;
+
+  @override
+  void initState() {
+    menuItemInfo = Tuple3(
+      widget.menuItem,
+      widget.joint,
+      widget.selectedCategory
+    );
+
+    super.initState();
+  }
+
+
 
   // cartAvailabilityPopup({required String jointID}) {
   //   return showDialog(
@@ -113,26 +141,6 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
     );
   }
 
-  //
-  // getoptions() async {
-  //   DocumentSnapshot snapshot = await menuRef
-  //       .doc(widget.shopid)
-  //       .collection('categories')
-  //       .doc(widget.categoryid)
-  //       .collection('options')
-  //       .doc(widget.id)
-  //       .collection('sideoptions')
-  //       .doc('01')
-  //       .get();
-  //
-  //   if (!snapshot.exists) {
-  //   } else {
-  //     setState(() {
-  //       sideoptions = SideMenuCategoryOption.fromDocument(snapshot);
-  //     });
-  //   }
-  // }
-  //
 
   // Add the given item to the user's cart
   Future<void> addToBag(FoodOrdersModel order) async {
@@ -324,16 +332,17 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
     }
 
     // show the side options of the item for the user to pick
+
     return showBarModalBottomSheet(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       context: context,
       builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.90,
-        child: FoodOptions(
+        child: FoodSideOptions(
           joint: widget.joint,
           menuItem: widget.menuItem,
-          menuItemOptionsList: sideOptionsListProvider,
-          menuOptions: sideOptionProvider,
+          sideOptionsProvider: sideOptionProvider,
+          menuItemInfo: menuItemInfo,
         )
       ),
     );
@@ -342,19 +351,8 @@ class _JointMenuItemTileState extends ConsumerState<JointMenuItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    Tuple3<
-      JointMenuItemModel,
-      JointModel,
-      StateProvider<List<MenuItemOptionModel>>
-    > menuItemInfo = Tuple3(
-      widget.menuItem,
-      widget.joint,
-      sideOptionsListProvider
-    );
-
     // watch the sides
     final sides = ref.watch(sideOptionProvider(menuItemInfo));
-    final sidesList = ref.watch(sideOptionsListProvider);
 
     //load the sides
     sides.when(

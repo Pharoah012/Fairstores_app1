@@ -17,85 +17,72 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
-final selectedSidesProvider = StateProvider<List<MenuItemOptionItemModel>>(
+final selectedSidesProvider = StateProvider.autoDispose<List<MenuItemOptionItemModel>>(
   (ref) => []);
 
-final requiredCheckerProvider = StateProvider<Map<String, StateProvider<int>>>((ref) => {});
-
-final menuItemOptionItemsProvider = FutureProvider.family<List<MenuItemOptionItemModel>, Tuple3>(
-  (ref, menuItemInfo) async {
-
-  List<MenuItemOptionItemModel> sidesList = await menuItemInfo.item1.getMenuItemOptionList(
-    jointID: menuItemInfo.item2.jointID,
-    categoryID: menuItemInfo.item2.categoryID,
-    menuItemOptionID: menuItemInfo.item3
-  );
-
-  return sidesList;
-});
+final requiredCheckerProvider = StateProvider.autoDispose<Map<String, StateProvider<int>>>((ref) => {});
 
 
-class FoodOptions extends ConsumerStatefulWidget {
+class FoodSideOptions extends ConsumerStatefulWidget {
   final JointMenuItemModel menuItem;
   final JointModel joint;
-  final StateProvider<List<MenuItemOptionModel>> menuItemOptionsList;
-  final FutureProviderFamily menuOptions;
+  // final StateProvider<List<MenuItemOptionModel>> menuItemOptionsList;
+  final FutureProviderFamily<List<MenuItemOptionModel>,
+    Tuple3<
+      JointMenuItemModel,
+      JointModel,
+      StateProvider<String>
+    >> sideOptionsProvider;
+  final Tuple3<
+    JointMenuItemModel,
+    JointModel,
+    StateProvider<String>
+  > menuItemInfo;
 
-  const FoodOptions({
+  const FoodSideOptions({
     required this.joint,
     required this.menuItem,
-    required this.menuOptions,
-    required this.menuItemOptionsList
+    required this.sideOptionsProvider,
+    required this.menuItemInfo,
   });
 
   @override
-  ConsumerState<FoodOptions> createState() => _FoodOptionsState();
+  ConsumerState<FoodSideOptions> createState() => _FoodOptionsState();
 }
 
-class _FoodOptionsState extends ConsumerState<FoodOptions> {
-  // bool isrequired = false;
-  // bool selected = false;
+class _FoodOptionsState extends ConsumerState<FoodSideOptions> {
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ref.invalidate(widget.sideOptionsProvider(widget.menuItemInfo));
+    });
+    super.initState();
+  }
 
   String orderID = const Uuid().v4();
   TextEditingController instructionController = TextEditingController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   openorder();
-  // }
-  //
-  // openorder() {
-  //   //open order to be prepared
-  //   foodCartRef.doc(widget.userid).collection('Orders').doc(orderid).set({
-  //     'cartid': 'cart${widget.userid}',
-  //     'orderid': orderid,
-  //     'shopid': widget.shopid,
-  //     'sides': [],
-  //     'ordername': widget.mealname,
-  //     'isrequired': false,
-  //     'total': widget.mealprice,
-  //     'status': '',
-  //     'instructions': '',
-  //     'image': widget.mealheader,
-  //     'quantity': 1,
-  //     'userid': widget.userid
-  //   });
-  // }
-  //
-  // closeorder() async {
-  //   //open order to be prepared
-  //   DocumentSnapshot snapshot = await foodCartRef
-  //       .doc(widget.userid)
-  //       .collection('Orders')
-  //       .doc(orderid)
-  //       .get();
-  //   FoodCartModel foodCartModel =
-  //       FoodCartModel.fromDocument(snapshot, widget.userid);
-  //   if (foodCartModel.status == '') {
-  //     snapshot.reference.delete();
-  //   } else {}
-  // }
+  final menuItemOptionItemsProvider = FutureProvider.family<
+      List<MenuItemOptionItemModel>,
+      Tuple4<
+          JointMenuItemModel,
+          JointModel,
+          String,
+          String
+      >
+  >(
+      (ref, menuItemInfo) async {
+
+        List<MenuItemOptionItemModel> sidesList = await menuItemInfo.item1.getMenuItemOptionList(
+            jointID: menuItemInfo.item2.jointID,
+            categoryID: menuItemInfo.item4,
+            menuItemOptionID: menuItemInfo.item3
+        );
+
+        return sidesList;
+      }
+  );
 
   Widget optionsHeader() {
     return Stack(
@@ -119,7 +106,6 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
           child: IconButton(
             onPressed: () {
               Navigator.pop(context);
-              // closeorder();
             },
             icon: Container(
               width: 20,
@@ -182,123 +168,165 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
     return result;
   }
 
-  Widget menuItemOptionItems(List<MenuItemOptionModel> options){
+  Widget menuItemOptionItems(){
 
-    return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: options.length,
-      itemBuilder: (context, index){
-        
-        // initialize the info needed to get the menu item option items
-        Tuple3<JointMenuItemModel, JointModel, String> menuItemOptionItemInfo = Tuple3(
-          widget.menuItem,
-          widget.joint,
-          options[index].id
-        );
+    log("CATEGORY ID: " + ref.read(widget.menuItemInfo.item3));
+    log("JOINT ID: ${widget.menuItemInfo.item2.jointID}");
+    log("MENU ITEM ID: ${widget.menuItemInfo.item1.id}");
 
-        final _menuItemOptionItemProvider = ref.watch(menuItemOptionItemsProvider(menuItemOptionItemInfo));
+    final sideOptions = ref.read(widget.sideOptionsProvider(widget.menuItemInfo));
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return sideOptions.when(
+      data: (data){
+
+        // check if there are no sides
+        if (data.isEmpty){
+          return Center(
+            child: CustomText(
+              text: "There are no sides",
+            ),
+          );
+        }
+
+        return ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: data.length,
+            itemBuilder: (context, index){
+
+              // initialize the info needed to get the menu item option items
+              Tuple4<
+                JointMenuItemModel,
+                JointModel,
+                String,
+                String
+              > menuItemOptionItemInfo = Tuple4(
+                widget.menuItem,
+                widget.joint,
+                data[index].id,
+                ref.read(widget.menuItemInfo.item3)
+              );
+
+              final _menuItemOptionItemProvider = ref.watch(
+                  menuItemOptionItemsProvider(menuItemOptionItemInfo)
+              );
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  CustomText(
-                    text: options[index].name,
-                    isMediumWeight: true,
-                    color: kBrownText,
-                  ),
-                  options[index].isrequired
-                    ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: kLabelColor.withOpacity(0.20),
-                      borderRadius: BorderRadius.circular(20)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomText(
+                          text: data[index].name,
+                          isMediumWeight: true,
+                          color: kBrownText,
+                        ),
+                        data[index].isrequired
+                            ? Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                              color: kLabelColor.withOpacity(0.20),
+                              borderRadius: BorderRadius.circular(20)
+                          ),
+                          child: Center(
+                            child: CustomText(
+                              text: "Required",
+                              fontSize: 8,
+                              color: kBlack,
+                            ),
+                          ),
+                        )
+                            : SizedBox.shrink()
+                      ],
                     ),
-                    child: Center(
-                      child: CustomText(
-                        text: "Required",
-                        fontSize: 8,
-                        color: kBlack,
-                      ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    color: kWhite,
+                    child: _menuItemOptionItemProvider.when(
+                        data: (sideList){
+
+                          if (sideList.isEmpty){
+                            return Center(
+                                child: CustomText(
+                                    text: "There are no options"
+                                )
+                            );
+                          }
+
+                          // track the number of selected options
+                          final selectedOptionsCountProvider = StateProvider<int>(
+                                  (ref) => 0
+                          );
+
+                          // check if the option is required and create a field for it in the required
+                          // field checker provider
+                          if (data[index].isrequired){
+                            ref.read(requiredCheckerProvider.notifier)
+                                .state[sideList[index].id] = selectedOptionsCountProvider;
+                          }
+
+                          return ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: sideList.length,
+                              shrinkWrap: true,
+                              itemBuilder: (context, itemIndex){
+
+                                return MenuItemOptionItem(
+                                    menuItemOptionItem: sideList[itemIndex],
+                                    selectedOptionsCountProvider: selectedOptionsCountProvider,
+                                    selectedSidesProvider: selectedSidesProvider,
+                                    menuItemMaxSidesNumber: data[index].maxitems
+                                );
+                              }
+                          );
+                        },
+                        error: (_, err){
+                          log(err.toString());
+                          return Container(
+                            height: 200,
+                            color: kWhite,
+                            child: Center(
+                                child: CustomText(
+                                    text: "An error occurred while fetching the options"
+                                )
+                            ),
+                          );
+                        },
+                        loading: () => Container(
+                          height: 200,
+                          color: kWhite,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: kPrimary,
+                            ),
+                          ),
+                        )
                     ),
                   )
-                    : SizedBox.shrink()
                 ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              color: kWhite,
-              child: _menuItemOptionItemProvider.when(
-                data: (data){
-
-                  if (data.isEmpty){
-                    Center(
-                        child: CustomText(
-                            text: "There are no options"
-                        )
-                    );
-                  }
-
-                  // track the number of selected options
-                  final selectedOptionsCountProvider = StateProvider<int>(
-                          (ref) => 0
-                  );
-
-                  // check if the option is required and create a field for it in the required
-                  // field checker provider
-                  if (options[index].isrequired){
-                    ref.read(requiredCheckerProvider.notifier)
-                      .state[options[index].id] = selectedOptionsCountProvider;
-                  }
-
-                  return ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: data.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, itemIndex){
-
-                      return MenuItemOptionItem(
-                        menuItemOptionItem: data[itemIndex],
-                        selectedOptionsCountProvider: selectedOptionsCountProvider,
-                        selectedSidesProvider: selectedSidesProvider,
-                        menuItemMaxSidesNumber: options[index].maxitems
-                      );
-                    }
-                  );
-                },
-                error: (_, err){
-                  log(err.toString());
-                  return Container(
-                    height: 200,
-                    color: kWhite,
-                    child: Center(
-                      child: CustomText(
-                        text: "An error occurred while fetching the options"
-                      )
-                    ),
-                  );
-                },
-                loading: () => Container(
-                  height: 200,
-                  color: kWhite,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: kPrimary,
-                    ),
-                  ),
-                )
-              ),
-            )
-          ],
+              );
+            }
         );
-      }
+
+      },
+      error: (_, err){
+        log(err.toString());
+        return Center(
+          child: CustomText(
+            text: "An error occurred while fetching the sides",
+          ),
+        );
+      },
+      loading: ()=> Center(
+        child: CircularProgressIndicator(
+          color: kPrimary,
+        ),
+      )
     );
   }
 
@@ -413,19 +441,9 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
 
   @override
   Widget build(BuildContext context) {
-    Tuple3<
-        JointMenuItemModel,
-        JointModel,
-        StateProvider<List<MenuItemOptionModel>>
-    > menuItemInfo = Tuple3(
-        widget.menuItem,
-        widget.joint,
-        widget.menuItemOptionsList
-    );
 
     // watch the sides
-    final sides = ref.watch(widget.menuOptions(menuItemInfo));
-    final sidesList = ref.watch(widget.menuItemOptionsList);
+    final sides = ref.watch(widget.sideOptionsProvider(widget.menuItemInfo));
     
     // watch the required fields
     final _requiredFieldChecker = ref.watch(requiredCheckerProvider);
@@ -458,7 +476,7 @@ class _FoodOptionsState extends ConsumerState<FoodOptions> {
                       ),
                     ),
                   ),
-                  menuItemOptionItems(sidesList),
+                  menuItemOptionItems(),
                 ]
               ),
             ),

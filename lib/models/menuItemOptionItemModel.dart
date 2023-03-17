@@ -15,7 +15,9 @@ class MenuItemOptionItemModel{
 
   factory MenuItemOptionItemModel.fromDocument(DocumentSnapshot doc) {
     return MenuItemOptionItemModel(
-        image: doc.get('image'),
+        image: (doc.data() as Map<String, dynamic>).containsKey("image")
+          ? doc.get('image')
+          : "",
         price: double.parse(doc.get('price').toString()),
         id: doc.get('id'),
         name: doc.get('name')

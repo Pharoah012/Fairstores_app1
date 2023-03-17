@@ -74,6 +74,8 @@ class JointMenuItemModel {
       .collection("items")
       .get();
 
+    log("Options: " + snapshot.docs.length.toString());
+
     List<MenuItemOptionItemModel> sides = snapshot.docs
         .map(
           (doc) => MenuItemOptionItemModel.fromDocument(doc)).toList();
