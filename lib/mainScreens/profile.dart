@@ -30,7 +30,7 @@ class Profile extends ConsumerStatefulWidget {
 
 class _ProfileState extends ConsumerState<Profile> {
 
-  profileheader() {
+  profileHeader() {
     UserModel user = ref.read(userProvider);
 
     return Center(
@@ -58,7 +58,8 @@ class _ProfileState extends ConsumerState<Profile> {
                     context: context,
                     builder: (context) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.92,
-                        child: editProfile()),
+                        child: editProfile()
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(21),
@@ -76,7 +77,7 @@ class _ProfileState extends ConsumerState<Profile> {
     );
   }
 
-  profilemenu() {
+  Widget profileMenu() {
     return Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: Column(
@@ -299,6 +300,7 @@ class _ProfileState extends ConsumerState<Profile> {
 
                         // remove the edit details dialog
                         Navigator.of(context).pop();
+                        Navigator.of(context).pop();
 
                       }
                       catch(exception){
@@ -342,8 +344,8 @@ class _ProfileState extends ConsumerState<Profile> {
         resizeToAvoidBottomInset: true,
         body: Column(
           children: [
-            profileheader(),
-            profilemenu(),
+            profileHeader(),
+            profileMenu(),
             SizedBox(height: 70,),
             footer(),
           ],
