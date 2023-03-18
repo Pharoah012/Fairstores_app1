@@ -41,15 +41,16 @@ class CartCard extends ConsumerWidget {
             )
           ).then((value){
             try{
+
               FoodOrdersModel.updateCart(
-                  cartList: cartInfo.values.toList(),
+                  cartList: ref.read(cartInfoProvider).values.toList(),
                   userID: ref.read(userProvider).uid
               ).then((value) {
                 log("cart updated");
 
                 // refresh the cart
-                ref.invalidate(cartProvider);
-                ref.invalidate(cartInfoProvider);
+                ref.refresh(cartProvider(joint));
+                ref.refresh(cartInfoProvider);
               });
             }
             catch(exception){

@@ -165,18 +165,20 @@ class FoodOrdersModel{
     required String userID
   }) async {
 
-    for (FoodOrdersModel order in cartList){
+    if (cartList.isNotEmpty){
+      for (FoodOrdersModel order in cartList){
 
-      // check if the user has removed the order
-      if (order.quantity == 0){
-        await order.removeOrder(
-          userID: userID,
-        );
-      }
-      else{
-        await order.updateOrder(
-          userID: userID
-        );
+        // check if the user has removed the order
+        if (order.quantity == 0){
+          await order.removeOrder(
+            userID: userID,
+          );
+        }
+        else{
+          await order.updateOrder(
+              userID: userID
+          );
+        }
       }
     }
   }

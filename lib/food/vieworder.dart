@@ -31,6 +31,21 @@ class ViewOrder extends ConsumerStatefulWidget {
 
 class _ViewOrderState extends ConsumerState<ViewOrder> {
 
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await FoodOrdersModel.clearCart(
+          userID: ref.read(userProvider).uid,
+          jointID: widget.joint.jointID
+      );
+
+      ref.refresh(cartProvider(widget.joint));
+      ref.refresh(cartInfoProvider);
+    });
+
+    super.initState();
+  }
+
   Widget receipt() {
 
     return Column(
@@ -255,13 +270,6 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
                 Navigator.pop(context);
               }
               else{
-                await FoodOrdersModel.clearCart(
-                    userID: user.uid,
-                    jointID: widget.joint.jointID
-                );
-
-                ref.refresh(cartProvider(widget.joint));
-                ref.refresh(cartInfoProvider);
 
                 Navigator.pop(context);
                 Navigator.pop(context);

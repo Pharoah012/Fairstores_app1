@@ -715,7 +715,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
 
     return showDialog(
         context: context,
-        builder: (context) {
+        builder: (dialogContext) {
           return SimpleDialog(
               title: Center(
                   child: CustomText(
@@ -738,7 +738,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                     try{
 
                       // close this dialog
-                      Navigator.of(context).pop();
+                      Navigator.pop(dialogContext);
 
                       // show the loader
                       showDialog(
@@ -769,7 +769,7 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                       );
 
                       // Alert the user of the successful placement of the order
-                      AwesomeNotifications().createNotification(
+                      await AwesomeNotifications().createNotification(
                           content: NotificationContent(
                               id: 10,
                               channelKey: 'basic_channel',
@@ -791,14 +791,14 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
                     }
                     catch(exception){
                       log(exception.toString());
-                      showDialog(
-                          context: context,
-                          builder: (context) => CustomError(
-                            errorMessage: "An error occurred during checkout. "
-                                "Please try again later.",
-                            // oneRemove: true,
-                          )
-                      );
+                      return showDialog(
+                        context: context,
+                        builder: (context) => CustomError(
+                          errorMessage: "An error occurred during checkout. "
+                              "Please try again later.",
+                          // oneRemove: true,
+                        )
+                    );
                     }
 
 
