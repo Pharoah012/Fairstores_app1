@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fairstores/constants.dart';
+import 'package:fairstores/food/vieworder.dart';
 import 'package:fairstores/mainScreens/historyDetails.dart';
 import 'package:fairstores/models/historyModel.dart';
 import 'package:fairstores/widgets/customButton.dart';
@@ -83,8 +84,10 @@ class _ActiveOrderTileState extends State<ActiveOrderTile> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HistoryDetails(
+                            builder: (context) => ViewOrder(
                               history: widget.history,
+                              joint: widget.history.joint!,
+                              inHistory: true,
                             ),
                           )
                         );

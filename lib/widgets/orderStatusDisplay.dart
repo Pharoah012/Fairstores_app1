@@ -36,13 +36,16 @@ class OrderStatusDisplay extends StatelessWidget {
   // display the tracker for when the order has been placed
   Widget showPlacedStatus(String orderDate){
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
+          radius: 15,
           backgroundColor: kPrimary,
           child: Icon(
             Icons.check,
             color: kWhite,
+            size: 16,
           ),
         ),
         SizedBox(width: 20,),
@@ -78,34 +81,86 @@ class OrderStatusDisplay extends StatelessWidget {
     );
 
 
-    return Row(
+    return Column(
       children: [
-        CircleAvatar(
-          backgroundColor: kPrimary,
-          child: Icon(
-            Icons.check,
-            color: kWhite,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: [
+                CircleAvatar(
+                  radius: 15,
+                  backgroundColor: kPrimary,
+                  child: Icon(
+                    Icons.check,
+                    color: kWhite,
+                    size: 16,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: SizedBox(
+                    height: 40,
+                    child: VerticalDivider(
+                      thickness: 2,
+                      color: kPrimary,
+                    ),
+                  ),
+                )
+              ],
+            ),
+            SizedBox(width: 20,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomText(
+                  text: "Order Placed",
+                  color: kBlack,
+                  isBold: true,
+                ),
+                CustomText(
+                    text: "Your order was placed on $orderDate"
+                )
+              ],
+            )
+          ],
         ),
-        SizedBox(width: 20,),
-        Column(
+        SizedBox(height: 10,),
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            CustomText(
-              text: "Order ${status == "delivered" ? "Delivered" : "Rejected"}",
-              color: kBlack,
-              isBold: true,
+            CircleAvatar(
+              radius: 15,
+              backgroundColor: kPrimary,
+              child: Icon(
+                Icons.check,
+                color: kWhite,
+                size: 16,
+              ),
             ),
+            SizedBox(width: 20,),
             Flexible(
-              child: CustomText(
-                text: "Your order was "
-                  "${status == "delivered" ? "Delivered" : "Rejected"} "
-                  "on $dateOfFeedback"
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomText(
+                    text: "Order ${status == "delivered" ? "Delivered" : "Rejected"}",
+                    color: kBlack,
+                    isBold: true,
+                  ),
+                  CustomText(
+                    text: "Your order was "
+                      "${status == "delivered" ? "Delivered" : "Rejected"} "
+                      "on $dateOfFeedback",
+                  )
+                ],
               ),
             )
           ],
-        )
+        ),
       ],
     );
   }

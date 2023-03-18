@@ -16,11 +16,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ViewOrder extends ConsumerStatefulWidget {
   final JointModel joint;
   final HistoryModel history;
+  final bool inHistory;
 
   const ViewOrder({
     Key? key,
     required this.joint,
-    required this.history
+    required this.history,
+    this.inHistory = false
   }) : super(key: key);
 
   @override
@@ -44,114 +46,96 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ref.read(cartProvider(widget.joint)).when(
-                data: (data){
-                  if (data.isEmpty){
-                    return Center(
-                      child: CustomText(
-                          text: "There are no items in the cart"
-                      ),
-                    );
-                  }
+            Builder(builder: (context){
+              if (widget.history.orderDetails.isEmpty){
+                return Center(
+                  child: CustomText(
+                      text: "There are no items in the cart"
+                  ),
+                );
+              }
 
-                  return ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: ref.read(cartInfoProvider).values.length,
-                      itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+              return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: widget.history.orderDetails.length,
+                  itemBuilder: (context, index){
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  CustomText(
-                                    text: "${ref.read(cartInfoProvider)
-                                        .values.elementAt(index).quantity} "
-                                        "x ${ref.read(cartInfoProvider)
-                                        .values.elementAt(index).foodName}",
-                                    fontSize: 16,
-                                    color: kBlack,
-                                  ),
-                                  CustomText(
-                                    text: "GHS ${ref.read(cartInfoProvider)
-                                        .values.elementAt(index).price}",
-                                    fontSize: 16,
-                                    color: kBlack,
-                                  )
-                                ],
+                              CustomText(
+                                text: "${widget.history.orderDetails[index]['quantity']} "
+                                    "x ${widget.history.orderDetails[index]['ordername']}",
+                                fontSize: 16,
+                                color: kBlack,
                               ),
-                              Builder(
-                                  builder: (context){
-                                    List<dynamic> sides = ref.read(cartInfoProvider).values.elementAt(index).sides;
-
-                                    // check if the are sides and display them
-                                    if (sides.isNotEmpty){
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: MediaQuery.of(context).size.width,
-                                            child: ListView.builder(
-                                                itemCount: sides.length,
-                                                shrinkWrap: true,
-                                                physics: NeverScrollableScrollPhysics(),
-                                                itemBuilder: (context, sideIndex){
-                                                  MenuItemOptionItemModel side
-                                                  = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
-
-                                                  return Padding(
-                                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        CustomText(
-                                                          text: "+ ${side.name}",
-                                                          fontSize: 12,
-                                                        ),
-                                                        CustomText(
-                                                          text: "${ref.read(cartInfoProvider)
-                                                              .values.elementAt(index).price - side.price}",
-                                                          fontSize: 12,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                }
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-
-                                    return SizedBox.shrink();
-                                  }
+                              CustomText(
+                                text: "GHS ${widget.history.orderDetails[index]['total']}",
+                                fontSize: 16,
+                                color: kBlack,
                               )
                             ],
                           ),
-                        );
-                      }
-                  );
-                },
-                error: (_, err){
-                  log(err.toString());
-                  return Center(
-                    child: CustomText(
-                        text: "An error occurred while retrieving your orders"
-                    ),
-                  );
-                },
-                loading: () => Center(
-                  child: CircularProgressIndicator(
-                    color: kPrimary,
-                  ),
-                )
-            ),
+                          Builder(
+                              builder: (context){
+                                List<dynamic> sides = widget.history.orderDetails[index]['sides'];
+
+                                // check if the are sides and display them
+                                if (sides.isNotEmpty){
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        child: ListView.builder(
+                                            itemCount: sides.length,
+                                            shrinkWrap: true,
+                                            physics: NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, sideIndex){
+                                              MenuItemOptionItemModel side
+                                              = MenuItemOptionItemModel.fromJson(sides[sideIndex]);
+
+                                              return Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    CustomText(
+                                                      text: "+ ${side.name}",
+                                                      fontSize: 12,
+                                                    ),
+                                                    CustomText(
+                                                      text: "${widget.history.orderDetails[index]['total'] - side.price}",
+                                                      fontSize: 12,
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return SizedBox.shrink();
+                              }
+                          )
+                        ],
+                      ),
+                    );
+                  }
+              );
+
+            }),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -258,8 +242,6 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
-    final cartInfo = ref.watch(cartInfoProvider);
-    final cart = ref.watch(cartProvider(widget.joint));
 
     return Scaffold(
       backgroundColor: kWhite,
@@ -268,18 +250,23 @@ class _ViewOrderState extends ConsumerState<ViewOrder> {
           color: kWhite,
           onBackTap: () async {
             try{
-              await FoodOrdersModel.clearCart(
-                  userID: user.uid,
-                  jointID: widget.joint.jointID
-              );
 
-              ref.refresh(cartProvider(widget.joint));
-              ref.refresh(cartInfoProvider);
+              if (widget.inHistory){
+                Navigator.pop(context);
+              }
+              else{
+                await FoodOrdersModel.clearCart(
+                    userID: user.uid,
+                    jointID: widget.joint.jointID
+                );
 
-              Navigator.pop(context);
-              Navigator.pop(context);
-              Navigator.pop(context);
+                ref.refresh(cartProvider(widget.joint));
+                ref.refresh(cartInfoProvider);
 
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.pop(context);
+              }
             }
             catch(exception){
               log(exception.toString());

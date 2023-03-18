@@ -170,10 +170,6 @@ class _FoodOptionsState extends ConsumerState<FoodSideOptions> {
 
   Widget menuItemOptionItems(){
 
-    log("CATEGORY ID: " + ref.read(widget.menuItemInfo.item3));
-    log("JOINT ID: ${widget.menuItemInfo.item2.jointID}");
-    log("MENU ITEM ID: ${widget.menuItemInfo.item1.id}");
-
     final sideOptions = ref.read(widget.sideOptionsProvider(widget.menuItemInfo));
 
     return sideOptions.when(
