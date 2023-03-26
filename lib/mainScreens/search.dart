@@ -35,9 +35,14 @@ class _SearchState extends ConsumerState<Search> {
 
   @override
   void initState() {
-    if (widget.searchValue != null){
-      _searchController.text = widget.searchValue!;
-    }
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+
+      if (widget.searchValue != null){
+        _searchController.text = widget.searchValue!;
+        ref.read(_searchProvider.notifier).state = widget.searchValue!;
+      }
+    });
 
     super.initState();
   }
@@ -250,11 +255,11 @@ class _SearchState extends ConsumerState<Search> {
     final _currentPage = ref.watch(_currentPageProvider);
     final _searchValue = ref.watch(_searchProvider);
 
-    // Check if the user made a search from another page
-    if (widget.searchValue != null){
-      final foodResults = ref.watch(foodResultsProvider(widget.searchValue!));
-      final eventResults = ref.watch(eventResultsProvider(widget.searchValue!));
-    }
+    // // Check if the user made a search from another page
+    // if (widget.searchValue != null){
+    //   final foodResults = ref.watch(foodResultsProvider(widget.searchValue!));
+    //   final eventResults = ref.watch(eventResultsProvider(widget.searchValue!));
+    // }
 
     return Scaffold(
       body: SafeArea(

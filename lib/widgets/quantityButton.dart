@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fairstores/constants.dart';
 import 'package:fairstores/providers/cartInfoProvider.dart';
 import 'package:fairstores/widgets/customText.dart';
@@ -24,7 +26,7 @@ class QuantityButton extends ConsumerStatefulWidget {
 class _QuantityButtonState extends ConsumerState<QuantityButton> {
   @override
   Widget build(BuildContext context) {
-    final _cartList = ref.watch(cartInfoProvider);
+    final _cartInfo = ref.watch(cartInfoProvider);
     final _count = ref.watch(widget.quantityProvider);
 
     if (widget.inCart){
@@ -103,12 +105,20 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
                 onPressed: (){
                   // decrease the quantity when this button is closed
                   if (_cartList[widget.orderID]!.quantity > 0){
+
                     _cartList[widget.orderID]!.quantity
                     = _cartList[widget.orderID]!.quantity - 1;
 
                     // update the quantity of the current order
                     ref.read(widget.quantityProvider.notifier).state
                     = _cartList[widget.orderID]!.quantity - 1;
+
+
+                    /// Checking if the quantity of the current order is 0, if it
+                    /// is, it removes the order from the cart.
+                    // if (_cartList[widget.orderID]!.quantity == 0){
+                    //   _cartList.remove(widget.orderID);
+                    // }
 
                     // update the cart items with the updated order
                     ref.read(cartInfoProvider.notifier).state = _cartList;

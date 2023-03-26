@@ -261,19 +261,6 @@ class _FoodCheckoutState extends ConsumerState<FoodCheckout> {
     );
   }
 
-  // schoolList() async {
-  //   QuerySnapshot snapshot = await schoolRef.get();
-  //   List<String> schoollist = [];
-  //   for (var doc in snapshot.docs) {
-  //     SchoolModel schoolModel = SchoolModel.fromDocument(doc);
-  //     schoollist.add(schoolModel.schoolname);
-  //   }
-  //
-  //   setState(() {
-  //     this.schoollist = schoollist;
-  //   });
-  // }
-
   Widget checkout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

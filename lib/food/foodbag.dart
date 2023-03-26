@@ -164,25 +164,29 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                     itemCount: cartInfo.length,
                     shrinkWrap: true,
                     itemBuilder: (context, index){
-                      final _quantityProvider = StateProvider.autoDispose<int>(
-                        (ref) => cartInfo.values.elementAt(index).quantity
-                      );
 
-                      final quantity = ref.watch(_quantityProvider);
-                      return Container(
-                        decoration: BoxDecoration(
-                            border: index != cartInfo.length -1
-                                ? Border(
-                                bottom:  BorderSide(
-                                    color: kLabelColor
-                                )
-                            ) : null
-                        ),
-                        child: CartItem(
-                          order: cartInfo.values.elementAt(index),
-                          quantityProvider: _quantityProvider
-                        ),
-                      );
+                      if (cartInfo.values.elementAt(index).quantity > 0){
+                        final _quantityProvider = StateProvider.autoDispose<int>(
+                                (ref) => cartInfo.values.elementAt(index).quantity
+                        );
+
+                        final quantity = ref.watch(_quantityProvider);
+                        return Container(
+                          decoration: BoxDecoration(
+                              border: index != cartInfo.length -1
+                                  ? Border(
+                                  bottom:  BorderSide(
+                                      color: kLabelColor
+                                  )
+                              ) : null
+                          ),
+                          child: CartItem(
+                              order: cartInfo.values.elementAt(index),
+                              quantityProvider: _quantityProvider
+                          ),
+                        );
+                      }
+
                     }
                   )
                 )
@@ -287,6 +291,31 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                     SizedBox(height: 16,),
                     CustomButton(
                       onPressed: (){
+
+                        /// Checking if the cart is empty. If it is, it will return.
+                        if (cartInfo.isEmpty){
+                          return;
+                        }
+
+                        /// Checking if the current tab is Delivery and Delivery is
+                        /// not available or if the current tab is Pickup and Pickup
+                        /// is not available. If either of those conditions are
+                        /// true, it will show a snackbar with the message that the
+                        /// current tab is not available.
+                        if (_currentTab == "Delivery" && !widget.joint.deliveryAvailable
+                         || _currentTab == "Pickup" && !widget.joint.pickupAvailable){
+                          ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    '$_currentTab is not available'
+                                )
+                              )
+                          );
+
+                          return;
+                        }
+
                         try{
                           // update the cart
                           FoodOrdersModel.updateCart(
@@ -326,54 +355,6 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                           );
 
                         }
-
-                        // if (_currentTab == 'Delivery' &&
-                        //     widget.joint.deliveryAvailable) {
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder: (context) =>
-                        //         FoodCheckout(
-                        //           userid: user.uid,
-                        //           shopid: widget.joint.jointID,
-                        //           deliveryfee: widget.joint.price,
-                        //           taxes: double.parse(securityInfo.taxFee.toString()),
-                        //           total: totalAmount(),
-                        //           school: user.school!,
-                        //           servicecharge: securityInfo.serviceCharge,
-                        //           deliverytime: widget.joint.deliveryTime,
-                        //         ),
-                        //     )
-                        //   );
-                        // } else if (_currentTab == 'Pickup' &&
-                        //     widget.joint.pickupAvailable) {
-                        //   // Navigator.push(
-                        //   //   context,
-                        //   //   MaterialPageRoute(
-                        //   //     builder: (context) =>
-                        //   //       FoodCheckout(
-                        //   //         userid: widget.user,
-                        //   //         shopid: widget.shopid,
-                        //   //         deliveryfee: delivery,
-                        //   //         taxes: taxes,
-                        //   //         total: total,
-                        //   //         school: widget.schoolname,
-                        //   //         servicecharge: servicecharge,
-                        //   //         deliverytime: deliverytime,
-                        //   //       ),
-                        //   //   )
-                        //   // );
-                        //   print('pick available');
-                        // } else {
-                        //   ScaffoldMessenger.of(context)
-                        //     .showSnackBar(
-                        //       SnackBar(
-                        //         content: Text(
-                        //             '$_currentTab is not available'
-                        //         )
-                        //       )
-                        //   );
-                        // }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
