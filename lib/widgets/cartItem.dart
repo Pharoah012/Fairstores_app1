@@ -66,10 +66,12 @@ class CartItem extends ConsumerWidget {
               )
             ],
           ),
-          QuantityButton(
-            inCart: true,
-            orderID: order.orderID,
-            quantityProvider: quantityProvider,
+          Expanded(
+            child: QuantityButton(
+              inCart: true,
+              orderID: order.orderID,
+              quantityProvider: quantityProvider,
+            ),
           )
         ],
       ),

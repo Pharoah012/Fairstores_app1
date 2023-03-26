@@ -396,286 +396,288 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       builder: (context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.85,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-                children: [
-                  CustomText(
-                    text: 'Create your account',
-                    color: kBrownText,
-                    fontSize: 20,
-                    isMediumWeight: true,
-                  ),
-                  SizedBox(height: 4,),
-                  CustomText(
-                    text: 'Create an account today. '
-                        'Tap the button below and start engaging with a '
-                        'variety of joints',
-                    isCenter: true,
-                    color: kDarkGrey,
-                  ),
-                  signUpForm(
-                      signUpPasswordController: signUpPasswordController,
-                      signUpPhoneController: signUpPhoneController
-                  ),
-                  CustomButton(
-                    onPressed: () async {
-                      if (!_signupformKey.currentState!.validate()) {
-                        return;
-                      }
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                  children: [
+                    CustomText(
+                      text: 'Create your account',
+                      color: kBrownText,
+                      fontSize: 20,
+                      isMediumWeight: true,
+                    ),
+                    SizedBox(height: 4,),
+                    CustomText(
+                      text: 'Create an account today. '
+                          'Tap the button below and start engaging with a '
+                          'variety of joints',
+                      isCenter: true,
+                      color: kDarkGrey,
+                    ),
+                    signUpForm(
+                        signUpPasswordController: signUpPasswordController,
+                        signUpPhoneController: signUpPhoneController
+                    ),
+                    CustomButton(
+                      onPressed: () async {
+                        if (!_signupformKey.currentState!.validate()) {
+                          return;
+                        }
 
-                      showDialog(
-                        context: context,
-                        builder: (context) => CustomLoader()
-                      );
+                        showDialog(
+                            context: context,
+                            builder: (context) => CustomLoader()
+                        );
 
-                      // send OTP to verify the user's number
-                      await _auth.sendOTPForVerification(
-                        phoneNumber: signUpPhoneController.text,
-                        ref: ref
-                      );
+                        // send OTP to verify the user's number
+                        await _auth.sendOTPForVerification(
+                            phoneNumber: signUpPhoneController.text,
+                            ref: ref
+                        );
 
-                      // remove the loader
-                      Navigator.of(context).pop();
+                        // remove the loader
+                        Navigator.of(context).pop();
 
-                      // show OTP drawer
-                      otpDrawer(
-                          phoneNumber: signUpPhoneController.text,
-                          verificationLogic: () async {
+                        // show OTP drawer
+                        otpDrawer(
+                            phoneNumber: signUpPhoneController.text,
+                            verificationLogic: () async {
 
-                            // verifiy the user's OTP input
-                            Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
-                              otp: otpController.text,
-                              ref: ref
-                            );
-
-                            // check if the user's input is valid
-                            if (verifyOTP['type'] == "error"){
-                              // clear the otp
-                              otpController.clear();
-
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => verifyOTP['object']
-                              );
-                            }
-                            else {
-                              // Remove OTP drawer
-                              Navigator.of(context).pop();
-
-                              // clear the otp
-                              otpController.clear();
-
-                              // show loader while sign up process is ongoing
-                              showDialog(
-                                context: context,
-                                builder: (context) => CustomLoader()
+                              // verifiy the user's OTP input
+                              Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
+                                  otp: otpController.text,
+                                  ref: ref
                               );
 
-                              // check if the user exists
-                              Map<String, dynamic> getUser = await _auth
-                                  .isUserAMember(
-                                  phoneNumber: signUpPhoneController.text
-                              );
-
-                              // throw an error when the user does not exist
-                              if (getUser['type'] != "error"){
-                                log("message");
-                                // remove the loader
-                                Navigator.of(context).pop();
+                              // check if the user's input is valid
+                              if (verifyOTP['type'] == "error"){
+                                // clear the otp
+                                otpController.clear();
 
                                 showDialog(
-                                  context: context,
-                                  builder: (context) => CustomError(
-                                    errorMessage: "An account with these credentials already exists",
-                                    oneRemove: true,
-                                  )
+                                    context: context,
+                                    builder: (context) => verifyOTP['object']
                                 );
-
                               }
-                              else{
-                                Map<String, dynamic> signUp = await _auth.signUp(
-                                    phoneAuthCredential: verifyOTP['object'],
-                                    phoneNumber: signUpPhoneController.text,
-                                    password: signUpPasswordController.text
+                              else {
+                                // Remove OTP drawer
+                                Navigator.of(context).pop();
+
+                                // clear the otp
+                                otpController.clear();
+
+                                // show loader while sign up process is ongoing
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => CustomLoader()
                                 );
 
-                                if (signUp['type'] == "error"){
+                                // check if the user exists
+                                Map<String, dynamic> getUser = await _auth
+                                    .isUserAMember(
+                                    phoneNumber: signUpPhoneController.text
+                                );
+
+                                // throw an error when the user does not exist
+                                if (getUser['type'] != "error"){
+                                  log("message");
                                   // remove the loader
                                   Navigator.of(context).pop();
 
                                   showDialog(
                                       context: context,
-                                      builder: (context) => signUp['object']
+                                      builder: (context) => CustomError(
+                                        errorMessage: "An account with these credentials already exists",
+                                        oneRemove: true,
+                                      )
                                   );
-
 
                                 }
                                 else{
-                                  // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
-                                  // close the otp drawer and sign up screens
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
+                                  Map<String, dynamic> signUp = await _auth.signUp(
+                                      phoneAuthCredential: verifyOTP['object'],
+                                      phoneNumber: signUpPhoneController.text,
+                                      password: signUpPasswordController.text
+                                  );
 
-                                  // redirect the user to login
-                                  showLogin();
+                                  if (signUp['type'] == "error"){
+                                    // remove the loader
+                                    Navigator.of(context).pop();
+
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) => signUp['object']
+                                    );
+
+
+                                  }
+                                  else{
+                                    // TODO: SHOw ALERT DIALOG FOR CREATION SUCCESS
+                                    // close the otp drawer and sign up screens
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+
+                                    // redirect the user to login
+                                    showLogin();
+                                  }
                                 }
                               }
                             }
-                          }
-                      );
-                    },
-                    text: "Sign Up",
-                    isOrange: true,
-                  ),
-                  SizedBox(height: 20,),
-                  RichText(
-                    text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: 'Have an account? ',
-                              style: GoogleFonts.manrope(
-                                  color: const Color(0xff333333),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14
-                              )
-                          ),
-                          TextSpan(
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  Navigator.pop(context);
-                                  showLogin();
-                                },
-                              text: 'Sign in',
-                              style: GoogleFonts.manrope(
-                                  color: kPrimary,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14
-                              )
-                          )
-                        ]
+                        );
+                      },
+                      text: "Sign Up",
+                      isOrange: true,
                     ),
-                  ),
-                  SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                        color: kBrownText,
-                        height: 0.8,
-                        width: 140,
+                    SizedBox(height: 20,),
+                    RichText(
+                      text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: 'Have an account? ',
+                                style: GoogleFonts.manrope(
+                                    color: const Color(0xff333333),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14
+                                )
+                            ),
+                            TextSpan(
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.pop(context);
+                                    showLogin();
+                                  },
+                                text: 'Sign in',
+                                style: GoogleFonts.manrope(
+                                    color: kPrimary,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14
+                                )
+                            )
+                          ]
                       ),
-                      CustomText(
-                          text: "OR",
+                    ),
+                    SizedBox(height: 20,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
                           color: kBrownText,
-                          isMediumWeight: true
-                      ),
-                      Container(
-                        color: kBrownText,
-                        height: 0.8,
-                        width: 140,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 30,),
-                  Builder(builder: (context){
-                    if (Platform.isIOS){
-                      return Column(
-                        children: [
-                          CustomSocialAuthButton(
-                            isSignIn: false,
-                            onPressed: () async {
-                              Map<String, dynamic> signUp = await _auth.socialAuthentication(
-                                  authMethod: "apple",
-                                  isSignIn: false
-                              );
-
-                              if (signUp['type'] == "error"){
-                                return showDialog(
-                                    context: context,
-                                    builder: (context) => signUp['object']
+                          height: 0.8,
+                          width: 140,
+                        ),
+                        CustomText(
+                            text: "OR",
+                            color: kBrownText,
+                            isMediumWeight: true
+                        ),
+                        Container(
+                          color: kBrownText,
+                          height: 0.8,
+                          width: 140,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30,),
+                    Builder(builder: (context){
+                      if (Platform.isIOS){
+                        return Column(
+                          children: [
+                            CustomSocialAuthButton(
+                              isSignIn: false,
+                              onPressed: () async {
+                                Map<String, dynamic> signUp = await _auth.socialAuthentication(
+                                    authMethod: "apple",
+                                    isSignIn: false
                                 );
-                              }
 
-                              // check if the sign up object is an auth method
-                              // meaning that the user does not have an account
-                              if (signUp['object'] is String){
-                                ref.read(userProvider.notifier).state = UserModel(
-                                    ismanager: false,
-                                    uid: ref.read(authProvider).currentUser!.uid,
-                                    email: ref.read(authProvider).currentUser!.email,
-                                    username: ref.read(authProvider).currentUser!.displayName
+                                if (signUp['type'] == "error"){
+                                  return showDialog(
+                                      context: context,
+                                      builder: (context) => signUp['object']
+                                  );
+                                }
+
+                                // check if the sign up object is an auth method
+                                // meaning that the user does not have an account
+                                if (signUp['object'] is String){
+                                  ref.read(userProvider.notifier).state = UserModel(
+                                      ismanager: false,
+                                      uid: ref.read(authProvider).currentUser!.uid,
+                                      email: ref.read(authProvider).currentUser!.email,
+                                      username: ref.read(authProvider).currentUser!.displayName
+                                  );
+                                }
+                                else{
+                                  // set the user provider to the user object that is returned
+                                  ref.read(userProvider.notifier).state = signUp['object'];
+                                }
+
+                                // redirect the user to homeScreen
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => HomeScreen(
+                                          isSocialAuth: true,
+                                        )
+                                    ),
+                                        (route)=> false
                                 );
-                              }
-                              else{
-                                // set the user provider to the user object that is returned
-                                ref.read(userProvider.notifier).state = signUp['object'];
-                              }
 
-                              // redirect the user to homeScreen
-                              Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeScreen(
-                                        isSocialAuth: true,
-                                      )
-                                  ),
-                                      (route)=> false
-                              );
-
-                            },
-                          ),
-                          SizedBox(height: 15,),
-                        ],
-                      );
-                    }
-
-                    return SizedBox.shrink();
-                  }),
-                  CustomSocialAuthButton(
-                    isApple: false,
-                    isSignIn: false,
-                    onPressed: () async {
-
-                      Map<String, dynamic> signUp = await _auth.socialAuthentication(
-                        authMethod: "google",
-                      );
-
-                      if (signUp['type'] == "error"){
-                        return showDialog(
-                            context: context,
-                            builder: (context) => signUp['object']
+                              },
+                            ),
+                            SizedBox(height: 15,),
+                          ],
                         );
                       }
 
-                      // check if the sign up object is an auth method
-                      // meaning that the user does not have an account
-                      if (signUp['object'] is String){
-                        ref.read(userProvider.notifier).state = UserModel(
-                            ismanager: false,
-                            uid: ref.read(authProvider).currentUser!.uid,
-                            email: ref.read(authProvider).currentUser!.email,
-                            username: ref.read(authProvider).currentUser!.displayName
-                        );
-                      }
-                      else{
-                        // set the user provider to the user object that is returned
-                        ref.read(userProvider.notifier).state = signUp['object'];
-                      }
+                      return SizedBox.shrink();
+                    }),
+                    CustomSocialAuthButton(
+                      isApple: false,
+                      isSignIn: false,
+                      onPressed: () async {
 
-                      // redirect the user to homeScreen
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (context) => HomeScreen(
-                                isSocialAuth: true,
-                              )
-                          ),
-                              (route)=> false
-                      );
-                    },
-                  )
-                ]
+                        Map<String, dynamic> signUp = await _auth.socialAuthentication(
+                          authMethod: "google",
+                        );
+
+                        if (signUp['type'] == "error"){
+                          return showDialog(
+                              context: context,
+                              builder: (context) => signUp['object']
+                          );
+                        }
+
+                        // check if the sign up object is an auth method
+                        // meaning that the user does not have an account
+                        if (signUp['object'] is String){
+                          ref.read(userProvider.notifier).state = UserModel(
+                              ismanager: false,
+                              uid: ref.read(authProvider).currentUser!.uid,
+                              email: ref.read(authProvider).currentUser!.email,
+                              username: ref.read(authProvider).currentUser!.displayName
+                          );
+                        }
+                        else{
+                          // set the user provider to the user object that is returned
+                          ref.read(userProvider.notifier).state = signUp['object'];
+                        }
+
+                        // redirect the user to homeScreen
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen(
+                                  isSocialAuth: true,
+                                )
+                            ),
+                                (route)=> false
+                        );
+                      },
+                    )
+                  ]
+              ),
             ),
-          ),
+          )
         );
       },
       barrierColor: kPrimary,
@@ -699,293 +701,296 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       context: context,
       builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.85,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-            CustomText(
-              text: 'Login to your account',
-              fontSize: 20,
-              color: kBrownText,
-              isMediumWeight: true,
-            ),
-            const SizedBox(height: 4.0,),
-            CustomText(
-              text: 'Lets lead you right back to your page. '
-                  'Tap the button below',
-              isCenter: true,
-              color: kDarkGrey,
-            ),
-            loginForm(
-              phoneNumberController: loginPhoneController,
-              passwordController: loginPasswordController
-            ),
-            CustomButton(
-              onPressed: () async {
-                if (_loginformKey.currentState!.validate()) {
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+              CustomText(
+                text: 'Login to your account',
+                fontSize: 20,
+                color: kBrownText,
+                isMediumWeight: true,
+              ),
+              const SizedBox(height: 4.0,),
+              CustomText(
+                text: 'Lets lead you right back to your page. '
+                    'Tap the button below',
+                isCenter: true,
+                color: kDarkGrey,
+              ),
+              loginForm(
+                phoneNumberController: loginPhoneController,
+                passwordController: loginPasswordController
+              ),
+              CustomButton(
+                onPressed: () async {
+                  if (_loginformKey.currentState!.validate()) {
 
-                  // show the loader
-                  showDialog(
-                    context: context,
-                    builder: (context) => CustomLoader()
-                  );
-
-                  // check if the user exists
-                  Map<String, dynamic> getUser = await _auth
-                      .isUserAMember(phoneNumber: loginPhoneController.text);
-
-
-
-                  // throw an error when the user does not exist
-                  if (getUser['type'] == "error"){
-                    // remove the loader
-                    Navigator.of(context).pop();
-
+                    // show the loader
                     showDialog(
                       context: context,
-                      builder: (context) => getUser['object']
+                      builder: (context) => CustomLoader()
                     );
 
+                    // check if the user exists
+                    Map<String, dynamic> getUser = await _auth
+                        .isUserAMember(phoneNumber: loginPhoneController.text);
 
-                  }
-                  else{
 
-                    // check the user's password input and target account
-                    // password are equal
-                    bool verifyPassword = _auth.verifyLoginPassword(
-                      loginPassword: loginPasswordController.text,
-                      userPassword: getUser['object'].password
-                    );
 
-                    if (!verifyPassword){
+                    // throw an error when the user does not exist
+                    if (getUser['type'] == "error"){
+                      // remove the loader
+                      Navigator.of(context).pop();
+
                       showDialog(
                         context: context,
-                        builder: (context) => CustomError(
-                          errorMessage: "There is no account associated "
-                              "with the given credentials."
-                        )
+                        builder: (context) => getUser['object']
                       );
+
+
                     }
+                    else{
 
-                    // Send the OTP
-                    await _auth.sendOTPForVerification(
-                      phoneNumber: loginPhoneController.text,
-                      ref: ref
-                    );
+                      // check the user's password input and target account
+                      // password are equal
+                      bool verifyPassword = _auth.verifyLoginPassword(
+                        loginPassword: loginPasswordController.text,
+                        userPassword: getUser['object'].password
+                      );
 
-                    // remove the loader
-                    Navigator.of(context, rootNavigator: true).pop();
-
-                    // show OTP drawer for user to verify the OTP
-                    // that was sent
-
-                    otpDrawer(
-                      phoneNumber: loginPhoneController.text,
-                      verificationLogic: () async {
-
-                        Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
-                          otp: otpController.text,
-                          ref: ref
+                      if (!verifyPassword){
+                        showDialog(
+                          context: context,
+                          builder: (context) => CustomError(
+                            errorMessage: "There is no account associated "
+                                "with the given credentials."
+                          )
                         );
+                      }
 
-                        // check if the user's input is valid
-                        if (verifyOTP['type'] == "error"){
-                          // clear the otp
-                          otpController.clear();
+                      // Send the OTP
+                      await _auth.sendOTPForVerification(
+                        phoneNumber: loginPhoneController.text,
+                        ref: ref
+                      );
 
-                          showDialog(
-                              context: context,
-                              builder: (context) => verifyOTP['object']
+                      // remove the loader
+                      Navigator.of(context, rootNavigator: true).pop();
+
+                      // show OTP drawer for user to verify the OTP
+                      // that was sent
+
+                      otpDrawer(
+                        phoneNumber: loginPhoneController.text,
+                        verificationLogic: () async {
+
+                          Map<String, dynamic> verifyOTP = await _auth.verfiyOTP(
+                            otp: otpController.text,
+                            ref: ref
                           );
-                        }
-                        else {
-                          // clear the otp
-                          otpController.clear();
 
-                          Map<String, dynamic> login = await _auth.login(
-                              credential: verifyOTP['object'],
-                          );
-
-                          if (login['type'] == "error"){
-                            // remove the loader
-                            Navigator.of(context).pop();
+                          // check if the user's input is valid
+                          if (verifyOTP['type'] == "error"){
+                            // clear the otp
+                            otpController.clear();
 
                             showDialog(
                                 context: context,
-                                builder: (context) => login['object']
+                                builder: (context) => verifyOTP['object']
+                            );
+                          }
+                          else {
+                            // clear the otp
+                            otpController.clear();
+
+                            Map<String, dynamic> login = await _auth.login(
+                                credential: verifyOTP['object'],
+                            );
+
+                            if (login['type'] == "error"){
+                              // remove the loader
+                              Navigator.of(context).pop();
+
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => login['object']
+                              );
+                            }
+                            else{
+                              ref.read(userProvider.notifier).state = login['object'];
+
+                              Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()
+                                  ),
+                                      (route)=> false
+                              );
+                            }
+
+                          }
+                        },
+
+                      );
+
+                    }
+                  }
+                },
+                text: "Log In",
+                isOrange: true,
+                width: MediaQuery.of(context).size.width,
+              ),
+              SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RichText(
+                    text: TextSpan(children: <TextSpan>[
+                      TextSpan(
+                        text: 'Don\'t have an account? ',
+                        style: GoogleFonts.manrope(
+                          color: const Color(0xff333333),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14
+                        )
+                      ),
+                      TextSpan(
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.pop(context);
+                            showSignup();
+                          },
+                        text: 'Sign up',
+                        style: GoogleFonts.manrope(
+                            color: kPrimary,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14
+                        )
+                      )
+                    ]
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 40,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    color: kBrownText,
+                    height: 0.8,
+                    width: 140,
+                  ),
+                  CustomText(
+                    text: "OR",
+                    isMediumWeight: true,
+                    color: kBrownText,
+                  ),
+                  Container(
+                    color: kBrownText,
+                    height: 0.8,
+                    width: 140,
+                  ),
+                ],
+              ),
+              SizedBox(height: 30,),
+              Builder(builder: (context){
+                if (Platform.isIOS){
+                  return Column(
+                    children: [
+                      CustomSocialAuthButton(
+                        onPressed: () async {
+
+                          Map<String, dynamic> signIn = await _auth.socialAuthentication(
+                            authMethod: "apple",
+                          );
+
+                          if (signIn['type'] == "error"){
+                            return showDialog(
+                                context: context,
+                                builder: (context) => signIn['object']
+                            );
+                          }
+
+                          // check if the sign in object is an auth method
+                          // meaning that the user does not have an account
+                          if (signIn['object'] is String){
+                            ref.read(userProvider.notifier).state = UserModel(
+                                ismanager: false,
+                                uid: ref.read(authProvider).currentUser!.uid,
+                                email: ref.read(authProvider).currentUser!.email,
+                                username: ref.read(authProvider).currentUser!.displayName
                             );
                           }
                           else{
-                            ref.read(userProvider.notifier).state = login['object'];
-
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => HomeScreen()
-                                ),
-                                    (route)=> false
-                            );
+                            // set the user provider to the user object that is returned
+                            ref.read(userProvider.notifier).state = signIn['object'];
                           }
 
-                        }
-                      },
-
-                    );
-
-                  }
-                }
-              },
-              text: "Log In",
-              isOrange: true,
-              width: MediaQuery.of(context).size.width,
-            ),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(children: <TextSpan>[
-                    TextSpan(
-                      text: 'Don\'t have an account? ',
-                      style: GoogleFonts.manrope(
-                        color: const Color(0xff333333),
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14
-                      )
-                    ),
-                    TextSpan(
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.pop(context);
-                          showSignup();
+                          // redirect the user to homeScreen
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => HomeScreen(
+                                    isSocialAuth: true,
+                                  )
+                              ),
+                                  (route)=> false
+                          );
                         },
-                      text: 'Sign up',
-                      style: GoogleFonts.manrope(
-                          color: kPrimary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14
-                      )
-                    )
-                  ]
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 40,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  color: kBrownText,
-                  height: 0.8,
-                  width: 140,
-                ),
-                CustomText(
-                  text: "OR",
-                  isMediumWeight: true,
-                  color: kBrownText,
-                ),
-                Container(
-                  color: kBrownText,
-                  height: 0.8,
-                  width: 140,
-                ),
-              ],
-            ),
-            SizedBox(height: 30,),
-            Builder(builder: (context){
-              if (Platform.isIOS){
-                return Column(
-                  children: [
-                    CustomSocialAuthButton(
-                      onPressed: () async {
-
-                        Map<String, dynamic> signIn = await _auth.socialAuthentication(
-                          authMethod: "apple",
-                        );
-
-                        if (signIn['type'] == "error"){
-                          return showDialog(
-                              context: context,
-                              builder: (context) => signIn['object']
-                          );
-                        }
-
-                        // check if the sign in object is an auth method
-                        // meaning that the user does not have an account
-                        if (signIn['object'] is String){
-                          ref.read(userProvider.notifier).state = UserModel(
-                              ismanager: false,
-                              uid: ref.read(authProvider).currentUser!.uid,
-                              email: ref.read(authProvider).currentUser!.email,
-                              username: ref.read(authProvider).currentUser!.displayName
-                          );
-                        }
-                        else{
-                          // set the user provider to the user object that is returned
-                          ref.read(userProvider.notifier).state = signIn['object'];
-                        }
-
-                        // redirect the user to homeScreen
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen(
-                                  isSocialAuth: true,
-                                )
-                            ),
-                                (route)=> false
-                        );
-                      },
-                    ),
-                    SizedBox(height: 15,),
-                  ],
-                );
-              }
-
-              return SizedBox.shrink();
-            }),
-            CustomSocialAuthButton(
-              isApple: false,
-              onPressed: () async {
-
-                Map<String, dynamic> signIn = await _auth.socialAuthentication(
-                  authMethod: "google",
-                );
-
-                if (signIn['type'] == "error"){
-                  return showDialog(
-                      context: context,
-                      builder: (context) => signIn['object']
+                      ),
+                      SizedBox(height: 15,),
+                    ],
                   );
                 }
 
-                // check if the sign in object is an auth method
-                // meaning that the user does not have an account
-                if (signIn['object'] is String){
-                  ref.read(userProvider.notifier).state = UserModel(
-                      ismanager: false,
-                      uid: ref.read(authProvider).currentUser!.uid,
-                      email: ref.read(authProvider).currentUser!.email,
-                      username: ref.read(authProvider).currentUser!.displayName
+                return SizedBox.shrink();
+              }),
+              CustomSocialAuthButton(
+                isApple: false,
+                onPressed: () async {
+
+                  Map<String, dynamic> signIn = await _auth.socialAuthentication(
+                    authMethod: "google",
                   );
-                }
-                else{
-                  // set the user provider to the user object that is returned
-                  ref.read(userProvider.notifier).state = signIn['object'];
-                }
+
+                  if (signIn['type'] == "error"){
+                    return showDialog(
+                        context: context,
+                        builder: (context) => signIn['object']
+                    );
+                  }
+
+                  // check if the sign in object is an auth method
+                  // meaning that the user does not have an account
+                  if (signIn['object'] is String){
+                    ref.read(userProvider.notifier).state = UserModel(
+                        ismanager: false,
+                        uid: ref.read(authProvider).currentUser!.uid,
+                        email: ref.read(authProvider).currentUser!.email,
+                        username: ref.read(authProvider).currentUser!.displayName
+                    );
+                  }
+                  else{
+                    // set the user provider to the user object that is returned
+                    ref.read(userProvider.notifier).state = signIn['object'];
+                  }
 
 
-                // redirect the user to homeScreen
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                        builder: (context) => HomeScreen(
-                          isSocialAuth: true,
-                        )
-                    ),
-                      (route)=> false
-                );
-              },
-            )
-          ]),
+                  // redirect the user to homeScreen
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => HomeScreen(
+                            isSocialAuth: true,
+                          )
+                      ),
+                        (route)=> false
+                  );
+                },
+              )
+            ]),
+          ),
         ),
       ),
       barrierColor: kPrimary,
@@ -1020,20 +1025,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               sliderInfo(),
               sliderindicator(),
               Spacer(),
-              CustomButton(
-                onPressed: (){
-                  showSignup();
-                },
-                text: 'Create an Account',
-                isOrange: true,
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: CustomButton(
+                  onPressed: (){
+                    showSignup();
+                  },
+                  text: 'Create an Account',
+                  isOrange: true,
+                ),
               ),
               SizedBox(height: 8.0,),
-              CustomButton(
-                  onPressed: (){
-                    showLogin();
-                  },
-                  text: 'Already have an account',
-                  isOrange: false
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: CustomButton(
+                    onPressed: (){
+                      showLogin();
+                    },
+                    text: 'Already have an account',
+                    isOrange: false
+                ),
               ),
               SizedBox(height: 20,),
               RichText(

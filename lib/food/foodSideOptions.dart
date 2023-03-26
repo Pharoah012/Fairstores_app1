@@ -363,6 +363,8 @@ class _FoodOptionsState extends ConsumerState<FoodSideOptions> {
                         content: Text('Please select all required options')
                       )
                     );
+
+                    return;
                   }
 
                   // Create the order model
@@ -445,13 +447,14 @@ class _FoodOptionsState extends ConsumerState<FoodSideOptions> {
     final _requiredFieldChecker = ref.watch(requiredCheckerProvider);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     color: kWhite,
@@ -476,14 +479,14 @@ class _FoodOptionsState extends ConsumerState<FoodSideOptions> {
                 ]
               ),
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: optionsFooter()
-          )
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: optionsFooter()
+            )
+          ],
+        ),
       ),
     );
   }

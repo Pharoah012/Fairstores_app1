@@ -23,13 +23,16 @@ class CustomError extends StatelessWidget {
         text: errorMessage,
       ),
       actions: [
-        CustomButton(
-          isOrange: true,
-          text: "Okay",
-          onPressed: (){
-            oneRemove == true ? null : Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: CustomButton(
+            isOrange: true,
+            text: "Okay",
+            onPressed: (){
+              oneRemove == true ? null : Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          ),
         )
       ],
     );

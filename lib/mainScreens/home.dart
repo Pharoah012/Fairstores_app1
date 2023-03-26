@@ -88,6 +88,7 @@ class _HomeState extends ConsumerState<Home> {
 
   homeButtons() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SizedBox(height: 20,),
         CustomHomeOption(
@@ -148,28 +149,30 @@ class _HomeState extends ConsumerState<Home> {
           && _user.username != null
           && _user.school != null
           && _user.number != null
-      ) ? SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              homeHeader(),
-              SizedBox(height: 20,),
-              CustomSearchField(
-                onSubmitted: (value){
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Search(
-                        searchValue: value
+      ) ? SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                homeHeader(),
+                SizedBox(height: 20,),
+                CustomSearchField(
+                  onSubmitted: (value){
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => Search(
+                          searchValue: value
+                        )
                       )
-                    )
-                  );
-                },
-              ),
-              homeButtons(),
-            ]
+                    );
+                  },
+                ),
+                homeButtons(),
+              ]
+            ),
           ),
         ),
       ) : SizedBox.shrink(),

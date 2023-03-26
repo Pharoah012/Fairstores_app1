@@ -421,7 +421,7 @@ class _FoodhomeState extends ConsumerState<FoodDetails> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 20,
+            bottom: 0,
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: itemInCart(),

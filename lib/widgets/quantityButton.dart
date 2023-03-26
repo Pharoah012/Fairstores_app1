@@ -87,97 +87,80 @@ class _QuantityButtonState extends ConsumerState<QuantityButton> {
   Widget cartQuantityButton(){
     final _cartList = ref.watch(cartInfoProvider);
 
-    return ElevatedButton(
-      onPressed: () {},
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              border: Border.all(color: kGrey),
-              borderRadius: BorderRadius.circular(1000)
-            ),
-            child: Center(
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: (){
-                  // decrease the quantity when this button is closed
-                  if (_cartList[widget.orderID]!.quantity > 0){
-
-                    _cartList[widget.orderID]!.quantity
-                    = _cartList[widget.orderID]!.quantity - 1;
-
-                    // update the quantity of the current order
-                    ref.read(widget.quantityProvider.notifier).state
-                    = _cartList[widget.orderID]!.quantity - 1;
-
-
-                    /// Checking if the quantity of the current order is 0, if it
-                    /// is, it removes the order from the cart.
-                    // if (_cartList[widget.orderID]!.quantity == 0){
-                    //   _cartList.remove(widget.orderID);
-                    // }
-
-                    // update the cart items with the updated order
-                    ref.read(cartInfoProvider.notifier).state = _cartList;
-
-                    // refresh the subtotal
-                    ref.invalidate(subTotalProvider);
-                  }
-                },
-                icon: Icon(
-                  Icons.remove,
-                  color: kGrey,
-                  size: 20,
-                )
-              ),
-            ),
-          ),
-          SizedBox(width: 5,),
-          CustomText(
-            text: ref.read(widget.quantityProvider).toString(), // _cartList[widget.orderID]!.quantity.toString(),
-            color: kBlack,
-            fontSize: 20,
-          ),
-          SizedBox(width: 5,),
-          CircleAvatar(
-            radius: 16.5,
-            backgroundColor: kPrimary,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(
+          radius: 16.5,
+          backgroundColor: kGrey,
+          child: CircleAvatar(
+            radius: 15,
+            backgroundColor: kScaffoldColor,
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: (){
+                // decrease the quantity when this button is closed
+                if (_cartList[widget.orderID]!.quantity > 0){
 
-                // increase the quantity when this button is closed
-                _cartList[widget.orderID]!.quantity
-                = _cartList[widget.orderID]!.quantity + 1;
+                  _cartList[widget.orderID]!.quantity
+                  = _cartList[widget.orderID]!.quantity - 1;
 
-                // update the quantity of the current order
-                ref.read(widget.quantityProvider.notifier).state
-                = _cartList[widget.orderID]!.quantity + 1;
+                  // update the quantity of the current order
+                  ref.read(widget.quantityProvider.notifier).state
+                  = _cartList[widget.orderID]!.quantity - 1;
 
-                // update the cart items with the updated order
-                ref.read(cartInfoProvider.notifier).state = _cartList;
+                  // update the cart items with the updated order
+                  ref.read(cartInfoProvider.notifier).state = _cartList;
 
-                // refresh the subtotal
-                ref.invalidate(subTotalProvider);
-
+                  // refresh the subtotal
+                  ref.invalidate(subTotalProvider);
+                }
               },
               icon: Icon(
-                Icons.add,
-                color: kBlack,
+                Icons.remove,
+                color: kGrey,
                 size: 20,
               )
             ),
           ),
-        ],
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        fixedSize: Size.fromHeight(56),
-      ),
+        ),
+        SizedBox(width: 5,),
+        CustomText(
+          text: ref.read(widget.quantityProvider).toString(), // _cartList[widget.orderID]!.quantity.toString(),
+          color: kBlack,
+          fontSize: 20,
+        ),
+        SizedBox(width: 5,),
+        CircleAvatar(
+          radius: 16.5,
+          backgroundColor: kPrimary,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            onPressed: (){
+
+              // increase the quantity when this button is closed
+              _cartList[widget.orderID]!.quantity
+              = _cartList[widget.orderID]!.quantity + 1;
+
+              // update the quantity of the current order
+              ref.read(widget.quantityProvider.notifier).state
+              = _cartList[widget.orderID]!.quantity + 1;
+
+              // update the cart items with the updated order
+              ref.read(cartInfoProvider.notifier).state = _cartList;
+
+              // refresh the subtotal
+              ref.invalidate(subTotalProvider);
+
+            },
+            icon: Icon(
+              Icons.add,
+              color: kBlack,
+              size: 20,
+            )
+          ),
+        ),
+      ],
     );
   }
 }
