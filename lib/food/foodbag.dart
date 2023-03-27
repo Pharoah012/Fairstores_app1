@@ -292,8 +292,18 @@ class _FoodBagState extends ConsumerState<FoodBag> {
                     CustomButton(
                       onPressed: (){
 
+
+
                         /// Checking if the cart is empty. If it is, it will return.
-                        if (cartInfo.isEmpty){
+                        bool cartIsEmpty = true;
+
+                        for (FoodOrdersModel food in cartInfo.values){
+                          if (food.quantity > 0){
+                            cartIsEmpty = false;
+                          }
+                        }
+
+                        if (cartIsEmpty){
                           return;
                         }
 
